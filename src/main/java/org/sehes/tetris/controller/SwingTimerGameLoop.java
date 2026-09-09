@@ -6,13 +6,8 @@ import java.awt.event.ActionListener;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The Main game loop listener that is triggered by the game loop timer. It
- * attempts to move the current piece down. If the piece cannot move down,
- * it adds the piece to the board, checks for and clears any completed
- * lines, updates the score, and tries to set a new piece. If a new piece
- * cannot be set, it means the game is over, so it updates the game state
- * and stops the game loop timer. After processing the game logic, it
- * repaints the canvas to reflect any changes in the game state.
+ * A Swing timer-driven game loop that measures elapsed time and publishes
+ * tick and FPS events. Game logic is delegated to observers of these events.
  */
 public class SwingTimerGameLoop implements ActionListener, GameLoop {
     private static final int FPS = 60;
