@@ -105,8 +105,8 @@ public class GameManager implements InputHandler {
     private void onTickUpdate(Long elapsedTime) {
         if (stateManager.getState() == NEW_GAME || stateManager.getState() == PLAYING) {
             gravityUpdate(elapsedTime);
+            render();
         }
-        render();
     }
 
     private void gravityUpdate(Long elapsedTime) {
