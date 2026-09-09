@@ -376,10 +376,12 @@ public class GameBoard {
      * boundaries, {@code false} otherwise.
      */
     private boolean isInTheBoundaries(List<Coordinate> newStateCord, int positionX, int positionY) {
+        int width = board[0].length;
+        int height = board.length;
         for (Coordinate cord : newStateCord) {
             int newX = cord.x() + positionX;
             int newY = cord.y() + positionY;
-            if (newX < 0 || newY < 0 || newX >= board[0].length || newY >= board.length) {
+            if (newX < 0 || newY < 0 || newX >= width || newY >= height) {
                 return false;
             }
         }
