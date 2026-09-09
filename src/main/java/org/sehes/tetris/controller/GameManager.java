@@ -66,10 +66,7 @@ public class GameManager implements InputHandler {
     }
 
     /**
-     * Starts the Tetris application by initializing the game state, creating
-     * game loop timer, and setting up the game window. The game loop timer is
-     * configured to trigger the main game loop at a fixed interval defined by
-     * GameParameters.GAME_SPEED.
+     * initialize the GameManger by wiring the main canvas and exitGameCallBack
      */
     public void prepareGame(Rendering canvas, Runnable exitAction) {
         if (stateManager.getState() == INIT) {
