@@ -14,12 +14,7 @@ import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.SoftDropEvent;
 import org.sehes.tetris.model.score.TSpin;
 
-import javax.swing.Timer;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -38,51 +33,44 @@ import static org.sehes.tetris.controller.GameState.PREPARED;
  * rotating pieces, as well as pausing and resuming the game.
  */
 public class GameManager implements InputHandler {
-
-    private static final int FPS = 60;
-    private static final int FRAME_TIME_MS = 1000 / FPS;
-    private static final int BASE_SPEED = 600;
-    private final ObservableImpl<TetrominoType> spawnObservable = new ObservableImpl<>();
-    private final ObservableImpl<TetrominoType> holdObservable = new ObservableImpl<>();
-
+    private final Observable.Publisher<TetrominoType> spawnObservable = new ObservableImpl<>();
+    private final Observable.Publisher<TetrominoType> holdObservable = new ObservableImpl<>();
+    private final Observer<Long> tickObserver = this::onTickUpdate;
     private final StateManager<GameState> stateManager;
     private final PieceGenerator generator;
     private final AtomicBoolean isDirty = new AtomicBoolean(false); // is full redraw needed?
-    private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
-    private final MainLoopListener gameLoop = new MainLoopListener();
     private final ScoreMessenger scoreMessenger;
     private Rendering tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
-    private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
-    // Loop Time vars
-    private long prevTime;
-    private long gravityAccumulator;
-    // FPS vars
-    private int frameCount = 0;
-    private long fpsTimer = 0;
     private Runnable gameExit = () -> System.exit(0);
     private GhostType ghostType;
     private TetrominoType holdTetromino;
     private boolean isHoldLock = false;
+    private static final int BASE_SPEED = 600;
+    //loop Variables
+    private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
+    private long gravityAccumulator;
+    private final GameLoop gameLoop;
 
-    public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger, PieceGenerator generator) {
+    public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger, PieceGenerator generator, GameLoop loop) {
         this.generator = generator;
         this.ghostType = GhostType.FULL;
         this.stateManager = stateManager;
         this.scoreMessenger = scoreMessenger;
         this.holdTetromino = null;
+        this.gameLoop = loop;
+    }
+
+    public Observer<Long> tickObserver() {
+        return tickObserver;
     }
 
     /**
-     * Starts the Tetris application by initializing the game state, creating
-     * game loop timer, and setting up the game window. The game loop timer is
-     * configured to trigger the main game loop at a fixed interval defined by
-     * GameParameters.GAME_SPEED.
+     * initialize the GameManger by wiring the main canvas and exitGameCallBack
      */
     public void prepareGame(Rendering canvas, Runnable exitAction) {
         if (stateManager.getState() == INIT) {
             this.tetrisCanvas = canvas;
-            gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoop);
             gameExit = exitAction;
             stateManager.setState(PREPARED);
         }
@@ -111,8 +99,24 @@ public class GameManager implements InputHandler {
         return holdObservable;
     }
 
-    public Observable<Integer> fpsObservable() {
-        return gameLoop;
+    private void onTickUpdate(Long elapsedTime) {
+        if (stateManager.getState() == NEW_GAME || stateManager.getState() == PLAYING) {
+            gravityUpdate(elapsedTime);
+            render();
+        }
+    }
+
+    private void gravityUpdate(Long elapsedTime) {
+        gravityAccumulator += elapsedTime;
+        while (gravityAccumulator >= movementSpeed) {
+            if (!gameBoard.tryGravityMove()) {
+                //todo: this will in future update here replaced by delayLock mechanism (soft drop) after GameLoop is made own class and Gui/swing-agnostic!
+                lockClearAndScorePiece();
+                isDirty.set(true);
+                break;//break the while loop
+            }
+            gravityAccumulator -= movementSpeed;
+        }
     }
 
     private BoardView getBoardView() {
@@ -122,7 +126,6 @@ public class GameManager implements InputHandler {
     private Tetromino getCurrentTetromino() {
         return gameBoard.getCurrentTetromino();
     }
-
 
     private void gameOverInput(InputAction action) {
         switch (action) {
@@ -170,9 +173,7 @@ public class GameManager implements InputHandler {
         setHoldAndNotify(currentType);
         isHoldLock = true;
 
-        boolean spawnSuccessful = (previousHold == null)
-                ? trySpawnNewTetromino()
-                : trySpawnMino(previousHold);
+        boolean spawnSuccessful = (previousHold == null) ? trySpawnNewTetromino() : trySpawnMino(previousHold);
 
         if (!spawnSuccessful) {
             setGameOver();
@@ -187,7 +188,7 @@ public class GameManager implements InputHandler {
 
     private void setHoldAndNotify(TetrominoType currentType) {
         holdTetromino = currentType;
-        holdObservable().notifyObservers(holdTetromino);
+        holdObservable.notify(holdTetromino);
     }
 
     /**
@@ -255,49 +256,16 @@ public class GameManager implements InputHandler {
         }
     }
 
-    private void pauseGame() {
-        gameLoopTimer.stop();
-        stateManager.setState(PAUSED);
-    }
-
-    private void resumeGame() {
-        resetTime();
-        gameLoopTimer.start();
-        stateManager.setState(PLAYING);
-    }
-
     /**
      * Starts the game by resetting the game board and starting the game loop
-     * timer. Sets the game state to PLAYING. This method can only be called if
-     * the game is in the INITIALIZE or GAME_OVER state to prevent starting a
-     * new game while one is already in progress.
+     * timer. Sets the game state to PLAYING.
      */
-    //ToDo: This method could maybe be split into two methods and remove unnecessary switch
     private void startGame() {
-        switch (stateManager.getState()) {
-            case PREPARED -> {
-                newGame();
-                gameLoopTimer.start();
-            }
-            case GAME_OVER -> {
-                newGame();
-                gameLoopTimer.restart();
-            }
-            default -> {
-                // Do nothing
-            }
+        GameState state = stateManager.getState();// Do nothing
+        if (state == PREPARED || state == GAME_OVER) {
+            newGame();
+            gameLoop.start();
         }
-    }
-
-    private void exitGame() {
-        gameExit.run();
-    }
-
-    private void resetTime() {
-        prevTime = System.nanoTime();
-        gravityAccumulator = 0;
-        frameCount = 0;
-        fpsTimer = 0;
     }
 
     private void newGame() {
@@ -306,17 +274,36 @@ public class GameManager implements InputHandler {
         stateManager.setState(NEW_GAME);
         isDirty.set(true);
         gameBoard = new GameBoard();
-        spawnObservable.notifyObservers(generator.peekNext());
+        spawnObservable.notify(generator.peekNext());
         if (spawnMinoOrGameOver()) {
             render();
-            resetTime();
+            resetAccumulator();
             stateManager.setState(PLAYING);
         }
     }
 
+    private void pauseGame() {
+        //  gameLoop.stop();
+        stateManager.setState(PAUSED);
+    }
+
+    private void resumeGame() {
+        resetAccumulator();
+        gameLoop.resume();
+        stateManager.setState(PLAYING);
+    }
+
+    private void resetAccumulator() {
+        gravityAccumulator = 0;
+    }
+
     private void setGameOver() {
-        gameLoopTimer.stop();
+        gameLoop.stop();
         stateManager.setState(GAME_OVER);
+    }
+
+    private void exitGame() {
+        gameExit.run();
     }
 
     private GameSnapshot createGameSnapshot() {
@@ -328,7 +315,7 @@ public class GameManager implements InputHandler {
     private boolean trySpawnNewTetromino() {
         final var piece = generator.getNextPiece();
         if (trySpawnMino(piece)) {
-            spawnObservable.notifyObservers(generator.peekNext());
+            spawnObservable.notify(generator.peekNext());
             return true;
         }
         return false;
@@ -354,75 +341,4 @@ public class GameManager implements InputHandler {
     private LockPieceEvent createLockEvent(final TSpin tSpin, int clearedLines) {
         return new LockPieceEvent(clearedLines, tSpin);
     }
-
-    /**
-     * The Main game loop listener that is triggered by the game loop timer. It
-     * attempts to move the current piece down. If the piece cannot move down,
-     * it adds the piece to the board, checks for and clears any completed
-     * lines, updates the score, and tries to set a new piece. If a new piece
-     * cannot be set, it means the game is over, so it updates the game state
-     * and stops the game loop timer. After processing the game logic, it
-     * repaints the canvas to reflect any changes in the game state.
-     */
-    private class MainLoopListener implements ActionListener, Observable<Integer> {
-        private final List<Observer<Integer>> observers = new CopyOnWriteArrayList<>();
-
-
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            long currentTime = System.nanoTime();
-            if (prevTime == 0) {
-                prevTime = currentTime;// Safety guard in case this is invoked before newGame() initializes timing state. is it ever needed?
-                return;
-            }
-
-            var elapsedTime = currentTime - prevTime;
-            prevTime = currentTime;
-
-            fpsCalculation(elapsedTime);
-
-            gravityAccumulator += elapsedTime;
-            while (gravityAccumulator >= movementSpeed) {
-                if (!gameBoard.tryGravityMove()) {
-                    //todo: this will in future update here replaced by delayLock mechanism (soft drop) after GameLoop is made own class and Gui/swing-agnostic!
-                    lockClearAndScorePiece();
-                    isDirty.set(true);
-                    break;//break the while loop
-                }
-                gravityAccumulator -= movementSpeed;
-            }
-
-            render();
-        }
-
-        private void fpsCalculation(long elapsedTime) {
-            int currentFPS;
-            frameCount++;
-            fpsTimer += elapsedTime;
-
-            if (fpsTimer >= TimeUnit.SECONDS.toNanos(1)) {
-                currentFPS = frameCount; // This is your actual FPS for the last second
-                frameCount = 0;
-                fpsTimer = 0;
-                notifyObservers(currentFPS);
-            }
-        }
-
-        @Override
-        public void addObserver(final Observer<Integer> observer) {
-            observers.add(observer);
-        }
-
-        @Override
-        public void removeObserver(final Observer<Integer> observer) {
-            observers.remove(observer);
-        }
-
-        @Override
-        public void notifyObservers(Integer event) {
-            observers.forEach(o -> o.update(event));
-        }
-    }
-
-
 }

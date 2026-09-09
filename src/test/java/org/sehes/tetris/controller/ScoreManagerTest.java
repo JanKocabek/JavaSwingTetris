@@ -75,7 +75,7 @@ class ScoreManagerTest {
     void testLockPieceScoring_Tetris() {
         // given
         List<ScoreInfoDTO> updates = new ArrayList<>();
-        scoreManager.addObserver(updates::add);
+        scoreManager.ScoreInfoObservable().addObserver(updates::add);
         scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
         
         // then
@@ -98,7 +98,7 @@ class ScoreManagerTest {
     @Test
     void sendsB2BToGuiOnlyForTheClearThatReceivesTheBonus() {
         List<ScoreInfoDTO> updates = new ArrayList<>();
-        scoreManager.addObserver(updates::add);
+        scoreManager.ScoreInfoObservable().addObserver(updates::add);
 
         scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
         scoreMessenger.notifyObservers(new HardDropEvent(1));

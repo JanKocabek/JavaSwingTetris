@@ -9,19 +9,19 @@ import org.sehes.tetris.model.score.ScoreLineClearType;
 import org.sehes.tetris.model.score.SoftDropEvent;
 import org.sehes.tetris.model.score.TSpin;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-public class ScoreManager implements Observable<ScoreInfoDTO> {
-
+public class ScoreManager {
     private static final byte COMBO_EMPTY = -1;
-    private final List<Observer<ScoreInfoDTO>> observers = new CopyOnWriteArrayList<>();
+    private final Observable.Publisher<ScoreInfoDTO> scoreInfoObservable = new ObservableImpl<>();
     private int score;
     /** Whether a difficult clear has started a B2B chain. */
     private boolean isBackToBackChain;
     private int combo = COMBO_EMPTY;
 
     public ScoreManager() {
+    }
+
+    public Observable<ScoreInfoDTO> ScoreInfoObservable() {
+        return scoreInfoObservable;
     }
 
     public Observer<ScoreEvent> scoringObserver() {
@@ -46,7 +46,7 @@ public class ScoreManager implements Observable<ScoreInfoDTO> {
         score = 0;
         combo = COMBO_EMPTY;
         isBackToBackChain = false;
-        notifyObservers(new ScoreInfoDTO(score, ScoreLineClearType.NONE, combo, false));
+         scoreInfoObservable.notify(new ScoreInfoDTO(score, ScoreLineClearType.NONE, combo, false));
     }
 
     public void updateScore(ScoreEvent scoreEvent) {
@@ -63,7 +63,7 @@ public class ScoreManager implements Observable<ScoreInfoDTO> {
             }
         };
         score += points;
-        notifyObservers(new ScoreInfoDTO(score, clearType, combo, backToBackBonus));
+        scoreInfoObservable.notify(new ScoreInfoDTO(score, clearType, combo, backToBackBonus));
     }
 
     private int lockPieceScoreCalculation(ScoreLineClearType clearType, int clearedLines, boolean difficultClear, boolean applyBackToBackBonus) {
@@ -126,27 +126,4 @@ public class ScoreManager implements Observable<ScoreInfoDTO> {
         };
     }
 
-
-    /**
-     * Registers {@code Observer}. Held by strong reference — callers must
-     * remove it via {@link #removeObserver} if the observer's owner
-     * (e.g. a panel) is discarded before this manager.<br> Currently, observers
-     * are registered once at startup and live for the app's lifetime.
-     *
-     * @param observer objects who want to be notified of score changes
-     */
-    @Override
-    public void addObserver(Observer<ScoreInfoDTO> observer) {
-        observers.add(observer);
-    }
-
-    @Override
-    public void removeObserver(Observer<ScoreInfoDTO> observer) {
-        observers.remove(observer);
-    }
-
-    @Override
-    public void notifyObservers(ScoreInfoDTO event) {
-        observers.forEach(observer -> observer.update(event));
-    }
 }

@@ -1,16 +1,16 @@
 package org.sehes.tetris.controller;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-
-public class GameStateManager implements StateManager<GameState>, Observable<GameState> {
-    private final List<Observer<GameState>> observers;
+public class GameStateManager implements StateManager<GameState> {
     private GameState currentState;
+    private final Observable.Publisher<GameState> gameStateObservable = new ObservableImpl<>();
 
     public GameStateManager(GameState state) {
-        this.observers = new CopyOnWriteArrayList<>();
         this.currentState = state;
+    }
+
+    public Observable<GameState> GameStateObservable() {
+        return gameStateObservable;
     }
 
     @Override
@@ -21,21 +21,7 @@ public class GameStateManager implements StateManager<GameState>, Observable<Gam
     @Override
     public void setState(GameState state) {
         this.currentState = state;
-        notifyObservers(state);
+        gameStateObservable.notify(state);
     }
 
-    @Override
-    public void addObserver(Observer<GameState> observer) {
-        this.observers.add(observer);
-    }
-
-    @Override
-    public void removeObserver(Observer<GameState> observer) {
-        this.observers.remove(observer);
-    }
-
-    @Override
-    public void notifyObservers(GameState event) {
-        this.observers.forEach(observer -> observer.update(event));
-    }
 }

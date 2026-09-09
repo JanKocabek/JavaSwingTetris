@@ -3,7 +3,7 @@ package org.sehes.tetris.controller;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-class ObservableImpl<T> implements Observable<T> {
+class ObservableImpl<T> implements Observable.Publisher<T> {
     private final List<Observer<T>> observerList = new CopyOnWriteArrayList<>();
 
     @Override
@@ -17,7 +17,7 @@ class ObservableImpl<T> implements Observable<T> {
     }
 
     @Override
-    public void notifyObservers(T event) {
+    public void notify(T event) {
         for (Observer<T> observer : observerList) {
             observer.update(event);
         }
