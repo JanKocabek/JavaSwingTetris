@@ -286,6 +286,10 @@ public class GameBoard {
         return canMove(tetromino.getStateCord(), futureX, futureY);
     }
 
+    public boolean isMinoGrounded() {
+        return !canMove(currentTetromino, DirectionFlag.DOWN);
+    }
+
     /**
      * Overloaded and sub part version of {@link #canMove(Tetromino, DirectionFlag)} that takes directly a list of coordinates and future positions<br>
      * this method is used directly by {@link #tryHardDrop()}
