@@ -166,18 +166,14 @@ public class GameManager implements InputHandler {
 
     private void movePiece(final DirectionFlag direction) {
         if (gameBoard.tryMovePiece(direction)) {
-            checkLockDelay();
+            lockDelay.checkMove(getCurrentTetromino().getPositionY(), gameBoard.isMinoGrounded());
             render();
         }
     }
 
-    private void checkLockDelay() {
-        lockDelay.checkMove(getCurrentTetromino().getPositionY(), lockDelay.isOn());
-    }
-
     private void rotatePiece(final RotationFlag rotate) {
         if (gameBoard.tryRotatePiece(rotate)) {
-            checkLockDelay();
+            lockDelay.checkMove(getCurrentTetromino().getPositionY(), gameBoard.isMinoGrounded());
             render();
         }
     }
@@ -185,7 +181,7 @@ public class GameManager implements InputHandler {
     private void softDrop() {
         if (gameBoard.trySoftDrop()) {
             scoreMessenger.notifyObservers(new SoftDropEvent(1));
-            checkLockDelay();
+            lockDelay.checkDrop(getCurrentTetromino().getPositionY());
             render();
         }
     }
@@ -242,7 +238,6 @@ public class GameManager implements InputHandler {
         return false;
     }
 
-
     private boolean spawnMinoOrGameOver() {
         if (trySpawnNewTetromino()) return true;
         setGameOver();
@@ -293,7 +288,7 @@ public class GameManager implements InputHandler {
         while (gravityAccumulator >= movementSpeed) {
             if (gameBoard.tryGravityMove()) {
                 gravityAccumulator -= movementSpeed;
-                lockDelay.resetLockMode();
+                lockDelay.checkDrop(getCurrentTetromino().getPositionY());
             } else {
                 gravityAccumulator = 0;
                 lockDelay.setLockModeOn();
@@ -302,7 +297,6 @@ public class GameManager implements InputHandler {
             }
         }
     }
-
 
     private void resetAccumulator() {
         gravityAccumulator = 0;

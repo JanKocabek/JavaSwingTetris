@@ -30,23 +30,27 @@ public class LockDelay {
         return isLockMode;
     }
 
-    void resetLockMode() {
+    private void resetLockMode() {
         isLockMode = false;
-        delayLockAccumulator = 0;
+        tryResetLockTimer();
+    }
+
+    private void tryResetLockTimer() {
+        if(lockMoves <= MAX_LOCK_MOVES) {
+            delayLockAccumulator = 0;
+        }
     }
 
     void setLockModeOn() {
         isLockMode = true;
     }
 
-    void checkMove(int y, boolean isGround) {
-        if (isGround) {
-            final var reachNewDepth=onGrounded(y);
+    void checkMove(int y, boolean isOnGround) {
+        if (isOnGround) {
+            final var reachNewDepth = onGrounded(y);
             if (!reachNewDepth) {
                 lockMoves++;
-                if (lockMoves <= MAX_LOCK_MOVES) {
-                    delayLockAccumulator = 0;
-                }
+                tryResetLockTimer();
             }
         } else {
             currentY = y;
@@ -58,6 +62,12 @@ public class LockDelay {
         currentY = y;
         isLockMode = true;
         return resetIfMoveDown();
+    }
+
+    void checkDrop(int y) {
+        currentY = y;
+        isLockMode = false;
+        resetIfMoveDown();
     }
 
     /**
