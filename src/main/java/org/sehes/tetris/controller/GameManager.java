@@ -2,13 +2,7 @@ package org.sehes.tetris.controller;
 
 import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.controller.input.InputAction;
-import org.sehes.tetris.model.BoardView;
-import org.sehes.tetris.model.DirectionFlag;
-import org.sehes.tetris.model.GameBoard;
-import org.sehes.tetris.model.PieceGenerator;
-import org.sehes.tetris.model.RotationFlag;
-import org.sehes.tetris.model.Tetromino;
-import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.model.*;
 import org.sehes.tetris.model.score.HardDropEvent;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.SoftDropEvent;
@@ -18,12 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.sehes.tetris.controller.GameState.GAME_OVER;
-import static org.sehes.tetris.controller.GameState.INIT;
-import static org.sehes.tetris.controller.GameState.NEW_GAME;
-import static org.sehes.tetris.controller.GameState.PAUSED;
-import static org.sehes.tetris.controller.GameState.PLAYING;
-import static org.sehes.tetris.controller.GameState.PREPARED;
+import static org.sehes.tetris.controller.GameState.*;
 
 public class GameManager implements InputHandler {
 
@@ -31,9 +20,7 @@ public class GameManager implements InputHandler {
     // 1. CONSTANTS
     // =========================================================================
     private static final int BASE_SPEED_MS = 600;
-    private static final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED_MS);
-
-
+    private static final long MOVEMENT_SPEED = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED_MS);
     // =========================================================================
     // 2. INFRASTRUCTURE & SERVICES
     // =========================================================================
@@ -124,9 +111,6 @@ public class GameManager implements InputHandler {
             case ROTATE_CCW -> rotatePiece(RotationFlag.COUNTER_CLOCKWISE);
             case TOGGLE_GHOST -> toggleGhostPiece();
             case HOLD -> holdOrSwap();
-            default -> {
-                break;
-            }
         }
     }
 
@@ -197,19 +181,20 @@ public class GameManager implements InputHandler {
     }
 
     private void holdOrSwap() {
-        if (isHoldLock) return;
+        if (!isHoldLock) {
+            TetrominoType currentType = getCurrentTetromino().getType();
+            TetrominoType previousHold = holdTetromino;
+            setHoldAndNotify(currentType);
+            isHoldLock = true;
 
-        TetrominoType currentType = getCurrentTetromino().getType();
-        TetrominoType previousHold = holdTetromino;
-        setHoldAndNotify(currentType);
-        isHoldLock = true;
+            boolean spawnSuccessful = (previousHold == null) ? trySpawnNewTetromino() : trySpawnMino(previousHold);
 
-        boolean spawnSuccessful = (previousHold == null) ? trySpawnNewTetromino() : trySpawnMino(previousHold);
-
-        if (!spawnSuccessful) {
-            setGameOver();
+            if (!spawnSuccessful) {
+                setGameOver();
+            }
+            render();
         }
-        render();
+
     }
 
     private void toggleGhostPiece() {
@@ -285,9 +270,9 @@ public class GameManager implements InputHandler {
 
     private void gravityUpdate(Long elapsedTime) {
         gravityAccumulator += elapsedTime;
-        while (gravityAccumulator >= movementSpeed) {
+        while (gravityAccumulator >= MOVEMENT_SPEED) {
             if (gameBoard.tryGravityMove()) {
-                gravityAccumulator -= movementSpeed;
+                gravityAccumulator -= MOVEMENT_SPEED;
                 lockDelay.checkDrop(getCurrentTetromino().getPositionY());
             } else {
                 gravityAccumulator = 0;
