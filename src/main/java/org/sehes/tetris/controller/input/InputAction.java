@@ -33,7 +33,13 @@ public enum InputAction {
      * Rotate mino clockwise
      */
     ROTATE_CW(false),
+    /**
+     * Toggle ghost piece appearance or hide it completely
+     */
     TOGGLE_GHOST(false),
+    /**
+     * Hold current mino and spawn with hold one or spawn new mino
+     */
     HOLD(false),;
 
     private final boolean triggersOnPress;

@@ -9,10 +9,8 @@ import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.Tetromino;
 import org.sehes.tetris.model.TetrominoType;
 
-import javax.swing.Painter;
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -36,7 +34,6 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
                 GameParameters.VISIBLE_ROWS * Config.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
     }
 
-
     private void paintGameBoard(Graphics2D g2d, BoardView boardView, boolean isBoardDirty) {
         if (isBoardDirty) {
             bakeBoardImg(boardView);
@@ -59,7 +56,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
         for (int row = boardView.getHeight() - 1; row >= GameParameters.HIDDEN_ROWS; row--) {
             for (int col = boardView.getWidth() - 1; col >= 0; col--) {
                 TetrominoType content = boardView.getBlockContent(row, col);
-                if (content != TetrominoType.NON && content != null) {
+                if (content != null && content != TetrominoType.NON) {
                     int x = col * Config.BLOCK_SIZE;
                     int y = (row - GameParameters.HIDDEN_ROWS) * Config.BLOCK_SIZE;
                     g2d.drawImage(assets.getTile(content), x, y, null);
@@ -78,28 +75,34 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
      * @param g2d the Graphics2D object to draw on
      * @param t   the Tetromino to draw - cannot be null
      */
-    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t, int ghostDistance, GhostType ghostType) {
-        //  int[] pixelCoordinates = calculatePixelCoordinates(t);
+    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t, int ghostDistance, GhostType ghostType, @Nullable Double lockInfo) {
         if (ghostType != GhostType.NONE)
-            drawGhostMino(g2d, t, ghostDistance, ghostType);//draw first so the real block is draw over not otherwise around
-        drawTetromino(g2d, t);
-    }
+            drawGhostMino(g2d, t, ghostDistance, ghostType); // draw first so the real block is draw over not otherwise around
+        final var tile = assets.getTile(t.getType());
+        final int originX = getOriginX(t, tile);
+        final int originY = getOriginY(t, tile);
+        TetrominoRenderer.drawMinoAt(g2d, t.getStateCord(), tile, originX, originY, 0);
 
-    private void drawTetromino(Graphics2D g2d, Tetromino t) {
-        drawBlocks(g2d, t, assets.getTile(t.getType()), 0);
+        if (lockInfo != null) {
+            TetrominoRenderer.lockDelayAnimation(g2d, lockInfo, t.getStateCord(), tile, originX, originY);
+        }
     }
 
     private void drawGhostMino(Graphics2D g2d, Tetromino t, int ghostOffset, GhostType ghostType) {
         final var PIXEL_OFFSET = ghostOffset * Config.BLOCK_SIZE;
-
-        drawBlocks(g2d, t, assets.getGhostTile(ghostType), PIXEL_OFFSET);
+        BufferedImage tile = assets.getGhostTile(ghostType);
+        final int originX = getOriginX(t, tile);
+        final int originY = getOriginY(t, tile);
+        TetrominoRenderer.drawMinoAt(g2d, t.getStateCord(), tile, originX, originY, PIXEL_OFFSET);
 
     }
 
-    private void drawBlocks(Graphics2D g2d, Tetromino t, BufferedImage tile, int offsetY) {
-        final int originX = t.getPositionX() * tile.getWidth();
-        final int originY = (t.getPositionY() - GameParameters.HIDDEN_ROWS) * tile.getWidth();
-        TetrominoRenderer.drawMinoAt(g2d, t.getStateCord(), tile, tile.getWidth(), originX, originY, offsetY);
+    private int getOriginX(Tetromino t, BufferedImage tile) {
+        return t.getPositionX() * tile.getWidth();
+    }
+
+    private int getOriginY(Tetromino t, BufferedImage tile) {
+        return (t.getPositionY() - GameParameters.HIDDEN_ROWS) * tile.getHeight();
     }
 
     @Override
@@ -110,7 +113,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
         final BoardView board = snapshot.boardView();
         final boolean wasBoardDirty = snapshot.isBoardDirty();
         paintGameBoard(g, board, wasBoardDirty);
-        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino, snapshot.distance(), snapshot.ghostType()));
+        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino, snapshot.distance(), snapshot.ghostType(), snapshot.lockInfo()));
     }
 }
 

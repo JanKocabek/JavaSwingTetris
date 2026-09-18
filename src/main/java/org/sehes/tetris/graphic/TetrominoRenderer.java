@@ -3,7 +3,7 @@ package org.sehes.tetris.graphic;
 import org.jspecify.annotations.NullMarked;
 import org.sehes.tetris.model.Coordinate;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -20,21 +20,20 @@ public class TetrominoRenderer {
      * inside the tetromino's coordinate list, used to normalize rotated or preview
      * shapes so they start at (0,0).</p>
      *
-     * @param g             the Graphics2D context used for drawing
-     * @param coordinates   list of block coordinates in tetromino-local space
-     * @param tile          the tile image used for each block
-     * @param tileSize      pixel size of a single block
-     * @param originX       pixel-space X origin where the tetromino is placed
-     * @param originY       pixel-space Y origin where the tetromino is placed
-     * @param localOriginX  local-space X normalization offset (usually minX)
-     * @param localOriginY  local-space Y normalization offset (usually minY)
-     * @param offsetY       additional vertical pixel offset (usually GhostPieceOffset)
+     * @param g            the Graphics2D context used for drawing
+     * @param coordinates  list of block coordinates in tetromino-local space
+     * @param tile         the tile image used for each block
+     * @param originX      pixel-space X origin where the tetromino is placed
+     * @param originY      pixel-space Y origin where the tetromino is placed
+     * @param localOriginX local-space X normalization offset (usually minX)
+     * @param localOriginY local-space Y normalization offset (usually minY)
+     * @param offsetY      additional vertical pixel offset (usually GhostPieceOffset)
      */
-    static void drawMinoAt(Graphics2D g, List<Coordinate> coordinates, BufferedImage tile, int tileSize, int originX, int originY, int localOriginX, int localOriginY, int offsetY) {
+    static void drawMinoAt(Graphics2D g, List<Coordinate> coordinates, BufferedImage tile, int originX, int originY, int localOriginX, int localOriginY, int offsetY) {
+        final var tileSize = tile.getWidth();
         for (var block : coordinates) {
-            int x = originX + ((block.x() - localOriginX) * tileSize);
-            int y = originY + ((block.y() - localOriginY) * tileSize) + offsetY;
-            g.drawImage(tile, x, y, null);
+            BlockCord cord = getBlockCord(originX, originY, localOriginX, localOriginY, offsetY, block, tileSize);
+            g.drawImage(tile, cord.x(), cord.y(), null);
         }
     }
 
@@ -45,17 +44,10 @@ public class TetrominoRenderer {
      * <p>This variant assumes the tetromino's local coordinates already begin at (0,0),
      * which is true for standard board drawing. It forwards to the full method with
      * localOriginX and localOriginY set to zero.</p>
-     *
-     * @param g             the Graphics2D context used for drawing
-     * @param coordinates   list of block coordinates in tetromino-local space
-     * @param tile          the tile image used for each block
-     * @param tileSize      pixel size of a single block
-     * @param originX       pixel-space X origin where the tetromino is placed
-     * @param originY       pixel-space Y origin where the tetromino is placed
-     * @param offsetY       additional vertical pixel offset (usually GhostPieceOffset)
+     * {@link #drawMinoAt(Graphics2D, List<Coordinate>, BufferedImage, int, int, int, int, int)}
      */
-    static void drawMinoAt(Graphics2D g, List<Coordinate> coordinates, BufferedImage tile, int tileSize, int originX, int originY, int offsetY) {
-        drawMinoAt(g, coordinates, tile, tileSize, originX, originY, 0, 0, offsetY);
+    static void drawMinoAt(Graphics2D g, List<Coordinate> coordinates, BufferedImage tile, int originX, int originY, int offsetY) {
+        drawMinoAt(g, coordinates, tile, originX, originY, 0, 0, offsetY);
     }
 
     /**
@@ -64,20 +56,42 @@ public class TetrominoRenderer {
      * <p>This is typically used for UI elements such as next-piece previews or hold-piece
      * rendering, where the tetromino should be normalized (localOriginX/localOriginY)
      * but drawn without additional board offset.</p>
-     *
-     * @param g             the Graphics2D context used for drawing
-     * @param coordinates   list of block coordinates in tetromino-local space
-     * @param tile          the tile image used for each block
-     * @param tileSize      pixel size of a single block
-     * @param originX       pixel-space X origin where the tetromino is placed
-     * @param originY       pixel-space Y origin where the tetromino is placed
-     * @param localOriginX  local-space X normalization offset (usually minX)
-     * @param localOriginY  local-space Y normalization offset (usually minY)
+     * {@link #drawMinoAt(Graphics2D, List<Coordinate>, BufferedImage, int, int, int, int, int)}
      */
-    static void drawMinoAt(Graphics2D g, List<Coordinate> coordinates, BufferedImage tile, int tileSize, int originX, int originY, int localOriginX, int localOriginY) {
-        drawMinoAt(g, coordinates, tile, tileSize, originX, originY, localOriginX, localOriginY, 0);
+    static void drawMinoAt(Graphics2D g, List<Coordinate> coordinates, BufferedImage tile, int originX, int originY, int localOriginX, int localOriginY) {
+        drawMinoAt(g, coordinates, tile, originX, originY, localOriginX, localOriginY, 0);
+    }
+
+    static void lockDelayAnimation(Graphics2D g2d, double lockTimer, List<Coordinate> coordinates, BufferedImage tile, int originX, int originY) {
+        final var tileSize = tile.getWidth();
+
+        // Oscillate alpha between 0.1 (mostly transparent) and 0.9 (bright white)
+        float alpha = getAlpha(lockTimer);
+        // Isolate graphics settings using a temporary copy
+        Graphics2D g = (Graphics2D) g2d.create();
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        g.setColor(Color.WHITE);
+        for (var block : coordinates) {
+            BlockCord cord = getBlockCord(originX, originY, 0, 0, 0, block, tileSize);
+            g.fillRect(cord.x(), cord.y(), tileSize, tileSize);
+        }
+        g.dispose(); // Clean up isolated graphics context
+    }
+
+    private static BlockCord getBlockCord(int originX, int originY, int localOriginX, int localOriginY, int offsetY, Coordinate block, int tileSize) {
+        int x = originX + ((block.x() - localOriginX) * tileSize);
+        int y = originY + ((block.y() - localOriginY) * tileSize) + offsetY;
+        return new BlockCord(x, y);
+    }
+
+    private static float getAlpha(double lockTimer) {
+        float frequency = 12.0f; // Speed of the pulse
+        return 0.5f + 0.4f * (float) Math.sin(frequency * lockTimer);
     }
 
     private TetrominoRenderer() {
+    }
+    private record BlockCord(int x, int y) {
+
     }
 }

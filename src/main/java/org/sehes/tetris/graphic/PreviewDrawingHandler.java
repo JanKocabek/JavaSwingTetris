@@ -44,6 +44,6 @@ public class PreviewDrawingHandler implements Painter<TetrominoType> {
         final int topLeftY = (height - shapeHeight) / 2;
 
         // 4. Draw each mino relative to the bounding box origin
-        TetrominoRenderer.drawMinoAt(g, coordinates, tile, tileSize, topLeftX, topLeftY, minX, minY);
+        TetrominoRenderer.drawMinoAt(g, coordinates, tile, topLeftX, topLeftY, minX, minY);
     }
 }

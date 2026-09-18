@@ -19,6 +19,7 @@ public class GameManager implements InputHandler {
     // =========================================================================
     // 1. CONSTANTS
     // =========================================================================
+    private static final double NANOS_PER_SECOND = 1_000_000_000.0;
     private static final int BASE_SPEED_MS = 600;
     private static final long MOVEMENT_SPEED = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED_MS);
     // =========================================================================
@@ -51,6 +52,7 @@ public class GameManager implements InputHandler {
     // =========================================================================
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private long gravityAccumulator;
+    private long lockAccumulator = 0;
     // =========================================================================
     // PUBLIC INTERFACE (CONSTRUCTOR & PUBLIC METHODS)
     // =========================================================================
@@ -258,7 +260,16 @@ public class GameManager implements InputHandler {
         if (stateManager.getState() == NEW_GAME || stateManager.getState() == PLAYING) {
             gravityUpdate(elapsedTime);
             lockDelayUpdate(elapsedTime);
+            lockDelayAnimationUpdate(elapsedTime);
             render();
+        }
+    }
+
+    private void lockDelayAnimationUpdate(Long elapsedTime) {
+        if (lockDelay.isOn()) {
+            lockAccumulator += elapsedTime;
+        } else {
+            lockAccumulator = 0;
         }
     }
 
@@ -343,7 +354,9 @@ public class GameManager implements InputHandler {
     private GameSnapshot createGameSnapshot() {
         final var wasDirty = isDirty.getAndSet(false);
         Tetromino current = getCurrentTetromino();
-        return new GameSnapshot(getBoardView(), Optional.ofNullable(current), wasDirty, current == null ? 0 : gameBoard.calculateDropDistance(), current == null ? GhostType.NONE : ghostType);
+        double lockTimerSeconds = lockAccumulator / NANOS_PER_SECOND;
+        final Double lockInfo = lockDelay.isOn() ? lockTimerSeconds : null;
+        return new GameSnapshot(getBoardView(), Optional.ofNullable(current), wasDirty, current == null ? 0 : gameBoard.calculateDropDistance(), current == null ? GhostType.NONE : ghostType, lockInfo);
     }
 
     private BoardView getBoardView() {
