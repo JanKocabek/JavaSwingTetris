@@ -84,13 +84,25 @@ public class TetrominoRenderer {
         return new BlockCord(x, y);
     }
 
+    /**
+     * Returns the alpha value for the lock delay animation.
+     * <p>
+     * The function oscillates between 0.1 (mostly transparent) and 0.9 (bright white).
+     * </p>
+     *
+     * @param lockTimer the time elapsed since the Tetromino was locked
+     * @return alpha value representing the opacity of the lock delay animation
+     */
     private static float getAlpha(double lockTimer) {
-        float frequency = 12.0f; // Speed of the pulse
-        return 0.5f + 0.4f * (float) Math.sin(frequency * lockTimer);
+        final float frequency = 6.0f; // Speed of the pulse
+        final var center = 0.5f;//centering the wave to be between 0.1 and 0.9
+        final var amplitude = 0.4f;//how strong the pulse will be max is 0.5f
+        return center + amplitude * (float) Math.sin(frequency * lockTimer);
     }
 
     private TetrominoRenderer() {
     }
+
     private record BlockCord(int x, int y) {
 
     }
