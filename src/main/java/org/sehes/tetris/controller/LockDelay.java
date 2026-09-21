@@ -64,19 +64,6 @@ public class LockDelay {
     }
 
     /**
-     * applying states when reach ground and reset
-     * </br>
-     * reset lockDelay tetromino states if new depth is reached
-     *
-     * @param y tetromino current depth
-     *
-     */
-    void onGrounded(int y) {
-        isLockMode = true;
-        resetStatesIfNewDepth(y);
-    }
-
-    /**
      * initialize/reset lockDelay object for new Mino
      *
      * @param tetromino current Tetromino

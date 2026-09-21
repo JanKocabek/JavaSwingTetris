@@ -288,7 +288,6 @@ public class GameManager implements InputHandler {
             } else {
                 gravityAccumulator = 0;
                 lockDelay.setLockModeOn();
-                lockDelay.onGrounded(getCurrentTetromino().getPositionY());
                 break;
             }
         }
