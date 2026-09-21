@@ -23,7 +23,7 @@ class LockDelayTests {
     }
 
     @Test
-    void testLockDoesntHappenedBefore500() {
+    void testLockDoesntHappenedBefore500ms() {
         //arrange
         final var time = TimeUnit.MILLISECONDS.toNanos(499);
         //Act
@@ -33,7 +33,7 @@ class LockDelayTests {
     }
 
     @Test
-    void testLockTrueWIth500() {
+    void testLockTrueWIth500ms() {
         //Act
         final var time = TimeUnit.MILLISECONDS.toNanos(500);
         final var result = lockDelay.onTick(time);
@@ -42,7 +42,7 @@ class LockDelayTests {
     }
 
     @Test
-    void testLockTrueWithMoreThen500() {
+    void testLockTrueWithMoreThen500ms() {
         //Act
         final var time = TimeUnit.MILLISECONDS.toNanos(600);
         final var result = lockDelay.onTick(time);
@@ -63,11 +63,13 @@ class LockDelayTests {
     }
 
     @Test
-    void testGravityFallNotAddIntoLockMoveCounter() {
-        final var startY = 20;
-        lockDelay.onGrounded(startY);
-        lockDelay.onGrounded(startY + 1);
+    void testGravityFallResetEverything() {
+        var startY = 19;
+        lockDelay.checkDrop(startY, false);
+        lockDelay.checkDrop(++startY, true);
         assertThat(lockDelay).extracting("lockMoves").isEqualTo(0);
+        assertThat(lockDelay).extracting("delayLockAccumulator").isEqualTo(0L);
+        assertThat(lockDelay).extracting("maxY").isEqualTo(startY);
     }
 
     @Test
@@ -108,15 +110,46 @@ class LockDelayTests {
     }
 
     @Test
-    void testFallIntoAlreadyAchieveDont() {
+    void testKickIntoAirCancelLockModeCancelTimerLeftMovementOnCurrentValue() {
         //arrange
-        lockDelay.setFor(TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(4, 21)));
-        lockDelay.setLockModeOn();
-        lockDelay.checkMove(20, false);
+        final var time = TimeUnit.MILLISECONDS.toNanos(100);
+        //act
+        lockDelay.checkDrop(20, true);
+        lockDelay.checkMove(20, true);
+        lockDelay.onTick(time);
+        lockDelay.checkMove(18, false);
+        //assert
+        assertThat(lockDelay.isOn()).isFalse();
+        assertThat(lockDelay).extracting("delayLockAccumulator").isEqualTo(0L);
+        assertThat(lockDelay).extracting("lockMoves").isEqualTo(2);
+    }
+
+    @Test
+    void testFallIntoAlreadyAchievedDepthDoesntIncrementLockMoves() {
+        //arrange
+        lockDelay.checkDrop(20, true);
+        lockDelay.checkMove(20, true);
         //Act
-        lockDelay.checkDrop(21, true);
+        lockDelay.checkMove(19, false);
+        lockDelay.checkDrop(20, true);
         //assert
         assertThat(lockDelay.isOn()).isTrue();
+        assertThat(lockDelay).extracting("lockMoves").isEqualTo(2);
+    }
+
+    @Test
+    void testKickLowerThenCurrentMaxDepthResetEverything() {
+        //arrange
+        final var time = TimeUnit.MILLISECONDS.toNanos(100);
+        final var lastIsOn = false;
+        //act
+        lockDelay.checkDrop(20, true);
+        lockDelay.checkMove(20, true);
+        lockDelay.onTick(time);
+        lockDelay.checkMove(21, lastIsOn);
+        //assert
+        assertThat(lockDelay.isOn()).isEqualTo(lastIsOn);
+        assertThat(lockDelay).extracting("delayLockAccumulator").isEqualTo(0L);
         assertThat(lockDelay).extracting("lockMoves").isEqualTo(0);
     }
 }
