@@ -75,7 +75,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
      * @param g2d the Graphics2D object to draw on
      * @param t   the Tetromino to draw - cannot be null
      */
-    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t, int ghostDistance, GhostType ghostType, @Nullable Double lockInfo) {
+    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t, int ghostDistance, GhostType ghostType, @Nullable Double lockTime) {
         if (ghostType != GhostType.NONE)
             drawGhostMino(g2d, t, ghostDistance, ghostType); // draw first so the real block is draw over not otherwise around
         final var tile = assets.getTile(t.getType());
@@ -83,8 +83,8 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
         final int originY = getOriginY(t, tile);
         TetrominoRenderer.drawMinoAt(g2d, t.getStateCord(), tile, originX, originY, 0);
 
-        if (lockInfo != null) {
-            TetrominoRenderer.lockDelayAnimation(g2d, lockInfo, t.getStateCord(), tile, originX, originY);
+        if (lockTime != null) {
+            TetrominoRenderer.lockDelayAnimation(g2d, lockTime, t.getStateCord(), tile, originX, originY);
         }
     }
 
@@ -113,7 +113,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
         final BoardView board = snapshot.boardView();
         final boolean wasBoardDirty = snapshot.isBoardDirty();
         paintGameBoard(g, board, wasBoardDirty);
-        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino, snapshot.distance(), snapshot.ghostType(), snapshot.lockInfo()));
+        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino, snapshot.distance(), snapshot.ghostType(), snapshot.lockTime()));
     }
 }
 

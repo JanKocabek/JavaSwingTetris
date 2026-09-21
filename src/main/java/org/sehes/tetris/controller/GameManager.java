@@ -354,8 +354,8 @@ public class GameManager implements InputHandler {
         final var wasDirty = isDirty.getAndSet(false);
         Tetromino current = getCurrentTetromino();
         double lockTimerSeconds = lockAccumulator / NANOS_PER_SECOND;
-        final Double lockInfo = lockDelay.isOn() ? lockTimerSeconds : null;
-        return new GameSnapshot(getBoardView(), Optional.ofNullable(current), wasDirty, current == null ? 0 : gameBoard.calculateDropDistance(), current == null ? GhostType.NONE : ghostType, lockInfo);
+        final Double lockTime = lockDelay.isOn() ? lockTimerSeconds : null;
+        return new GameSnapshot(getBoardView(), Optional.ofNullable(current), wasDirty, current == null ? 0 : gameBoard.calculateDropDistance(), current == null ? GhostType.NONE : ghostType, lockTime);
     }
 
     private BoardView getBoardView() {

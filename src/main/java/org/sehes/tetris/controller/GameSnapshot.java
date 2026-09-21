@@ -8,5 +8,5 @@ import org.sehes.tetris.model.Tetromino;
 import java.util.Optional;
 
 public record GameSnapshot(BoardView boardView, Optional<Tetromino> currentTetromino, boolean isBoardDirty,
-                           int distance, GhostType ghostType, @Nullable Double lockInfo) {
+                           int distance, GhostType ghostType, @Nullable Double lockTime) {
 }
