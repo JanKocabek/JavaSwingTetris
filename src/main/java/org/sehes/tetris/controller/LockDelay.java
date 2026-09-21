@@ -34,23 +34,34 @@ public class LockDelay {
         isLockMode = true;
     }
 
+    /**
+     * used for check of lockDelay state after left/right or rotation move
+     *
+     * @param y          current depth of tetromino
+     * @param isOnGround {@code true} if tetromino is touching any source of ground/block
+     */
     void checkMove(int y, boolean isOnGround) {
-        //rotated / kicked - end lock mode
-        if (!isOnGround) {
-            resetLockMode();
-            return;
-        }
-        // Reaching new depth (probably just the kicks) handles state reset automatically
+        // Reaching new depth (probably just the kicks) handle state reset automatically
         if (isNewDepth(y)) {
-            onGrounded(y);
+            isLockMode = isOnGround;
+            resetStatesForNewDepth(y);
             return;
         }
-        // Main Path: Grounded move at an existing depth
-        isLockMode = true;
         lockMoves++;
+        isLockMode = isOnGround;
         tryResetLockTimer();
     }
 
+    /**
+     * used for check of lockDelay state after soft or gravity drop
+     *
+     * @param y          current depth of tetromino
+     * @param isOnGround {@code true} if tetromino is touching any source of ground/block
+     */
+    void checkDrop(int y, boolean isOnGround) {
+        isLockMode = isOnGround;
+        resetStatesIfNewDepth(y);
+    }
 
     /**
      * applying states when reach ground and reset
@@ -62,11 +73,6 @@ public class LockDelay {
      */
     void onGrounded(int y) {
         isLockMode = true;
-        resetStatesIfNewDepth(y);
-    }
-
-    void checkDrop(int y, boolean isOnGround) {
-        isLockMode = isOnGround;
         resetStatesIfNewDepth(y);
     }
 
@@ -95,15 +101,14 @@ public class LockDelay {
      */
     private void resetStatesIfNewDepth(int y) {
         if (isNewDepth(y)) {
-            maxY = y;
-            lockMoves = 0;
-            delayLockAccumulator = 0;
+            resetStatesForNewDepth(y);
         }
     }
 
-    private void resetLockMode() {
-        isLockMode = false;
-        tryResetLockTimer();
+    private void resetStatesForNewDepth(int y) {
+        maxY = y;
+        lockMoves = 0;
+        delayLockAccumulator = 0;
     }
 
     private void tryResetLockTimer() {
