@@ -167,7 +167,7 @@ public class GameManager implements InputHandler {
     private void softDrop() {
         if (gameBoard.trySoftDrop()) {
             scoreMessenger.notifyObservers(new SoftDropEvent(1));
-            lockDelay.checkDrop(getCurrentTetromino().getPositionY());
+            lockDelay.checkDrop(getCurrentTetromino().getPositionY(), gameBoard.isMinoGrounded());
             render();
         }
     }
@@ -284,7 +284,7 @@ public class GameManager implements InputHandler {
         while (gravityAccumulator >= MOVEMENT_SPEED) {
             if (gameBoard.tryGravityMove()) {
                 gravityAccumulator -= MOVEMENT_SPEED;
-                lockDelay.checkDrop(getCurrentTetromino().getPositionY());
+                lockDelay.checkDrop(getCurrentTetromino().getPositionY(), gameBoard.isMinoGrounded());
             } else {
                 gravityAccumulator = 0;
                 lockDelay.setLockModeOn();

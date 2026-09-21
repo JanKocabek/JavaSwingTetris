@@ -10,13 +10,13 @@ public class LockDelay {
     private boolean isLockMode = false;
     private int lockMoves = 0;
     private long delayLockAccumulator = 0;
-    private int currentY;
     private int maxY;
 
     /**
      * add ticked times into delay and check if is delay runs out
      * </br>
      * this method is fired only from {@code GameManager.onTickUpdate()} or subMethods
+     *
      * @param elapsedTime times run from previous tick to this one
      * @return {@code true} if run out the delay time usually 500ms
      * otherwise {@code false}
@@ -30,65 +30,85 @@ public class LockDelay {
         return isLockMode;
     }
 
-    private void resetLockMode() {
-        isLockMode = false;
-        tryResetLockTimer();
-    }
-
-    private void tryResetLockTimer() {
-        if(lockMoves <= MAX_LOCK_MOVES) {
-            delayLockAccumulator = 0;
-        }
-    }
-
     void setLockModeOn() {
         isLockMode = true;
     }
 
     void checkMove(int y, boolean isOnGround) {
-        if (isOnGround) {
-            final var reachNewDepth = onGrounded(y);
-            if (!reachNewDepth) {
-                lockMoves++;
-                tryResetLockTimer();
-            }
-        } else {
-            currentY = y;
+        //rotated / kicked - end lock mode
+        if (!isOnGround) {
             resetLockMode();
+            return;
         }
-    }
-
-    boolean onGrounded(int y) {
-        currentY = y;
+        // Reaching new depth (probably just the kicks) handles state reset automatically
+        if (isNewDepth(y)) {
+            onGrounded(y);
+            return;
+        }
+        // Main Path: Grounded move at an existing depth
         isLockMode = true;
-        return resetIfMoveDown();
+        lockMoves++;
+        tryResetLockTimer();
     }
 
-    void checkDrop(int y) {
-        currentY = y;
-        isLockMode = false;
-        resetIfMoveDown();
+
+    /**
+     * applying states when reach ground and reset
+     * </br>
+     * reset lockDelay tetromino states if new depth is reached
+     *
+     * @param y tetromino current depth
+     *
+     */
+    void onGrounded(int y) {
+        isLockMode = true;
+        resetStatesIfNewDepth(y);
+    }
+
+    void checkDrop(int y, boolean isOnGround) {
+        isLockMode = isOnGround;
+        resetStatesIfNewDepth(y);
     }
 
     /**
      * initialize/reset lockDelay object for new Mino
+     *
      * @param tetromino current Tetromino
      */
     void setFor(Tetromino tetromino) {
         isLockMode = false;
         lockMoves = 0;
         delayLockAccumulator = 0;
-        currentY = tetromino.getPositionY();
         maxY = tetromino.getPositionY();
     }
 
-    private boolean resetIfMoveDown() {
-        if (currentY > maxY) {
-            maxY = currentY;
+    private boolean isNewDepth(int y) {
+        return y > maxY;
+    }
+
+    /**
+     * check if tetromino current depth(y) is farther than previous maximum(y)
+     * if so reset lockDelay tetromino state
+     * which include  lockMoves, delayLockAccumulator
+     *
+     * @param y tetromino current depth
+     */
+    private void resetStatesIfNewDepth(int y) {
+        if (isNewDepth(y)) {
+            maxY = y;
             lockMoves = 0;
             delayLockAccumulator = 0;
-            return true;
         }
-        return false;
+    }
+
+    private void resetLockMode() {
+        isLockMode = false;
+        tryResetLockTimer();
+    }
+
+    private void tryResetLockTimer() {
+        if (lockMoves <= MAX_LOCK_MOVES) {
+            delayLockAccumulator = 0;
+        }
     }
 }
