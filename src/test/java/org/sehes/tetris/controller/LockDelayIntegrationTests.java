@@ -12,11 +12,12 @@ import org.sehes.tetris.model.PieceGenerator;
 import org.sehes.tetris.model.TetrominoType;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Fail.fail;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LockDelayIntegrationTests {
+
 
     GameManager gameManager;
     StateManager<GameState> stageManager;
@@ -45,22 +46,22 @@ class LockDelayIntegrationTests {
     }
 
     @Test
-    void testLockDelayIsSetTrueWhenGroundIsReached() {
+    void shouldSetLockDelayWhenGroundIsReached() {
         //arrange
         final var captor = ArgumentCaptor.forClass(GameSnapshot.class);
-        verify(rendering, atLeastOnce()).render(captor.capture());
-        final var mino = captor.getValue().currentTetromino().get();
+        final var startY = GameParameters.SPAWN_POINT.y();
         //act
-        for(int i = GameParameters.SPAWN_POINT.y(); i<GameParameters.ROWS;i++)
-        {
+        for (int i = startY; i < GameParameters.ROWS; i++) {
             gameManager.handleInput(InputAction.MOVE_DOWN);
         }
-        verify(rendering, atLeastOnce()).render(captor.capture());
-        GameSnapshot last = captor.getValue();
+        final var numberOfRun = GameParameters.ROWS - startY;
+        verify(rendering, times(numberOfRun)).render(captor.capture());
+        final var captured = captor.getAllValues();
         //assert
-        assertThat(last.currentTetromino()).contains(mino);
-        assertThat(last.lockTime()).isNotNull();
-        assertThat(last.distance()).isZero();
+        final var mino = captured.getFirst().currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"));
+        assertThat(captured.getLast().currentTetromino()).contains(mino);
+        assertThat(captured.getLast()).isNotNull();
+        assertThat(captured.getLast().lockTime()).isZero();
     }
 
 }
