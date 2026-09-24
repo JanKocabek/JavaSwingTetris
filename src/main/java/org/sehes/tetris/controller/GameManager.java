@@ -52,7 +52,7 @@ public class GameManager implements InputHandler {
     // =========================================================================
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private long gravityAccumulator;
-    private long lockAccumulator = 0;
+    private long lockAnimationAcc = 0;
     // =========================================================================
     // PUBLIC INTERFACE (CONSTRUCTOR & PUBLIC METHODS)
     // =========================================================================
@@ -267,9 +267,9 @@ public class GameManager implements InputHandler {
 
     private void lockDelayAnimationUpdate(Long elapsedTime) {
         if (lockDelay.isOn()) {
-            lockAccumulator += elapsedTime;
+            lockAnimationAcc += elapsedTime;
         } else {
-            lockAccumulator = 0;
+            lockAnimationAcc = 0;
         }
     }
 
@@ -353,7 +353,7 @@ public class GameManager implements InputHandler {
     private GameSnapshot createGameSnapshot() {
         final var wasDirty = isDirty.getAndSet(false);
         Tetromino current = getCurrentTetromino();
-        double lockTimerSeconds = lockAccumulator / NANOS_PER_SECOND;
+        double lockTimerSeconds = lockAnimationAcc / NANOS_PER_SECOND;
         final Double lockTime = lockDelay.isOn() ? lockTimerSeconds : null;
         return new GameSnapshot(getBoardView(), Optional.ofNullable(current), wasDirty, current == null ? 0 : gameBoard.calculateDropDistance(), current == null ? GhostType.NONE : ghostType, lockTime);
     }
