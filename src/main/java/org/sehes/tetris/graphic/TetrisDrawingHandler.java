@@ -113,7 +113,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
         final BoardView board = snapshot.boardView();
         final boolean wasBoardDirty = snapshot.isBoardDirty();
         paintGameBoard(g, board, wasBoardDirty);
-        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino, snapshot.distance(), snapshot.ghostType(), snapshot.lockTime()));
+        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino, snapshot.ghostDistance(), snapshot.ghostType(), snapshot.lockTime()));
     }
 }
 
