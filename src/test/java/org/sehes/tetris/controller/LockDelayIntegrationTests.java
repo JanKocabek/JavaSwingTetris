@@ -43,16 +43,12 @@ class LockDelayIntegrationTests {
         }
     };
     ScoreMessenger scoreMessenger;
-    @Mock
-    Observer<ScoreEvent> scoreObserver;
-    @Mock
-    Rendering rendering;
-    @Mock
-    GameLoop gameLoop;
-    @Captor
-    ArgumentCaptor<GameSnapshot> gameSnapshotCaptor;
-    @Captor
-    ArgumentCaptor<ScoreEvent> scoreEventCaptor;
+    @Mock Observer<ScoreEvent> scoreObserver;
+    @Mock Rendering rendering;
+    @Mock GameLoop gameLoop;
+
+    @Captor ArgumentCaptor<GameSnapshot> gameSnapshotCaptor;
+    @Captor ArgumentCaptor<ScoreEvent> scoreEventCaptor;
 
     @BeforeEach
     void setUp() {
@@ -68,7 +64,6 @@ class LockDelayIntegrationTests {
     @Test
     @DisplayName("should start lock delay when ground is reached-by user moving down")
     void shouldStartLockDelayWhenGroundIsReachedMoving() {
-        //arrange
         //act
         moveToBottom();
         final var numberOfRun = GameParameters.ROWS - GameParameters.SPAWN_POINT.y();
@@ -112,6 +107,7 @@ class LockDelayIntegrationTests {
         //assert
         final var exactMino = gameSnapshotList.getFirst().currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"));
         final var lockedFrames = gameSnapshotList.stream().filter(snapshot -> snapshot.lockTime() != null && snapshot.currentTetromino().orElseGet(() -> fail("Tetromino should not be empty")) == exactMino).toList();
+
         assertThat(lockedFrames).hasSizeLessThan(600);
         assertThat(lockedFrames.getLast().lockTime()).isCloseTo(LOCK_DELAY_TIME_S, Offset.offset(TICK_S));
         assertThat(scoreEvent).isNotNull().isInstanceOf(LockPieceEvent.class);
@@ -169,14 +165,13 @@ class LockDelayIntegrationTests {
         //assert
         assertThat(eventCaptured.getLast()).isInstanceOf(LockPieceEvent.class);
         assertThat(eventCaptured).filteredOn(LockPieceEvent.class::isInstance).hasSize(1);
-        assertThat(lastCaptBeforeNew.lockTime()).isNotNull();
-        assertThat(lastCaptBeforeNew.lockTime()).isBetween(0.1, 0.3);
+        assertThat(lastCaptBeforeNew.lockTime()).isNotNull().isBetween(0.1, 0.3);
         assertThat(gameSnapshotList.getLast().lockTime()).isNull();
-        assertThat(newMino).isNotNull();
-        assertThat(newMino.orElseThrow()).isNotEqualTo(firstMino);
+        assertThat(newMino.orElseThrow()).isNotEqualTo(firstMino).isNotNull();
     }
 
     @Test
+    @DisplayName("Moving down to a new depth (maxY) should reset lock delay timer")
     void resetLockDelayWhenMoveFromOneDepthToLower() {
         //arrange
         final var firstPiece = pieceGenerator.peekNext();
