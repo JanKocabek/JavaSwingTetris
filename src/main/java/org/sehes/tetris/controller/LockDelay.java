@@ -12,6 +12,9 @@ public class LockDelay {
     private long delayLockAccumulator = 0;
     private int maxY;
 
+    long lockDelayElapsedInNANO() {
+        return delayLockAccumulator;
+    }
     /**
      * add ticked times into delay and check if is delay runs out
      * </br>

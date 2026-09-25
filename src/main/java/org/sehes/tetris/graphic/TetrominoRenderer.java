@@ -62,11 +62,11 @@ public class TetrominoRenderer {
         drawMinoAt(g, coordinates, tile, originX, originY, localOriginX, localOriginY, 0);
     }
 
-    static void lockDelayAnimation(Graphics2D g2d, double lockTimer, List<Coordinate> coordinates, BufferedImage tile, int originX, int originY) {
+    static void lockDelayAnimation(Graphics2D g2d, double lockTimerSC, List<Coordinate> coordinates, BufferedImage tile, int originX, int originY) {
         final var tileSize = tile.getWidth();
 
         // Oscillate alpha between 0.1 (mostly transparent) and 0.9 (bright white)
-        float alpha = getAlpha(lockTimer);
+        float alpha = getAlpha(lockTimerSC);
         // Isolate graphics settings using a temporary copy
         Graphics2D g = (Graphics2D) g2d.create();
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
@@ -90,14 +90,14 @@ public class TetrominoRenderer {
      * The function oscillates between 0.1 (mostly transparent) and 0.9 (bright white).
      * </p>
      *
-     * @param lockTimer the time elapsed since the Tetromino was locked
+     * @param lockTimerSC the time elapsed since the Tetromino was locked
      * @return alpha value representing the opacity of the lock delay animation
      */
-    private static float getAlpha(double lockTimer) {
+    private static float getAlpha(double lockTimerSC) {
         final float frequency = 6.0f; // Speed of the pulse
         final var center = 0.5f;//centering the wave to be between 0.1 and 0.9
         final var amplitude = 0.4f;//how strong the pulse will be max is 0.5f
-        return center + amplitude * (float) Math.sin(frequency * lockTimer);
+        return center + amplitude * (float) Math.sin(frequency * lockTimerSC);
     }
 
     private TetrominoRenderer() {
