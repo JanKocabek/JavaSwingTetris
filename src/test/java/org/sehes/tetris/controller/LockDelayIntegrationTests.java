@@ -204,7 +204,7 @@ class LockDelayIntegrationTests {
         int hardDropFrames = 2;
         int snapWhenDrop = hardDropFrames + cycles + tickStayDropped - 1;//start on 0;
         assertThat(allSnapshots.getFirst().currentTetromino().orElseThrow()).isNotEqualTo(allSnapshots.get(2).currentTetromino().orElseThrow());
-        assertThat(allSnapshots.get(snapWhenDrop).lockTime()).isEqualTo(tickStayDropped*TICK_S);
+        assertThat(allSnapshots.get(snapWhenDrop).lockTime()).isEqualTo(tickStayDropped * TICK_S);
         assertThat(allSnapshots.get(snapWhenDrop + 1).lockTime()).isZero();
         assertThat(allSnapshots.get(snapWhenDrop + 2).lockTime()).isNull();
         assertThat(lastLockDealyTime).isZero();
@@ -257,6 +257,22 @@ class LockDelayIntegrationTests {
         GameSnapshot lastSnap = gameSnapshotList.getLast();
         assertThat(lastSnap.lockTime()).isNull();
         assertThat(lastSnap.currentTetromino().orElseThrow().getPositionY()).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("Hold/swap piece should reset lock delay state for the newly spawned piece")
+    void holdOrSwapShouldResetLockDelay() {
+        //act
+        moveToBottom();
+        runTickNTimes(20);
+        gameManager.handleInput(InputAction.HOLD);
+        verify(rendering, atLeastOnce()).render(gameSnapshotCaptor.capture());
+        final var gameSnapshotList = gameSnapshotCaptor.getAllValues();
+        final var latestSnapshot = gameSnapshotList.getLast();
+        //assert
+        assertThat(latestSnapshot.currentTetromino()).isPresent();
+        assertThat(latestSnapshot.currentTetromino().get().getPositionY()).isEqualTo(GameParameters.SPAWN_POINT.y());
+        assertThat(latestSnapshot.lockTime()).isNull();
     }
 
     private void moveLeftAndBack() {
