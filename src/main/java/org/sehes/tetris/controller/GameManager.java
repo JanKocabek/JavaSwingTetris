@@ -52,7 +52,6 @@ public class GameManager implements InputHandler {
     // =========================================================================
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private long gravityAccumulator;
-    //private long lockAnimationAcc = 0;
     // =========================================================================
     // PUBLIC INTERFACE (CONSTRUCTOR & PUBLIC METHODS)
     // =========================================================================
@@ -260,18 +259,9 @@ public class GameManager implements InputHandler {
         if (stateManager.getState() == NEW_GAME || stateManager.getState() == PLAYING) {
             gravityUpdate(elapsedTime);
             lockDelayUpdate(elapsedTime);
-       //     lockDelayAnimationUpdate(elapsedTime);
             render();
         }
     }
-
-//    private void lockDelayAnimationUpdate(Long elapsedTime) {
-//        if (lockDelay.isOn()) {
-//            lockAnimationAcc += elapsedTime;
-//        } else {
-//            lockAnimationAcc = 0;
-//        }
-//    }
 
     private void lockDelayUpdate(Long elapsedTime) {
         if (lockDelay.isOn() && lockDelay.onTick(elapsedTime)) {
@@ -292,7 +282,6 @@ public class GameManager implements InputHandler {
             }
         }
     }
-
     private void resetAccumulator() {
         gravityAccumulator = 0;
     }
