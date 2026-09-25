@@ -16,7 +16,6 @@ import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.ScoreEvent;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -152,9 +151,8 @@ class LockDelayIntegrationTests {
         verify(rendering, atLeastOnce()).render(gameSnapshotCaptor.capture());
         final var gameSnapshotList = gameSnapshotCaptor.getAllValues();
         final var lastLockDealyTime = gameSnapshotList.getLast().lockTime();
-        final var counted = gameSnapshotList.stream().filter(snapshot -> Objects.equals(snapshot.lockTime(), lastLockDealyTime)).count();
         //assert
-        assertThat(counted).isEqualTo(3L);
+        assertThat(gameSnapshotList).filteredOn(GameSnapshot::lockTime, lastLockDealyTime).hasSize(3);
     }
 
     @Test
@@ -249,7 +247,7 @@ class LockDelayIntegrationTests {
     }
 
     @Test
-    void shouldTurnLockDelayOffWhenPieceIsKickedIntoAir(){
+    void shouldTurnLockDelayOffWhenPieceIsKickedIntoAir() {
         //arrange
         //act
         moveToBottom();
