@@ -5,7 +5,7 @@ import org.sehes.tetris.model.Tetromino;
 import java.util.concurrent.TimeUnit;
 
 public class LockDelay {
-    private static final Long LOCK_DELAY_MS = TimeUnit.MILLISECONDS.toNanos(500);
+    private static final long LOCK_DELAY_NANO = TimeUnit.MILLISECONDS.toNanos(500);
     private static final int MAX_LOCK_MOVES = 15;
     private boolean isLockMode = false;
     private int lockMoves = 0;
@@ -26,7 +26,7 @@ public class LockDelay {
      */
     boolean onTick(long elapsedTime) {
         delayLockAccumulator += elapsedTime;
-        return delayLockAccumulator >= LOCK_DELAY_MS;
+        return delayLockAccumulator >= LOCK_DELAY_NANO;
     }
 
     boolean isOn() {
