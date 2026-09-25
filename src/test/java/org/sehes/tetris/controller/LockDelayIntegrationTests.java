@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.PieceGenerator;
+import org.sehes.tetris.model.TetrominoFactory;
 import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.ScoreEvent;
@@ -67,10 +68,9 @@ class LockDelayIntegrationTests {
     @DisplayName("should start lock delay when ground is reached-by user moving down")
     void shouldStartLockDelayWhenGroundIsReachedMoving() {
         //arrange
-        final var startY = GameParameters.SPAWN_POINT.y();
         //act
-        moveToBottom(startY);
-        final var numberOfRun = GameParameters.ROWS - startY;
+        moveToBottom();
+        final var numberOfRun = GameParameters.ROWS - GameParameters.SPAWN_POINT.y();
         verify(rendering, times(numberOfRun)).render(gameSnapshotCaptor.capture());
         final var captured = gameSnapshotCaptor.getAllValues();
         //assert
@@ -78,7 +78,7 @@ class LockDelayIntegrationTests {
 
         assertThat(captured.getFirst().lockTime()).isNull();
         assertThat(captured.getLast().currentTetromino()).contains(mino);
-        assertThat(captured.getLast().distance()).isZero();
+        assertThat(captured.getLast().currentTetromino().orElseThrow().getPositionY()).isEqualTo(GameParameters.ROWS - 1);
         assertThat(captured.getLast().lockTime()).isZero();
     }
 
@@ -123,7 +123,7 @@ class LockDelayIntegrationTests {
     @DisplayName("should lock after 500ms sitting on bottom ")
     void shouldLockAfter500msSittingOnBottom() {
         //act
-        moveToBottom(GameParameters.SPAWN_POINT.y());
+        moveToBottom();
         runTickNTimes(500);
         verify(rendering, atLeastOnce()).render(gameSnapshotCaptor.capture());
         verify(scoreObserver, atLeastOnce()).update(scoreEventCaptor.capture());
@@ -146,10 +146,9 @@ class LockDelayIntegrationTests {
     @DisplayName("should reset counting after move ")
     void shouldResetCountingAfterMove() {
         //act
-        moveToBottom(GameParameters.SPAWN_POINT.y());
+        moveToBottom();
         runTickNTimes(20);
-        gameManager.handleInput(InputAction.MOVE_LEFT);
-        gameManager.handleInput(InputAction.MOVE_RIGHT);
+        moveLeftAndBack();
         verify(rendering, atLeastOnce()).render(gameSnapshotCaptor.capture());
         final var captured = gameSnapshotCaptor.getAllValues();
         final var lastLockDealyTime = captured.getLast().lockTime();
@@ -162,7 +161,7 @@ class LockDelayIntegrationTests {
     @DisplayName("Hard drop ignore LockDealy Time")
     void hardDropIgnoreLockDelayTime() {
         //act
-        moveToBottom(GameParameters.SPAWN_POINT.y());
+        moveToBottom();
         runTickNTimes(10);
         gameManager.handleInput(InputAction.HARD_DROP);
         runTickNTimes(1);
@@ -172,41 +171,89 @@ class LockDelayIntegrationTests {
         final var eventCaptured = scoreEventCaptor.getAllValues();
         final var capturedCnt = captured.size();
         final var lastCaptBeforeNew = captured.get(capturedCnt - 2);
-        final var hardDropEvt = eventCaptured.getLast();
-        final var lockEventCount = eventCaptured.stream().filter(LockPieceEvent.class::isInstance).count();
-        //assert
         final var firstMino = captured.getFirst().currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"));
-        assertThat(hardDropEvt).isInstanceOf(LockPieceEvent.class);
-        assertThat(lockEventCount).isOne();
+        final var newMino = captured.getLast().currentTetromino();
+        //assert
+        assertThat(eventCaptured.getLast()).isInstanceOf(LockPieceEvent.class);
+        assertThat(eventCaptured).filteredOn(LockPieceEvent.class::isInstance).hasSize(1);
         assertThat(lastCaptBeforeNew.lockTime()).isNotNull();
         assertThat(lastCaptBeforeNew.lockTime()).isBetween(0.1, 0.3);
         assertThat(captured.getLast().lockTime()).isNull();
-        final var newMino = captured.getLast().currentTetromino();
         assertThat(newMino).isNotNull();
-        assertThat(newMino.get()).isNotEqualTo(firstMino);
+        assertThat(newMino.orElseThrow()).isNotEqualTo(firstMino);
     }
 
     @Test
     void resetLockDelayWhenMoveFromOneDepthToLower() {
-        final var startY = GameParameters.SPAWN_POINT.y();
+        //arrange
+        final var firstPiece = pieceGenerator.peekNext();
+        final var pieceData = TetrominoFactory.spawnTetromino(firstPiece, GameParameters.SPAWN_POINT);
+        final var spawnY = GameParameters.SPAWN_POINT.y();
+        final var rowTakesAfterDrop = pieceData.getStateCord().stream().filter(cell -> cell.x() == 0).count();
         //act
-        gameManager.handleInput(InputAction.HARD_DROP);
-        for (int i = startY; i < 19; i++) {
+        gameManager.handleInput(InputAction.HARD_DROP);//2 FRAME
+        var cycleToDropNewPieceOn = GameParameters.ROWS - spawnY - rowTakesAfterDrop;
+        var cycles = 0;
+        for (int i = spawnY; i < cycleToDropNewPieceOn; i++) {
             gameManager.handleInput(InputAction.MOVE_DOWN);
+            cycles++;
         }
-        runTickNTimes(10);
+        int tickStayDropped = 10;
+        runTickNTimes(tickStayDropped);
         gameManager.handleInput(InputAction.MOVE_LEFT);
         gameManager.handleInput(InputAction.MOVE_LEFT);
         gameManager.handleInput(InputAction.MOVE_DOWN);
-        runTickNTimes(33);
         verify(rendering, atLeastOnce()).render(gameSnapshotCaptor.capture());
-        final var captured = gameSnapshotCaptor.getAllValues();
-        final var lastLockDealyTime = captured.getLast().lockTime();
-        final var LockStartCount = captured.stream().filter(snapshot -> Objects.equals(snapshot.lockTime(), lastLockDealyTime)).count();
+        final var allSnapshots = gameSnapshotCaptor.getAllValues();
+        final var lastLockDealyTime = allSnapshots.getLast().lockTime();
+
         //assert
-        assertThat(LockStartCount).isEqualTo(3L);
-        assertThat(lastLockDealyTime).isNotNull();
+        int hardDropFrames = 2;
+        int snapWhenDrop = hardDropFrames + cycles + tickStayDropped - 1;//start on 0;
+        assertThat(allSnapshots.getFirst().currentTetromino().orElseThrow()).isNotEqualTo(allSnapshots.get(2).currentTetromino().orElseThrow());
+        assertThat(allSnapshots.get(snapWhenDrop).lockTime()).isEqualTo(0.16);
+        assertThat(allSnapshots.get(snapWhenDrop + 1).lockTime()).isZero();
+        assertThat(allSnapshots.get(snapWhenDrop + 2).lockTime()).isNull();
+        assertThat(lastLockDealyTime).isZero();
     }
+
+    @Test
+    void should16MoveStopResettingTheTimer() {
+        //arrange
+        final var TO_SEC = 1000;
+        final var framesToBottom = GameParameters.ROWS - GameParameters.SPAWN_POINT.y();
+        var moves = 15;
+        //act
+        moveToBottom();
+        for (int i = 0; i < 7; i++) {
+            moveLeftAndBack();
+        }
+        gameManager.handleInput(InputAction.MOVE_LEFT);//15 move
+        int tickWhoDontReset = 20;
+        runTickNTimes(tickWhoDontReset);
+        gameManager.handleInput(InputAction.MOVE_RIGHT);
+        final int lastBatchAfter16Move = 12;
+        runTickNTimes(lastBatchAfter16Move);
+        verify(rendering, atLeastOnce()).render(gameSnapshotCaptor.capture());
+        verify(scoreObserver, atLeastOnce()).update(scoreEventCaptor.capture());
+        final var captured = gameSnapshotCaptor.getAllValues();
+        final var eventCaptured = scoreEventCaptor.getAllValues();
+        //assert
+        int lastFrameBefore16thMove = framesToBottom - 1 + moves + tickWhoDontReset;
+        double expectedTicks = (double) (tickWhoDontReset * TICK_MS) / TO_SEC;
+        Double actualTickBefore16Th = captured.get(lastFrameBefore16thMove).lockTime();
+        assertThat(eventCaptured).filteredOn(LockPieceEvent.class::isInstance).hasSize(1);
+        assertThat(eventCaptured.getLast()).isInstanceOf(LockPieceEvent.class);
+        assertThat(actualTickBefore16Th).isEqualTo(expectedTicks);
+        assertThat(captured.get(lastFrameBefore16thMove + 1).lockTime()).isEqualTo(actualTickBefore16Th);//16th moves
+    }
+
+    private void moveLeftAndBack() {
+        gameManager.handleInput(InputAction.MOVE_LEFT);
+        gameManager.handleInput(InputAction.MOVE_RIGHT);
+    }
+
+    //internal helper methods for tests
 
     private void runTickNTimes(int number) {
         for (var i = 0; i < number; i++) {
@@ -214,8 +261,8 @@ class LockDelayIntegrationTests {
         }
     }
 
-    private void moveToBottom(int startY) {
-        for (int i = startY; i < GameParameters.ROWS; i++) {
+    private void moveToBottom() {
+        for (int i = GameParameters.SPAWN_POINT.y(); i < GameParameters.ROWS; i++) {
             gameManager.handleInput(InputAction.MOVE_DOWN);
         }
     }
