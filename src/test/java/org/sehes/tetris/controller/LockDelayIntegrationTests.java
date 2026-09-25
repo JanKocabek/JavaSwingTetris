@@ -1,5 +1,6 @@
 package org.sehes.tetris.controller;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,9 +25,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LockDelayIntegrationTests {
-    public static final int TICK_MS = 16;
-    public static final long TICK = TimeUnit.MILLISECONDS.toNanos(TICK_MS);
-    public static final int LOCK_DELAY_TIME_MS = 500;
+    private static final int TICK_MS = 16;
+    public static final double TICK_S = (double) TICK_MS / 1000;
+    private static final long TICK = TimeUnit.MILLISECONDS.toNanos(TICK_MS);
+    private static final double LOCK_DELAY_TIME_S = 0.500;
     GameManager gameManager;
     StateManager<GameState> stageManager;
     PieceGenerator pieceGenerator = new PieceGenerator() {
@@ -111,10 +113,7 @@ class LockDelayIntegrationTests {
         final var exactMino = gameSnapshotList.getFirst().currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"));
         final var lockedFrames = gameSnapshotList.stream().filter(snapshot -> snapshot.lockTime() != null && snapshot.currentTetromino().orElseGet(() -> fail("Tetromino should not be empty")) == exactMino).toList();
         assertThat(lockedFrames).hasSizeLessThan(600);
-        //+-one tick of lock delay because game manager accumulators always consume more than exact 1 tick
-        double atLeastBeforeLock = (double) (LOCK_DELAY_TIME_MS - TICK_MS) / 1000;
-        double maxBeforeLock = (double) (LOCK_DELAY_TIME_MS + TICK_MS) / 1000;
-        assertThat(lockedFrames.getLast().lockTime()).isBetween(atLeastBeforeLock, maxBeforeLock);
+        assertThat(lockedFrames.getLast().lockTime()).isCloseTo(LOCK_DELAY_TIME_S, Offset.offset(TICK_S));
         assertThat(scoreEvent).isNotNull().isInstanceOf(LockPieceEvent.class);
     }
 
@@ -131,13 +130,10 @@ class LockDelayIntegrationTests {
         //assert
         final var exactMino = gameSnapshotList.getFirst().currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"));
         final var lockedFrames = gameSnapshotList.stream().filter(snapshot -> snapshot.lockTime() != null && snapshot.currentTetromino().orElseGet(() -> fail("Tetromino should not be empty")) == exactMino).toList();
-        final var lockEventCount = eventCaptured.stream().filter(LockPieceEvent.class::isInstance).count();
         //+-one tick of lock delay because game manager accumulators always consume more than exact 1 tick
-        double atLeastBeforeLock = (double) (LOCK_DELAY_TIME_MS - TICK_MS) / 1000;
-        double maxBeforeLock = (double) (LOCK_DELAY_TIME_MS + TICK_MS) / 1000;
         assertThat(lockedFrames).hasSizeLessThan(600);
-        assertThat(lockedFrames.getLast().lockTime()).isBetween(atLeastBeforeLock, maxBeforeLock);
-        assertThat(lockEventCount).isOne();
+        assertThat(lockedFrames.getLast().lockTime()).isCloseTo(LOCK_DELAY_TIME_S, Offset.offset(TICK_S));
+        assertThat(eventCaptured).filteredOn(LockPieceEvent.class::isInstance).hasSize(1);
     }
 
 
@@ -150,9 +146,8 @@ class LockDelayIntegrationTests {
         moveLeftAndBack();
         verify(rendering, atLeastOnce()).render(gameSnapshotCaptor.capture());
         final var gameSnapshotList = gameSnapshotCaptor.getAllValues();
-        final var lastLockDealyTime = gameSnapshotList.getLast().lockTime();
         //assert
-        assertThat(gameSnapshotList).filteredOn(GameSnapshot::lockTime, lastLockDealyTime).hasSize(3);
+        assertThat(gameSnapshotList).filteredOn(GameSnapshot::lockTime, 0.0).hasSize(3);
     }
 
     @Test
@@ -209,7 +204,7 @@ class LockDelayIntegrationTests {
         int hardDropFrames = 2;
         int snapWhenDrop = hardDropFrames + cycles + tickStayDropped - 1;//start on 0;
         assertThat(allSnapshots.getFirst().currentTetromino().orElseThrow()).isNotEqualTo(allSnapshots.get(2).currentTetromino().orElseThrow());
-        assertThat(allSnapshots.get(snapWhenDrop).lockTime()).isEqualTo(0.16);
+        assertThat(allSnapshots.get(snapWhenDrop).lockTime()).isEqualTo(tickStayDropped*TICK_S);
         assertThat(allSnapshots.get(snapWhenDrop + 1).lockTime()).isZero();
         assertThat(allSnapshots.get(snapWhenDrop + 2).lockTime()).isNull();
         assertThat(lastLockDealyTime).isZero();
