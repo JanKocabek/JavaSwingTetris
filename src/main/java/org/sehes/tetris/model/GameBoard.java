@@ -286,7 +286,14 @@ public class GameBoard {
         return canMove(tetromino.getStateCord(), futureX, futureY);
     }
 
+    /**
+     * calling need happen only from methods that are responsible for tetromino movement
+     * checks if the current tetromino is touching the ground or another tetromino and cannot move down
+     *
+     * @return {@code true} if so, otherwise {@code false}
+     */
     public boolean isMinoGrounded() {
+        assert currentTetromino != null;
         return !canMove(currentTetromino, DirectionFlag.DOWN);
     }
 
