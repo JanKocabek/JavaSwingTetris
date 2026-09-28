@@ -23,7 +23,7 @@ public class TetrominoRenderer {
     /** Peak opacity at the crest of the pulse (1.0 = fully opaque). */
     private static final float LOCK_PULSE_MAX_ALPHA = 1.00f;
 
-    /** Pulse frequency in radians per second ( π rad/s → ~1 flash per second). */
+    /** Pulse frequency in radians per second ( 2π rad/s → ~1 flash per 500ms - one delay cycle). */
     private static final double LOCK_PULSE_FREQUENCY = Math.PI*2;
 
     /**
