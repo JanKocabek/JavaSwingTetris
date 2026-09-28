@@ -108,7 +108,7 @@ public class GameBoard {
     }
 
     public boolean tryGravityMove() {
-        if (currentTetromino == null) return false;
+        if (currentTetromino == null) return false;//reason if needed
         if (canMove(currentTetromino, DirectionFlag.DOWN)) {
             currentTetromino.move(DirectionFlag.DOWN);
             lastActionSnapshot.lastActionType = LastActionType.MOVE;
