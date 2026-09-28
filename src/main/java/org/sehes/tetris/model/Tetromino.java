@@ -99,7 +99,6 @@ public class Tetromino {
     public void setPosition(final int x, final int y) {
         this.positionX = x;
         this.positionY = y;
-        //updatePixelCoordinates();
     }
 
     public void move(final DirectionFlag flag) {
@@ -108,7 +107,6 @@ public class Tetromino {
         }
         positionX += flag.getX();
         positionY += flag.getY();
-        //updatePixelCoordinates();
     }
 
 
@@ -125,7 +123,6 @@ public class Tetromino {
         }
         this.stateCoordination = coordinates;
         this.rotationState = nextOrientation;
-        //updatePixelCoordinates();
     }
 
     Orientation getCurrentOrientation() {

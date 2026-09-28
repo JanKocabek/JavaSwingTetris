@@ -348,8 +348,8 @@ public class GameBoard {
      *                     board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
+    //potentially can be micro-optimized by using for loop instead of foreach
     private boolean isCollisionFree(final List<Coordinate> stateCord, final int newPositionX, final int newPositionY) {
-
         for (final var cord : stateCord) {
             if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != TetrominoType.NON) {
                 return false;
@@ -444,9 +444,9 @@ public class GameBoard {
     /**
      * Checks if the tetromino based on given coordinates and position(current or future) is in the boundaries and does not collide with any other pieces.
      *
-     * @param coordinates
-     * @param positionX
-     * @param positionY
+     * @param coordinates coordinates of current mino
+     * @param positionX tested x position of mino on Board
+     * @param positionY tested y position of mino on Board
      * @return {@code true} if the tetromino is in the boundaries and does not collide with any other pieces, {@code false} otherwise
      */
     private boolean tetrominoPositionValidCheck(List<Coordinate> coordinates, int positionX, int positionY) {
