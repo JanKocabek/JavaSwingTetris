@@ -108,7 +108,7 @@ public class GameBoard {
     }
 
     public boolean tryGravityMove() {
-        if (currentTetromino == null) return false;
+        if (currentTetromino == null) return false;//reason if needed
         if (canMove(currentTetromino, DirectionFlag.DOWN)) {
             currentTetromino.move(DirectionFlag.DOWN);
             lastActionSnapshot.lastActionType = LastActionType.MOVE;
@@ -287,6 +287,17 @@ public class GameBoard {
     }
 
     /**
+     * calling need happen only from methods that are responsible for tetromino movement
+     * checks if the current tetromino is touching the ground or another tetromino and cannot move down
+     *
+     * @return {@code true} if so, otherwise {@code false}
+     */
+    public boolean isMinoGrounded() {
+        assert currentTetromino != null;
+        return !canMove(currentTetromino, DirectionFlag.DOWN);
+    }
+
+    /**
      * Overloaded and sub part version of {@link #canMove(Tetromino, DirectionFlag)} that takes directly a list of coordinates and future positions<br>
      * this method is used directly by {@link #tryHardDrop()}
      *
@@ -337,8 +348,8 @@ public class GameBoard {
      *                     board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
+    //potentially can be micro-optimized by using for loop instead of foreach
     private boolean isCollisionFree(final List<Coordinate> stateCord, final int newPositionX, final int newPositionY) {
-
         for (final var cord : stateCord) {
             if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != TetrominoType.NON) {
                 return false;
@@ -433,9 +444,9 @@ public class GameBoard {
     /**
      * Checks if the tetromino based on given coordinates and position(current or future) is in the boundaries and does not collide with any other pieces.
      *
-     * @param coordinates
-     * @param positionX
-     * @param positionY
+     * @param coordinates coordinates of current mino
+     * @param positionX tested x position of mino on Board
+     * @param positionY tested y position of mino on Board
      * @return {@code true} if the tetromino is in the boundaries and does not collide with any other pieces, {@code false} otherwise
      */
     private boolean tetrominoPositionValidCheck(List<Coordinate> coordinates, int positionX, int positionY) {

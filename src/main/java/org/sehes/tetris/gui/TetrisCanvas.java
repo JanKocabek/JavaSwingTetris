@@ -2,10 +2,10 @@ package org.sehes.tetris.gui;
 
 import org.sehes.tetris.controller.GameSnapshot;
 import org.sehes.tetris.controller.Rendering;
+import org.sehes.tetris.graphic.Config;
 
 import javax.swing.JPanel;
 import javax.swing.Painter;
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
@@ -22,7 +22,6 @@ import static org.sehes.tetris.gui.GuiFactory.CANVAS_SIZE;
  */
 public class TetrisCanvas extends JPanel implements Rendering {
 
-    private static final Color backgroundColor = new Color(15, 15, 25);
     private final transient Painter<GameSnapshot> painter;
     private transient GameSnapshot gameSnapshot;
 
@@ -31,7 +30,7 @@ public class TetrisCanvas extends JPanel implements Rendering {
         this.setMinimumSize(CANVAS_SIZE);
         this.setMaximumSize(CANVAS_SIZE);
         this.painter = painter;
-        setBackground(backgroundColor);
+        setBackground(Config.GAME_CANVAS_BCK_COLOR);
         this.setFocusable(true);
     }
 

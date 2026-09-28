@@ -25,7 +25,7 @@ import static org.sehes.tetris.model.UtilForTests.prepareBoard;
 import static org.sehes.tetris.model.UtilForTests.prepareBoard2T;
 import static org.sehes.tetris.model.UtilForTests.printBoardState;
 
-class GameBoardTest {
+class GameBoardTests {
 
     private GameBoard gameBoard;
     private PieceGenerator generator;

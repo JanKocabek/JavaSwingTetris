@@ -20,7 +20,11 @@ public class ShapeProvider {
         for (Orientation o : Orientation.values()) {
             tetrominoStates.get(TetrominoType.O).put(o, shapeO);
         }
-        tetrominoStates.get(TetrominoType.I).put(Orientation.NORTH, List.of(new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(-1, 0), new Coordinate(2, 0)));
+        tetrominoStates.get(TetrominoType.I).put(Orientation.NORTH, List.of(
+                new Coordinate(0, 0),
+                new Coordinate(1, 0),
+                new Coordinate(-1, 0),
+                new Coordinate(2, 0)));
         tetrominoStates.get(TetrominoType.I).put(Orientation.EAST, List.of(new Coordinate(1, 1), new Coordinate(1, -1), new Coordinate(1, 0), new Coordinate(1, 2)));
         tetrominoStates.get(TetrominoType.I).put(Orientation.SOUTH, List.of(new Coordinate(0, 1), new Coordinate(-1, 1), new Coordinate(1, 1), new Coordinate(2, 1)));
         tetrominoStates.get(TetrominoType.I).put(Orientation.WEST, List.of(new Coordinate(0, 0), new Coordinate(0, -1), new Coordinate(0, 1), new Coordinate(0, 2)));
