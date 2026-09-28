@@ -50,9 +50,13 @@ public class LockDelay {
             resetStatesForNewDepth(y);
             return;
         }
-        lockMoves++;
+        if (isOnGround) {
+            lockMoves++;
+            tryResetLockTimer();
+        } else if (isLockMode) {
+            delayLockAccumulator = 0;
+        }
         isLockMode = isOnGround;
-        tryResetLockTimer();
     }
 
     /**
