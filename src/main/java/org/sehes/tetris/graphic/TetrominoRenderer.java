@@ -18,13 +18,13 @@ public class TetrominoRenderer {
     private static final Color LOCK_PULSE_COLOR = Color.BLACK;
 
     /** Resting opacity at the trough of the pulse (0.0 = invisible). */
-    private static final float LOCK_PULSE_MIN_ALPHA = 0.40f;
+    private static final float LOCK_PULSE_MIN_ALPHA = 0.38f;
 
     /** Peak opacity at the crest of the pulse (1.0 = fully opaque). */
     private static final float LOCK_PULSE_MAX_ALPHA = 1.00f;
 
-    /** Pulse frequency in radians per second (3.15 rad/s ≈ π rad/s → ~1 flash per second). */
-    private static final float LOCK_PULSE_FREQUENCY = 3.15f;
+    /** Pulse frequency in radians per second ( π rad/s → ~1 flash per second). */
+    private static final double LOCK_PULSE_FREQUENCY = Math.PI*2;
 
     /**
      * Exponent controlling pulse sharpness.
