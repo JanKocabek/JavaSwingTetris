@@ -10,6 +10,62 @@ import java.util.List;
 @NullMarked
 public class TetrominoRenderer {
 
+    // =========================================================================
+    // Lock Delay Pulse Animation Configuration
+    // =========================================================================
+
+    /** Color of the overlay pulse (e.g. Color.BLACK for dimming, Color.WHITE for flashing). */
+    private static final Color LOCK_PULSE_COLOR = Color.BLACK;
+
+    /** Resting opacity at the trough of the pulse (0.0 = invisible). */
+    private static final float LOCK_PULSE_MIN_ALPHA = 0.40f;
+
+    /** Peak opacity at the crest of the pulse (1.0 = fully opaque). */
+    private static final float LOCK_PULSE_MAX_ALPHA = 1.00f;
+
+    /** Pulse frequency in radians per second (3.15 rad/s ≈ π rad/s → ~1 flash per second). */
+    private static final float LOCK_PULSE_FREQUENCY = 3.15f;
+
+    /**
+     * Exponent controlling pulse sharpness.
+     * Higher values create a sharper, snappier flash with a longer rest period.
+     */
+    private static final int LOCK_PULSE_EXPONENT = 4;
+
+    /** Pre-calculated opacity range: (MAX_ALPHA - MIN_ALPHA). */
+    private static final float LOCK_PULSE_ALPHA_SPAN = LOCK_PULSE_MAX_ALPHA - LOCK_PULSE_MIN_ALPHA;
+
+    static void lockDelayAnimation(Graphics2D g2d, double lockTimerSeconds, List<Coordinate> coordinates, BufferedImage tile, int originX, int originY) {
+        final var tileSize = tile.getWidth();
+        float alpha = calculateLockDelayAlpha(lockTimerSeconds);
+
+        // Isolate graphics settings using a temporary copy
+        Graphics2D g = (Graphics2D) g2d.create();
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        g.setColor(LOCK_PULSE_COLOR);
+        for (var block : coordinates) {
+            BlockCord cord = getBlockCord(originX, originY, 0, 0, 0, block, tileSize);
+            g.fillRect(cord.x(), cord.y(), tileSize, tileSize);
+        }
+        g.dispose(); // Clean up isolated graphics context
+    }
+
+    /**
+     * Calculates the alpha (opacity) for the lock delay overlay pulse animation.
+     * <p>
+     * Uses a power-curved sine wave to produce a snappy pulse that peaks at
+     * {@value #LOCK_PULSE_MAX_ALPHA} and rests at {@value #LOCK_PULSE_MIN_ALPHA}.
+     * </p>
+     *
+     * @param elapsedSeconds elapsed time in seconds since the lock delay timer started
+     * @return alpha value representing the opacity of the lock delay overlay
+     */
+    private static float calculateLockDelayAlpha(double elapsedSeconds) {
+        final float sin = (float) Math.sin(LOCK_PULSE_FREQUENCY * elapsedSeconds);
+        final float pulse = (float) Math.pow(Math.abs(sin), LOCK_PULSE_EXPONENT);
+        return LOCK_PULSE_MIN_ALPHA + LOCK_PULSE_ALPHA_SPAN * pulse;
+    }
+
     /**
      * Draws a tetromino at a specified pixel origin, applying optional normalization
      * of its local coordinate system.
@@ -62,48 +118,15 @@ public class TetrominoRenderer {
         drawMinoAt(g, coordinates, tile, originX, originY, localOriginX, localOriginY, 0);
     }
 
-    static void lockDelayAnimation(Graphics2D g2d, double lockTimerSC, List<Coordinate> coordinates, BufferedImage tile, int originX, int originY) {
-        final var tileSize = tile.getWidth();
-
-        // Oscillate alpha between 0.1 (mostly transparent) and 0.9 (bright white)
-        float alpha = getAlpha(lockTimerSC);
-        // Isolate graphics settings using a temporary copy
-        Graphics2D g = (Graphics2D) g2d.create();
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-        g.setColor(Color.WHITE);
-        for (var block : coordinates) {
-            BlockCord cord = getBlockCord(originX, originY, 0, 0, 0, block, tileSize);
-            g.fillRect(cord.x(), cord.y(), tileSize, tileSize);
-        }
-        g.dispose(); // Clean up isolated graphics context
-    }
-
     private static BlockCord getBlockCord(int originX, int originY, int localOriginX, int localOriginY, int offsetY, Coordinate block, int tileSize) {
         int x = originX + ((block.x() - localOriginX) * tileSize);
         int y = originY + ((block.y() - localOriginY) * tileSize) + offsetY;
         return new BlockCord(x, y);
     }
 
-    /**
-     * Returns the alpha value for the lock delay animation.
-     * <p>
-     * The function oscillates between 0.1 (mostly transparent) and 0.9 (bright white).
-     * </p>
-     *
-     * @param lockTimerSC the time elapsed since the Tetromino was locked
-     * @return alpha value representing the opacity of the lock delay animation
-     */
-    private static float getAlpha(double lockTimerSC) {
-        final float frequency = 6.0f; // Speed of the pulse
-        final var center = 0.5f;//centering the wave to be between 0.1 and 0.9
-        final var amplitude = 0.4f;//how strong the pulse will be max is 0.5f
-        return center + amplitude * (float) Math.sin(frequency * lockTimerSC);
+    private record BlockCord(int x, int y) {
     }
 
     private TetrominoRenderer() {
-    }
-
-    private record BlockCord(int x, int y) {
-
     }
 }
