@@ -31,7 +31,8 @@ class KeysPipelineTest {
                 Arguments.of(new KeyDTO(VK_UP, false), InputAction.ROTATE_CW),
                 Arguments.of(new KeyDTO(VK_RIGHT, true), InputAction.MOVE_RIGHT),
                 Arguments.of(new KeyDTO(VK_DOWN, true), InputAction.MOVE_DOWN),
-                Arguments.of(new KeyDTO(VK_A, false), InputAction.ROTATE_CCW));
+                Arguments.of(new KeyDTO(VK_A, false), InputAction.ROTATE_CCW),
+                Arguments.of(new KeyDTO(VK_F1, true), InputAction.RESTART));
     }
 
     @ParameterizedTest
