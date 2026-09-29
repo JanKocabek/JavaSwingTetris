@@ -2,7 +2,6 @@ package org.sehes.tetris.model;
 
 import org.jspecify.annotations.NonNull;
 import org.sehes.tetris.config.GameParameters;
-import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.model.ShapeProvider.WallKicks;
 import org.sehes.tetris.model.ShapeProvider.WallKicks.WallKickType;
 import org.sehes.tetris.model.score.TSpin;
@@ -161,7 +160,7 @@ public class GameBoard {
     }
 
     /**
-     * This should be called only from {@link GameManager#lockClearAndScorePiece()}  <br>
+     * This should be called only from {@link org.sehes.tetris.controller.GameManager#lockClearAndScorePiece()}  <br>
      * This method is responsible for locking the current tetromino in place on the game board.
      * It's last places where can be reliably find if the T-spin happened
      * then locks the tetromino.
@@ -445,8 +444,8 @@ public class GameBoard {
      * Checks if the tetromino based on given coordinates and position(current or future) is in the boundaries and does not collide with any other pieces.
      *
      * @param coordinates coordinates of current mino
-     * @param positionX tested x position of mino on Board
-     * @param positionY tested y position of mino on Board
+     * @param positionX   tested x position of mino on Board
+     * @param positionY   tested y position of mino on Board
      * @return {@code true} if the tetromino is in the boundaries and does not collide with any other pieces, {@code false} otherwise
      */
     private boolean tetrominoPositionValidCheck(List<Coordinate> coordinates, int positionX, int positionY) {
@@ -503,7 +502,7 @@ public class GameBoard {
         }
 
         /**
-         * this method should be call only from {@link GameManager#lockClearAndScorePiece()}
+         * this method should be call only from {@link org.sehes.tetris.controller.GameManager#lockClearAndScorePiece()}
          * its purpose is to return the last action info for score calculation
          *
          * @return record {@link LastActionSnapshot} containing tSpin and lines cleared information

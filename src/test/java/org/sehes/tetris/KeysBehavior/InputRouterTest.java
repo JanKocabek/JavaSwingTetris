@@ -1,22 +1,17 @@
 package org.sehes.tetris.KeysBehavior;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.sehes.tetris.controller.InputHandler;
 import org.sehes.tetris.controller.input.*;
 
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(MockitoExtension.class)
 class InputRouterTest {
-
-    @Mock
-    InputHandler handler;
 
     @Test
     void testHandleInput_RightKey_onRightEdge() {
@@ -26,12 +21,13 @@ class InputRouterTest {
         keyData.put(KeyEvent.VK_ENTER, expectedOutput);
         KeyMap keyMap = new KeyMap(keyData);
         InputMapper mapper = new InputMapper(keyMap);
+        List<InputAction> receivedActions = new ArrayList<>();
+        InputHandler handler = receivedActions::add;
         InputReceiver inputRouter = new InputRouter(mapper, handler);
         //act
         inputRouter.handleInput(new KeyDTO(KeyEvent.VK_ENTER, true));
         //assert
-        verify(handler).handleInput(expectedOutput);
-        verifyNoMoreInteractions(handler);
+        assertThat((receivedActions)).containsExactly(expectedOutput);
     }
 
     @Test
@@ -42,11 +38,13 @@ class InputRouterTest {
         keyData.put(KeyEvent.VK_ENTER, expectedOutput);
         KeyMap keyMap = new KeyMap(keyData);
         InputMapper mapper = new InputMapper(keyMap);
+        List<InputAction> receivedActions = new ArrayList<>();
+        InputHandler handler = receivedActions::add;
         InputReceiver inputRouter = new InputRouter(mapper, handler);
         //act
         inputRouter.handleInput(new KeyDTO(KeyEvent.VK_ENTER, true));
         //assert
-        verifyNoInteractions(handler);
+        assertThat(receivedActions).isEmpty();
     }
 
     @Test
@@ -57,11 +55,13 @@ class InputRouterTest {
         keyData.put(KeyEvent.VK_ENTER, expectedOutput);
         KeyMap keyMap = new KeyMap(keyData);
         InputMapper mapper = new InputMapper(keyMap);
+        List<InputAction> receivedActions = new ArrayList<>();
+        InputHandler handler = receivedActions::add;
         InputReceiver inputRouter = new InputRouter(mapper, handler);
         //act
         inputRouter.handleInput(new KeyDTO(KeyEvent.VK_A, false));
         //assert
-        verifyNoInteractions(handler);
+        assertThat(receivedActions).isEmpty();
     }
 
 }
