@@ -3,6 +3,7 @@ package org.sehes.tetris.KeysBehavior;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sehes.tetris.controller.input.InputReceiver;
@@ -21,6 +22,9 @@ class KeyAdapterE2ETest {
     @Mock
     InputReceiver inputReceiver;
 
+    @Captor
+    ArgumentCaptor<KeyDTO> dtoCaptor;
+
     @Test
     void testTetrisKeyAdapter_keyPressedDelegatesWithPressedDto() {
         //arrange
@@ -30,9 +34,8 @@ class KeyAdapterE2ETest {
         //act
         keyAdapter.keyPressed(keyEvent);
         //assert
-        ArgumentCaptor<KeyDTO> keyDTOArgumentCaptor = ArgumentCaptor.forClass(KeyDTO.class);
-        verify(inputReceiver).handleInput(keyDTOArgumentCaptor.capture());
-        final var keyDTO = keyDTOArgumentCaptor.getValue();
+        verify(inputReceiver).handleInput(dtoCaptor.capture());
+        final var keyDTO = dtoCaptor.getValue();
         final var actualKeyCode = keyDTO.keyCode();
         assertThat(actualKeyCode).isEqualTo(expectedKeyCode);
         assertThat(keyDTO.isPressed()).isTrue();
@@ -56,7 +59,7 @@ class KeyAdapterE2ETest {
         adapter.keyReleased(releasedEvent);
 
         // assert
-        ArgumentCaptor<KeyDTO> dtoCaptor = ArgumentCaptor.forClass(KeyDTO.class);
+
         verify(inputReceiver).handleInput(dtoCaptor.capture());
         KeyDTO dto = dtoCaptor.getValue();
         assertThat(keyCode).isEqualTo(dto.keyCode());

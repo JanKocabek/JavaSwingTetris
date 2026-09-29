@@ -364,14 +364,16 @@ class GameBoardTests {
         void testImpossibleRotation_T() {
             // 6 lines → getFullBoard prepends 22-6=16 empty rows → lines become rows 16-21
             final GameBoard localBoard = prepareBoard(getFullBoard("""
-                    ####I#####
+                    ###I######
                     ##########
                     ###II#####
                     ##########
                     ##########
                     ##########
                     """));
-            localBoard.trySpawnTetromino(spawn(TetrominoType.T, new Coordinate(4, 17), Orientation.NORTH, null).t());
+
+            assertTrue(localBoard.trySpawnTetromino(spawn(TetrominoType.T, new Coordinate(4, 17), Orientation.NORTH, null).t()),
+                    "T-piece must spawn successfully so the rotation-blocking board state is tested accurately");
 
             assertFalse(localBoard.tryRotatePiece(RotationFlag.CLOCKWISE),
                     "T-piece CW rotation must fail: in-place and all 4 SRS kick positions are blocked");
@@ -414,7 +416,9 @@ class GameBoardTests {
                     ##########
                     ##########
                     """));
-            localBoard.trySpawnTetromino(spawn(TetrominoType.I, new Coordinate(4, 12), Orientation.NORTH, null).t());
+
+            assertTrue(localBoard.trySpawnTetromino(spawn(TetrominoType.I, new Coordinate(4, 12), Orientation.NORTH, null).t()),
+                    "I-piece must spawn successfully so the rotation-blocking board state is tested accurately");
 
             assertFalse(localBoard.tryRotatePiece(RotationFlag.CLOCKWISE),
                     "I-piece CW rotation must fail: full rows at 9 and 14 block all SRS kick positions");

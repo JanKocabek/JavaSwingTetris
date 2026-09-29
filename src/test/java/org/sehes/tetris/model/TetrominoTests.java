@@ -6,7 +6,7 @@ import org.sehes.tetris.config.GameParameters;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class TetrominoTest {
+class TetrominoTests {
 
     private final PieceGenerator generator = new RandomPieceGenerator();
 

@@ -8,7 +8,7 @@ import org.sehes.tetris.model.Orientation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TSpinTest {
+class TSpinTests {
 
     // =========================================================================
     // getTSpin Branch Coverage Tests
