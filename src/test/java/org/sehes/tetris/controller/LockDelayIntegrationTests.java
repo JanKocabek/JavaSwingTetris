@@ -54,9 +54,8 @@ class LockDelayIntegrationTests {
     void setUp() {
         scoreMessenger = new ScoreMessenger();
         scoreMessenger.addObserver(scoreObserver);
-        stageManager = new GameStateManager(GameState.INIT);
-        gameManager = new GameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop);
-        gameManager.prepareGame(rendering, null);
+        stageManager = new GameStateManager(GameState.PREPARED);
+        gameManager = new GameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop,rendering);
         gameManager.handleInput(InputAction.CONFIRM);
     }
 

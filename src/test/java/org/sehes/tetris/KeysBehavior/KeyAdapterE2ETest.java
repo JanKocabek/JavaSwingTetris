@@ -6,7 +6,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sehes.tetris.controller.input.InputReceiver;
+import org.sehes.tetris.controller.input.InputRouter;
 import org.sehes.tetris.controller.input.KeyDTO;
 import org.sehes.tetris.controller.input.TetrisKeyAdapter;
 
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 class KeyAdapterE2ETest {
 
     @Mock
-    InputReceiver inputReceiver;
+    InputRouter inputReceiver;
 
     @Captor
     ArgumentCaptor<KeyDTO> dtoCaptor;
