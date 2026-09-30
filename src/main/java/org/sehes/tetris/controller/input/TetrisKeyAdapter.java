@@ -12,14 +12,14 @@ import java.awt.event.KeyEvent;
  */
 public class TetrisKeyAdapter extends KeyAdapter {
 
-    private final InputReceiver receiver;
+    private final InputRouter receiver;
 
     /**
      * Constructor for the TetrisKeyInputHandler class.
      *
      * @param receiver The class responsible for transferring the input to the rest of the application
      */
-    public TetrisKeyAdapter(InputReceiver receiver) {
+    public TetrisKeyAdapter(InputRouter receiver) {
         this.receiver = receiver;
     }
 

@@ -17,7 +17,7 @@ public class KeyMap implements KeyRebinding {
      *
      */
     private static final Map<Integer, InputAction> DEFAULT_KEY_MAP = Map.ofEntries(
-            entry(VK_ESCAPE, CANCEL),
+            entry(VK_ESCAPE, EXIT),
             entry(VK_ENTER, CONFIRM),
             entry(VK_UP, ROTATE_CW),
             entry(VK_A, ROTATE_CCW),

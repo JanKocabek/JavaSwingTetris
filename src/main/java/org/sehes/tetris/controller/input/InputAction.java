@@ -4,7 +4,7 @@ public enum InputAction {
     /**
      * Exit application
      */
-    CANCEL(true),
+    EXIT(true),
     /**
      * Start new game,pause and unpause game
      */
