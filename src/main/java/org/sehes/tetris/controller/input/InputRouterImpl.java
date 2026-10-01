@@ -17,7 +17,7 @@ public class InputRouterImpl implements InputRouter {
 
 
     /**
-     * Handles the input forward to the InputHandler if key is mapped in mapper
+     * Handles the input forward to the InputHandler if key is mapped in mapper, except EXIT invokes the exit callback
      *
      * @param key the key taken as DTO object containing the key code and the edge on which it was fired
      *
