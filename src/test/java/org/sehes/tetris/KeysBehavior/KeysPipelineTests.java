@@ -1,5 +1,6 @@
 package org.sehes.tetris.KeysBehavior;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,14 +19,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
-class KeysPipelineTest {
+class KeysPipelineTests {
     @Mock
     InputHandler handler;
+
+    @Mock
+    Runnable exitAction;
 
     private static Stream<Arguments> keysProvider() {
         return Stream.of(
                 Arguments.of(new KeyDTO(VK_ENTER, true), InputAction.CONFIRM),
-                Arguments.of(new KeyDTO(VK_ESCAPE, true), InputAction.CANCEL),
                 Arguments.of(new KeyDTO(VK_SPACE, false), InputAction.HARD_DROP),
                 Arguments.of(new KeyDTO(VK_LEFT, true), InputAction.MOVE_LEFT),
                 Arguments.of(new KeyDTO(VK_UP, false), InputAction.ROTATE_CW),
@@ -35,26 +38,36 @@ class KeysPipelineTest {
                 Arguments.of(new KeyDTO(VK_F1, true), InputAction.RESTART));
     }
 
+    private InputRouter inputRouter;
+
+    @BeforeEach
+    void setUp() {
+        final KeyMap map = KeyMap.createDefault();
+        final InputMapper mapper = new InputMapper(map);
+        inputRouter = new InputRouterImpl(mapper, handler, exitAction);
+    }
+
     @ParameterizedTest
     @MethodSource("keysProvider")
     void testKeyPipelining_mappedKeysTriggerExpectedAction(KeyDTO key, InputAction action) {
-        //arrange
-        KeyMap map = KeyMap.createDefault();
-        InputMapper mapper = new InputMapper(map);
-        InputReceiver inputRouter = new InputRouter(mapper, handler);
         //act
         inputRouter.handleInput(key);
-
         //assert
         verify(handler).handleInput(action);
+        verifyNoInteractions(exitAction);
+    }
+
+    @Test
+    void testKeyPipeline_ExitAction() {
+        //act
+        inputRouter.handleInput(new KeyDTO(VK_ESCAPE, true));
+        //assert
+        verify(exitAction).run();
+        verifyNoInteractions(handler);
     }
 
     @Test
     void testKeyPipeLine_NotMappedKey() {
-        //arrange
-        KeyMap map = KeyMap.createDefault();
-        InputMapper mapper = new InputMapper(map);
-        InputReceiver inputRouter = new InputRouter(mapper, handler);
         //act
         inputRouter.handleInput(new KeyDTO(KeyEvent.VK_E, true));
         //assert
@@ -63,15 +76,9 @@ class KeysPipelineTest {
 
     @Test
     void testKeyPipelining_wrongEdge() {
-        //arrange
-        KeyMap map = KeyMap.createDefault();
-        InputMapper mapper = new InputMapper(map);
-        InputReceiver inputRouter = new InputRouter(mapper, handler);
         //act
         inputRouter.handleInput(new KeyDTO(KeyEvent.VK_ENTER, false));
         //assert
         verifyNoInteractions(handler);
     }
-
-
 }
