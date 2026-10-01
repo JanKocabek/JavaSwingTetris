@@ -4,7 +4,7 @@ public enum InputAction {
     /**
      * Exit application
      */
-    CANCEL(true),
+    EXIT(true),
     /**
      * Start new game,pause and unpause game
      */
@@ -40,7 +40,8 @@ public enum InputAction {
     /**
      * Hold current mino and spawn with hold one or spawn new mino
      */
-    HOLD(false),;
+    HOLD(false),
+    RESTART(true);
 
     private final boolean triggersOnPress;
 

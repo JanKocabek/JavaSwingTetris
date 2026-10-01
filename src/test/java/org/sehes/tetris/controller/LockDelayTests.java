@@ -1,6 +1,7 @@
 package org.sehes.tetris.controller;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.model.Coordinate;
@@ -110,6 +111,7 @@ class LockDelayTests {
     }
 
     @Test
+    @DisplayName("After Kick Into Air should, Cancel LockMode, Cancel Timer, LeftMovement On Current Value")
     void testKickIntoAirCancelLockModeCancelTimerLeftMovementOnCurrentValue() {
         //arrange
         final var time = TimeUnit.MILLISECONDS.toNanos(100);
@@ -121,7 +123,7 @@ class LockDelayTests {
         //assert
         assertThat(lockDelay.isOn()).isFalse();
         assertThat(lockDelay).extracting("delayLockAccumulator").isEqualTo(0L);
-        assertThat(lockDelay).extracting("lockMoves").isEqualTo(2);
+        assertThat(lockDelay).extracting("lockMoves").isEqualTo(1);
     }
 
     @Test
@@ -134,7 +136,7 @@ class LockDelayTests {
         lockDelay.checkDrop(20, true);
         //assert
         assertThat(lockDelay.isOn()).isTrue();
-        assertThat(lockDelay).extracting("lockMoves").isEqualTo(2);
+        assertThat(lockDelay).extracting("lockMoves").isEqualTo(1);
     }
 
     @Test

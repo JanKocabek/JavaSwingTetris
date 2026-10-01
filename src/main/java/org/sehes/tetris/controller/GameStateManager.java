@@ -9,7 +9,7 @@ public class GameStateManager implements StateManager<GameState> {
         this.currentState = state;
     }
 
-    public Observable<GameState> GameStateObservable() {
+    public Observable<GameState> gameStateObservable() {
         return gameStateObservable;
     }
 

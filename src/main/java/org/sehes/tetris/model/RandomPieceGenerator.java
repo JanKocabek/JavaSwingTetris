@@ -1,12 +1,14 @@
 package org.sehes.tetris.model;
 
+import java.security.SecureRandom;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 
 public class RandomPieceGenerator implements PieceGenerator {
-    private final RandomGenerator generator = RandomGeneratorFactory.getDefault().create();
     private static final TetrominoType[] TETROMINO_SHAPES = TetrominoType.getTetrominoShapes();
-    private TetrominoType next = null;
+    private final SecureRandom seedGenerator = new SecureRandom();
+    private RandomGenerator pieceGenerator;
+    private TetrominoType next;
 
     @Override
     public TetrominoType peekNext() {
@@ -23,8 +25,18 @@ public class RandomPieceGenerator implements PieceGenerator {
         return consume;
     }
 
+    @Override
+    public void startNewSequence() {
+        next = null;
+        final long seed = seedGenerator.nextLong();
+        pieceGenerator = RandomGeneratorFactory.getDefault().create(seed);
+    }
+
     //
     private TetrominoType generate() {
-        return TETROMINO_SHAPES[generator.nextInt(TETROMINO_SHAPES.length)];
+        if (pieceGenerator == null) {
+            startNewSequence();
+        }
+        return TETROMINO_SHAPES[pieceGenerator.nextInt(TETROMINO_SHAPES.length)];
     }
 }

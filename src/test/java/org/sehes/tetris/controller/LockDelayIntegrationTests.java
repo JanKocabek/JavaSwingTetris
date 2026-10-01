@@ -31,32 +31,22 @@ class LockDelayIntegrationTests {
     private static final double LOCK_DELAY_TIME_S = 0.500;
     GameManager gameManager;
     StateManager<GameState> stageManager;
-    PieceGenerator pieceGenerator = new PieceGenerator() {
-        @Override
-        public TetrominoType peekNext() {
-            return TetrominoType.T;
-        }
-
-        @Override
-        public TetrominoType getNextPiece() {
-            return TetrominoType.T;
-        }
-    };
     ScoreMessenger scoreMessenger;
+    @Mock PieceGenerator pieceGenerator;
     @Mock Observer<ScoreEvent> scoreObserver;
     @Mock Rendering rendering;
     @Mock GameLoop gameLoop;
-
     @Captor ArgumentCaptor<GameSnapshot> gameSnapshotCaptor;
     @Captor ArgumentCaptor<ScoreEvent> scoreEventCaptor;
 
     @BeforeEach
     void setUp() {
+        when(pieceGenerator.getNextPiece()).thenReturn(TetrominoType.T);
+        when(pieceGenerator.peekNext()).thenReturn(TetrominoType.T);
         scoreMessenger = new ScoreMessenger();
         scoreMessenger.addObserver(scoreObserver);
-        stageManager = new GameStateManager(GameState.INIT);
-        gameManager = new GameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop);
-        gameManager.prepareGame(rendering, null);
+        stageManager = new GameStateManager(GameState.PREPARED);
+        gameManager = new GameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop, rendering);
         gameManager.handleInput(InputAction.CONFIRM);
     }
 

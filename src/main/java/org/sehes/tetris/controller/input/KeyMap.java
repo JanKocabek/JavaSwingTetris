@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.awt.event.KeyEvent.*;
+import static java.util.Map.entry;
 import static org.sehes.tetris.controller.input.InputAction.*;
 
 public class KeyMap implements KeyRebinding {
@@ -15,17 +16,19 @@ public class KeyMap implements KeyRebinding {
      * @see java.awt.event.KeyEvent
      *
      */
-    private static final Map<Integer, InputAction> DEFAULT_KEY_MAP = Map.of(
-            VK_ESCAPE, CANCEL,
-            VK_ENTER, CONFIRM,
-            VK_UP, ROTATE_CW,
-            VK_A, ROTATE_CCW,
-            VK_SPACE, HARD_DROP,
-            VK_DOWN, MOVE_DOWN,
-            VK_LEFT, MOVE_LEFT,
-            VK_RIGHT, MOVE_RIGHT,
-            VK_V, TOGGLE_GHOST,
-            VK_SHIFT,HOLD);
+    private static final Map<Integer, InputAction> DEFAULT_KEY_MAP = Map.ofEntries(
+            entry(VK_ESCAPE, EXIT),
+            entry(VK_ENTER, CONFIRM),
+            entry(VK_UP, ROTATE_CW),
+            entry(VK_A, ROTATE_CCW),
+            entry(VK_SPACE, HARD_DROP),
+            entry(VK_DOWN, MOVE_DOWN),
+            entry(VK_LEFT, MOVE_LEFT),
+            entry(VK_RIGHT, MOVE_RIGHT),
+            entry(VK_V, TOGGLE_GHOST),
+            entry(VK_SHIFT, HOLD),
+            entry(VK_F1, RESTART));
+
 
     private final Map<Integer, InputAction> map;
 

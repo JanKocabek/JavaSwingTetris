@@ -23,7 +23,7 @@ class InputRouterTest {
         InputMapper mapper = new InputMapper(keyMap);
         List<InputAction> receivedActions = new ArrayList<>();
         InputHandler handler = receivedActions::add;
-        InputReceiver inputRouter = new InputRouter(mapper, handler);
+        InputRouter inputRouter = new InputRouterImpl(mapper, handler,null);
         //act
         inputRouter.handleInput(new KeyDTO(KeyEvent.VK_ENTER, true));
         //assert
@@ -40,7 +40,7 @@ class InputRouterTest {
         InputMapper mapper = new InputMapper(keyMap);
         List<InputAction> receivedActions = new ArrayList<>();
         InputHandler handler = receivedActions::add;
-        InputReceiver inputRouter = new InputRouter(mapper, handler);
+        InputRouter inputRouter = new InputRouterImpl(mapper, handler,null);
         //act
         inputRouter.handleInput(new KeyDTO(KeyEvent.VK_ENTER, true));
         //assert
@@ -57,7 +57,7 @@ class InputRouterTest {
         InputMapper mapper = new InputMapper(keyMap);
         List<InputAction> receivedActions = new ArrayList<>();
         InputHandler handler = receivedActions::add;
-        InputReceiver inputRouter = new InputRouter(mapper, handler);
+        InputRouter inputRouter = new InputRouterImpl(mapper, handler,null);
         //act
         inputRouter.handleInput(new KeyDTO(KeyEvent.VK_A, false));
         //assert
