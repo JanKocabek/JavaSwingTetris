@@ -294,6 +294,7 @@ public class GameManager implements InputHandler {
         stateManager.setState(NEW_GAME);
         setHoldAndNotify(null);
         gameBoard = new GameBoard();
+        generator.startNewSequence();
         spawnObservable.notify(generator.peekNext());
         trySpawnNewTetromino();
         isHoldLock = false;
