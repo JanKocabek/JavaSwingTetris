@@ -120,8 +120,12 @@ public class GameManager implements InputHandler {
     }
 
     private void pauseGameInput(InputAction action) {
-        if (action == InputAction.CONFIRM) {
-            resumeGame();
+        switch (action) {
+            case CONFIRM -> resumeGame();
+            case RESTART -> restartGame();
+            default -> {
+                break;
+            }
         }
     }
 
