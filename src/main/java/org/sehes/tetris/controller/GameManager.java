@@ -103,16 +103,20 @@ public class GameManager implements InputHandler {
             case ROTATE_CCW -> rotatePiece(RotationFlag.COUNTER_CLOCKWISE);
             case TOGGLE_GHOST -> toggleGhostPiece();
             case HOLD -> holdOrSwap();
+            case RESTART -> restartGame();
             default -> {
                 break;
             }
         }
     }
 
+    private void restartGame() {
+        newGame();
+        gameLoop.restart();
+    }
+
     private void preparedInput(InputAction action) {
-        if ((action) == InputAction.CONFIRM) {
-            startGame();
-        }
+        if ((action) == InputAction.CONFIRM) startGame();
     }
 
     private void pauseGameInput(InputAction action) {
@@ -206,27 +210,35 @@ public class GameManager implements InputHandler {
         return false;
     }
 
-    private boolean spawnMinoOrGameOver() {
-        if (trySpawnNewTetromino()) return true;
-        setGameOver();
-        return false;
-    }
-
     private void setHoldAndNotify(TetrominoType currentType) {
         holdTetromino = currentType;
         holdObservable.notify(holdTetromino);
     }
 
     private void lockClearAndScorePiece() {
+        lockPiceAndTryClearLines();
+        scoreLockAction();
+        if (!trySpawnNewTetromino()) {
+            setGameOver();
+        }
+        resetGameStateForNewPiece();
+    }
+
+    private void resetGameStateForNewPiece() {
         isHoldLock = false;
-        gameBoard.lockTetrominoInPlace();
-        gameBoard.clearLines();
+        gravityAccumulator = 0;
+        isDirty.set(true);
+    }
+
+    private void scoreLockAction() {
         final var lastAction = gameBoard.getLastAction();
         final LockPieceEvent lockEvent = createLockEvent(lastAction.tSpin(), lastAction.linesCleared());
         scoreMessenger.notifyObservers(lockEvent);
-        spawnMinoOrGameOver();
-        gravityAccumulator = 0;
-        isDirty.set(true);
+    }
+
+    private void lockPiceAndTryClearLines() {
+        gameBoard.lockTetrominoInPlace();
+        gameBoard.clearLines();
     }
 
     private LockPieceEvent createLockEvent(final TSpin tSpin, int clearedLines) {
@@ -274,25 +286,21 @@ public class GameManager implements InputHandler {
     // =========================================================================
 
     private void startGame() {
-        GameState state = stateManager.getState();
-        if (state == PREPARED || state == GAME_OVER) {
             newGame();
             gameLoop.start();
-        }
     }
 
     private void newGame() {
-        setHoldAndNotify(null);
-        isHoldLock = false;
         stateManager.setState(NEW_GAME);
-        isDirty.set(true);
+        setHoldAndNotify(null);
         gameBoard = new GameBoard();
         spawnObservable.notify(generator.peekNext());
-        if (spawnMinoOrGameOver()) {
-            render();
-            resetAccumulator();
-            stateManager.setState(PLAYING);
-        }
+        trySpawnNewTetromino();
+        isHoldLock = false;
+        isDirty.set(true);
+        render();
+        resetAccumulator();
+        stateManager.setState(PLAYING);
     }
 
     private void pauseGame() {
