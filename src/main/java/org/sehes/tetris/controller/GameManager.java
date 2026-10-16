@@ -12,14 +12,13 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.sehes.tetris.Utils.NANOS_PER_SECOND;
 import static org.sehes.tetris.controller.GameState.*;
 
 public class GameManager implements InputHandler {
-
     // =========================================================================
     // 1. CONSTANTS
     // =========================================================================
-    private static final double NANOS_PER_SECOND = 1_000_000_000.0;
     private static final int BASE_SPEED_MS = 600;
     private static final long MOVEMENT_SPEED = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED_MS);
     // =========================================================================
@@ -290,8 +289,8 @@ public class GameManager implements InputHandler {
     // =========================================================================
 
     private void startGame() {
-            newGame();
-            gameLoop.start();
+        newGame();
+        gameLoop.start();
     }
 
     private void newGame() {
