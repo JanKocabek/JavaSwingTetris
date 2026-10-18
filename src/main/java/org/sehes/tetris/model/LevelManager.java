@@ -34,8 +34,8 @@ public class LevelManager {
     }
 
     private long calculateMovementSpeedNano() {
-        final int speedExponent = level - 1;
-        final double speedSec = BASE_SPEED_FACTOR - Math.pow((level - 1) * SPEED_ACCELERATION_STEPS, speedExponent);
+        final int levelExponent = level - 1;
+        final double speedSec =  Math.pow(BASE_SPEED_FACTOR -(levelExponent * SPEED_ACCELERATION_STEPS), levelExponent);
         return (long) (speedSec * NANOS_PER_SECOND);
     }
 }

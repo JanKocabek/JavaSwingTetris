@@ -9,18 +9,13 @@ import org.sehes.tetris.model.score.SoftDropEvent;
 import org.sehes.tetris.model.score.TSpin;
 
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.sehes.tetris.Utils.NANOS_PER_SECOND;
 import static org.sehes.tetris.controller.GameState.*;
 
 public class GameManager implements InputHandler {
-    // =========================================================================
     // 1. CONSTANTS
-    // =========================================================================
-    private static final int BASE_SPEED_MS = 600;
-    private static final long MOVEMENT_SPEED = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED_MS);
     // =========================================================================
     // 2. INFRASTRUCTURE & SERVICES
     // =========================================================================
@@ -30,6 +25,7 @@ public class GameManager implements InputHandler {
     private final GameLoop gameLoop;
     private final Rendering tetrisCanvas;
     private final LockDelay lockDelay = new LockDelay();
+    private final LevelManager levelManager = new LevelManager();
     // =========================================================================
     // 3. OBSERVABLES & OBSERVERS
     // =========================================================================
@@ -50,6 +46,7 @@ public class GameManager implements InputHandler {
     // =========================================================================
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private long gravityAccumulator;
+    private long movementSpeed;
     // =========================================================================
     // PUBLIC INTERFACE (CONSTRUCTOR & PUBLIC METHODS)
     // =========================================================================
@@ -60,6 +57,7 @@ public class GameManager implements InputHandler {
         this.scoreMessenger = scoreMessenger;
         this.gameLoop = loop;
         this.tetrisCanvas = render;
+        this.movementSpeed = levelManager.getMovementSpeedNano();
     }
 
     @Override
@@ -268,9 +266,9 @@ public class GameManager implements InputHandler {
 
     private void gravityUpdate(Long elapsedTime) {
         gravityAccumulator += elapsedTime;
-        while (gravityAccumulator >= MOVEMENT_SPEED) {
+        while (gravityAccumulator >= movementSpeed) {
             if (gameBoard.tryGravityMove()) {
-                gravityAccumulator -= MOVEMENT_SPEED;
+                gravityAccumulator -= movementSpeed;
                 lockDelay.checkDrop(getCurrentTetromino().getPositionY(), gameBoard.isMinoGrounded());
             } else {
                 gravityAccumulator = 0;
