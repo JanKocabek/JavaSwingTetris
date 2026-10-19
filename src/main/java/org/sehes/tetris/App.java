@@ -44,7 +44,7 @@ public class App {
         addObserver(gameLoop.tickObservable(), gameManager.tickObserver());
         addObserver(scoreMessenger, scoreManager.scoringObserver());
         addObserver(stateManager.gameStateObservable(), scoreManager.gameStateObserver());
-        addObserver(scoreManager.ScoreInfoObservable(), gui.scoreObserver());
+        addObserver(scoreManager.scoreInfoObservable(), gui.scoreObserver());
         addObserver(gameManager.spawnObservable(), gui.previewObserver());
         addObserver(gameManager.holdObservable(), gui.holdCanvasObserver());
         gui.window().setVisible(true);

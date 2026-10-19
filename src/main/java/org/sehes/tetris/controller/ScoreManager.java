@@ -1,26 +1,22 @@
 package org.sehes.tetris.controller;
 
 import org.jspecify.annotations.NonNull;
-import org.sehes.tetris.model.score.HardDropEvent;
-import org.sehes.tetris.model.score.LockPieceEvent;
-import org.sehes.tetris.model.score.ScoreEvent;
-import org.sehes.tetris.model.score.ScoreInfoDTO;
-import org.sehes.tetris.model.score.ScoreLineClearType;
-import org.sehes.tetris.model.score.SoftDropEvent;
-import org.sehes.tetris.model.score.TSpin;
+import org.sehes.tetris.model.score.*;
 
 public class ScoreManager {
     private static final byte COMBO_EMPTY = -1;
     private final Observable.Publisher<ScoreInfoDTO> scoreInfoObservable = new ObservableImpl<>();
     private int score;
-    /** Whether a difficult clear has started a B2B chain. */
+    /**
+     * Whether a difficult clear has started a B2B chain.
+     */
     private boolean isBackToBackChain;
     private int combo = COMBO_EMPTY;
 
     public ScoreManager() {
     }
 
-    public Observable<ScoreInfoDTO> ScoreInfoObservable() {
+    public Observable<ScoreInfoDTO> scoreInfoObservable() {
         return scoreInfoObservable;
     }
 
@@ -81,8 +77,8 @@ public class ScoreManager {
             case MINI_T_SPIN_SINGLE -> 200;
             case MINI_T_SPIN_DOUBLE, T_SPIN_NO_LINES -> 400;
         };
-        int score = applyBackToBackBonus ? (int) (baseScore * 1.5) : baseScore;
-        return combo > 0 ? score + (combo * 50) : score;
+        final int points = applyBackToBackBonus ? (int) (baseScore * 1.5) : baseScore;
+        return combo > 0 ? points + (combo * 50) : points;
     }
 
     private boolean isDifficultClear(int clearedLines, TSpin tspin) {

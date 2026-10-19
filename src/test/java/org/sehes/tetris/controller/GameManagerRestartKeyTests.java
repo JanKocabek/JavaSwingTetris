@@ -37,7 +37,7 @@ class GameManagerRestartKeyTests {
         final ScoreManager scoreManager = new ScoreManager();
         messenger.addObserver(scoreManager.scoringObserver());
         scoreUpdates = new ArrayList<>();
-        scoreManager.ScoreInfoObservable().addObserver(scoreUpdates::add);
+        scoreManager.scoreInfoObservable().addObserver(scoreUpdates::add);
         stateManager.gameStateObservable().addObserver(scoreManager.gameStateObserver());
         gameManager = new GameManager(stateManager, messenger, generator, gameLoop, rendering);
     }
