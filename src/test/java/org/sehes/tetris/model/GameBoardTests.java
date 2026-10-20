@@ -62,7 +62,7 @@ class GameBoardTests {
     @Test
     void testCheckAndClearLinesNoLines() {
         // when
-        gameBoard.clearLines();
+        gameBoard.tryClearLines();
         final var result = gameBoard.getLastAction();
         // then
         assertThat(result.linesCleared()).isZero();
@@ -74,7 +74,7 @@ class GameBoardTests {
         // given
         gameBoard.createGarbageLine();
         // when
-        gameBoard.clearLines();
+        gameBoard.tryClearLines();
         final var result = gameBoard.getLastAction();
         // then
         assertThat(result.linesCleared()).isOne();
@@ -221,7 +221,7 @@ class GameBoardTests {
                     IIIIIIIIII
                     """));
 
-            board.clearLines();
+            board.tryClearLines();
 
             assertThat(board.getLastAction().linesCleared()).isOne();
             assertThat(board.getBoardView().getBlockContent(21, 0)).isEqualTo(TetrominoType.I);

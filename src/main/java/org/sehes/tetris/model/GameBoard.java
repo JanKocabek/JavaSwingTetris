@@ -211,7 +211,7 @@ public class GameBoard {
      * EMPTY and shifts all rows above it down by one.
      * The method doesn't return anything but set number of cleared lines into {@link ActionSnapshot.LastActionSnapshot}
      */
-    public void clearLines() {
+    public boolean tryClearLines() {
         int linesClearedCount = 0;
         for (int row = 0; row < board.length; row++) {
             if (isLineFull(board[row])) {
@@ -222,6 +222,7 @@ public class GameBoard {
             }
         }
         lastActionSnapshot.linesCleared = linesClearedCount;
+        return linesClearedCount > 0;
     }
 
     private int checkCornersAroundT(int[][] offset) {
