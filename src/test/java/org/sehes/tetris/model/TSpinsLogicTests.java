@@ -242,7 +242,7 @@ class TSpinsLogicTests {
         }
 
         gameBoard.lockTetrominoInPlace();
-        gameBoard.clearLines();
+        gameBoard.tryClearLines();
 
         final var lastAction = gameBoard.getLastAction();
 
@@ -255,7 +255,7 @@ class TSpinsLogicTests {
         }
 
         final ScoreManager scoreMgr = testCase.scoreManager() != null ? testCase.scoreManager() : new ScoreManager();
-        scoreMgr.updateScore(new LockPieceEvent(lastAction.linesCleared(), lastAction.tSpin()));
+        scoreMgr.updateScore(new LockPieceEvent(lastAction.linesCleared(), lastAction.tSpin(),1));
 
         if (testCase.expectedScore() != null) {
             assertThat(scoreMgr).extracting("score").isEqualTo(testCase.expectedScore());

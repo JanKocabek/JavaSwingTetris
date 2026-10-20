@@ -42,7 +42,7 @@ public class ScoreManager {
         score = 0;
         combo = COMBO_EMPTY;
         isBackToBackChain = false;
-         scoreInfoObservable.notify(new ScoreInfoDTO(score, ScoreLineClearType.NONE, combo, false));
+        scoreInfoObservable.notify(new ScoreInfoDTO(score, ScoreLineClearType.NONE, combo, false));
     }
 
     public void updateScore(ScoreEvent scoreEvent) {
@@ -51,7 +51,7 @@ public class ScoreManager {
         int points = switch (scoreEvent) {
             case SoftDropEvent(int cell) -> cell;
             case HardDropEvent(int cell) -> cell * 2;
-            case LockPieceEvent(int clearedLines, TSpin tspin) -> {
+            case LockPieceEvent(int clearedLines, TSpin tspin, int level) -> {
                 clearType = geLineClearType(clearedLines, tspin);
                 boolean difficultClear = isDifficultClear(clearedLines, tspin);
                 backToBackBonus = difficultClear && isBackToBackChain;
@@ -86,6 +86,8 @@ public class ScoreManager {
     }
 
     private void updateBackToBackChain(int clearedLines, boolean difficultClear) {
+        //TODO: apply simply code
+       // isBackToBackChain= difficultClear || (clearedLines == 0 && isBackToBackChain);
         if (difficultClear) {
             isBackToBackChain = true;
         } else if (clearedLines > 0) {

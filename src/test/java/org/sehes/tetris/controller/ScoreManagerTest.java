@@ -1,12 +1,9 @@
 package org.sehes.tetris.controller;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sehes.tetris.model.score.HardDropEvent;
-import org.sehes.tetris.model.score.LockPieceEvent;
-import org.sehes.tetris.model.score.ScoreInfoDTO;
-import org.sehes.tetris.model.score.SoftDropEvent;
-import org.sehes.tetris.model.score.TSpin;
+import org.sehes.tetris.model.score.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +14,10 @@ class ScoreManagerTest {
 
     private ScoreManager scoreManager;
     private ScoreMessenger scoreMessenger;
+
+    private @NonNull LockPieceEvent createLockPieceEvent(int clearedLines, TSpin tSpin) {
+        return new LockPieceEvent(clearedLines, tSpin, 1);
+    }
 
     @BeforeEach
     void setUp() {
@@ -30,7 +31,7 @@ class ScoreManagerTest {
     void testSoftDropScoring() {
         // given
         scoreMessenger.notifyObservers(new SoftDropEvent(5));
-        
+
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(5);
     }
@@ -39,7 +40,7 @@ class ScoreManagerTest {
     void testHardDropScoring() {
         // given
         scoreMessenger.notifyObservers(new HardDropEvent(10));
-        
+
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(20); // 10 * 2
     }
@@ -47,17 +48,18 @@ class ScoreManagerTest {
     @Test
     void testLockPieceScoring_SingleLine() {
         // given
-        scoreMessenger.notifyObservers(new LockPieceEvent(1, TSpin.NONE));
-        
+        scoreMessenger.notifyObservers(createLockPieceEvent(1, TSpin.NONE));
+
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(100);
     }
 
+
     @Test
     void testLockPieceScoring_DoubleLine() {
         // given
-        scoreMessenger.notifyObservers(new LockPieceEvent(2, TSpin.NONE));
-        
+        scoreMessenger.notifyObservers(createLockPieceEvent(2, TSpin.NONE));
+
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(300);
     }
@@ -65,8 +67,8 @@ class ScoreManagerTest {
     @Test
     void testLockPieceScoring_TripleLine() {
         // given
-        scoreMessenger.notifyObservers(new LockPieceEvent(3, TSpin.NONE));
-        
+        scoreMessenger.notifyObservers(createLockPieceEvent(3, TSpin.NONE));
+
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(500);
     }
@@ -75,9 +77,9 @@ class ScoreManagerTest {
     void testLockPieceScoring_Tetris() {
         // given
         List<ScoreInfoDTO> updates = new ArrayList<>();
-        scoreManager.ScoreInfoObservable().addObserver(updates::add);
-        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
-        
+        scoreManager.scoreInfoObservable().addObserver(updates::add);
+        scoreMessenger.notifyObservers(createLockPieceEvent(4, TSpin.NONE));
+
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(800);
         assertThat(scoreManager).extracting("isBackToBackChain").isEqualTo(true);
@@ -85,11 +87,11 @@ class ScoreManagerTest {
     }
 
     @Test
-    void testDoubleTetrisB2BLogic(){
+    void testDoubleTetrisB2BLogic() {
         //arrange
         // act
-        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
-        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(createLockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(createLockPieceEvent(4, TSpin.NONE));
         // assert
         assertThat(scoreManager).extracting("isBackToBackChain").isEqualTo(true);
         assertThat(scoreManager).extracting("score").isEqualTo(2050);
@@ -98,11 +100,11 @@ class ScoreManagerTest {
     @Test
     void sendsB2BToGuiOnlyForTheClearThatReceivesTheBonus() {
         List<ScoreInfoDTO> updates = new ArrayList<>();
-        scoreManager.ScoreInfoObservable().addObserver(updates::add);
+        scoreManager.scoreInfoObservable().addObserver(updates::add);
 
-        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(createLockPieceEvent(4, TSpin.NONE));
         scoreMessenger.notifyObservers(new HardDropEvent(1));
-        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(createLockPieceEvent(4, TSpin.NONE));
 
         assertThat(updates)
                 .extracting(ScoreInfoDTO::B2BBonus)
@@ -111,19 +113,19 @@ class ScoreManagerTest {
 
     @Test
     void noLineClearDoesNotBreakABackToBackChain() {
-        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
-        scoreMessenger.notifyObservers(new LockPieceEvent(0, TSpin.FULL));
-        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(createLockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(createLockPieceEvent(0, TSpin.FULL));
+        scoreMessenger.notifyObservers(createLockPieceEvent(4, TSpin.NONE));
 
         assertThat(scoreManager).extracting("score").isEqualTo(2400);
     }
 
     @Test
-    void testBreakB2BWhenNotDifficultAfterTetris(){
+    void testBreakB2BWhenNotDifficultAfterTetris() {
         //arrange
         //act
-        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
-        scoreMessenger.notifyObservers(new LockPieceEvent(3, TSpin.NONE));
+        scoreMessenger.notifyObservers(createLockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(createLockPieceEvent(3, TSpin.NONE));
         // assert
         assertThat(scoreManager).extracting("isBackToBackChain").isEqualTo(false);
     }
@@ -131,8 +133,8 @@ class ScoreManagerTest {
     @Test
     void testLockPieceScoring_NoLines() {
         // given
-        scoreMessenger.notifyObservers(new LockPieceEvent(0, TSpin.NONE));
-        
+        scoreMessenger.notifyObservers(createLockPieceEvent(0, TSpin.NONE));
+
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(0);
     }
@@ -142,8 +144,8 @@ class ScoreManagerTest {
         // given
         scoreMessenger.notifyObservers(new SoftDropEvent(3));
         scoreMessenger.notifyObservers(new HardDropEvent(5));
-        scoreMessenger.notifyObservers(new LockPieceEvent(2, TSpin.NONE));
-        
+        scoreMessenger.notifyObservers(createLockPieceEvent(2, TSpin.NONE));
+
         // then: 3 + (5*2) + 300 = 313
         assertThat(scoreManager).extracting("score").isEqualTo(313);
     }
@@ -153,10 +155,10 @@ class ScoreManagerTest {
         // given
         scoreMessenger.notifyObservers(new SoftDropEvent(10));
         assertThat(scoreManager).extracting("score").isEqualTo(10);
-        
+
         // when
         scoreManager.gameStateObserver().update(GameState.NEW_GAME);
-        
+
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(0);
     }

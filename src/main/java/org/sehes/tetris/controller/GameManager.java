@@ -46,7 +46,7 @@ public class GameManager implements InputHandler {
     // =========================================================================
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private long gravityAccumulator;
-    private long movementSpeed;
+    //private final long movementSpeed;
     // =========================================================================
     // PUBLIC INTERFACE (CONSTRUCTOR & PUBLIC METHODS)
     // =========================================================================
@@ -57,7 +57,6 @@ public class GameManager implements InputHandler {
         this.scoreMessenger = scoreMessenger;
         this.gameLoop = loop;
         this.tetrisCanvas = render;
-        this.movementSpeed = levelManager.getMovementSpeedNano();
     }
 
     @Override
@@ -216,9 +215,15 @@ public class GameManager implements InputHandler {
         holdObservable.notify(holdTetromino);
     }
 
+    //TODO: simplified output of related GameBoard methods make it direct return
     private void lockClearAndScorePiece() {
-        lockPiceAndTryClearLines();
-        scoreLockAction();
+        gameBoard.lockTetrominoInPlace();
+        boolean linesCleared = gameBoard.tryClearLines();
+        final var lastAction = gameBoard.getLastAction();
+        if( linesCleared){
+            levelManager.onCleanedRows(lastAction.linesCleared());
+        }
+        notifyLockingEvent(lastAction.tSpin(), lastAction.linesCleared(),levelManager.getLevel());
         if (!trySpawnNewTetromino()) {
             setGameOver();
         }
@@ -231,19 +236,13 @@ public class GameManager implements InputHandler {
         isDirty.set(true);
     }
 
-    private void scoreLockAction() {
-        final var lastAction = gameBoard.getLastAction();
-        final LockPieceEvent lockEvent = createLockEvent(lastAction.tSpin(), lastAction.linesCleared());
+    private void notifyLockingEvent(TSpin tSpin, int linesCleared, int level) {
+        final LockPieceEvent lockEvent = createLockEvent(tSpin,linesCleared,level);
         scoreMessenger.notifyObservers(lockEvent);
     }
 
-    private void lockPiceAndTryClearLines() {
-        gameBoard.lockTetrominoInPlace();
-        gameBoard.clearLines();
-    }
-
-    private LockPieceEvent createLockEvent(final TSpin tSpin, int clearedLines) {
-        return new LockPieceEvent(clearedLines, tSpin);
+    private LockPieceEvent createLockEvent(final TSpin tSpin, int clearedLines,int level) {
+        return new LockPieceEvent(clearedLines, tSpin,level);
     }
 
     // =========================================================================
@@ -266,9 +265,9 @@ public class GameManager implements InputHandler {
 
     private void gravityUpdate(Long elapsedTime) {
         gravityAccumulator += elapsedTime;
-        while (gravityAccumulator >= movementSpeed) {
+        while (gravityAccumulator >= levelManager.getMovementSpeedNano()) {
             if (gameBoard.tryGravityMove()) {
-                gravityAccumulator -= movementSpeed;
+                gravityAccumulator -= levelManager.getMovementSpeedNano();
                 lockDelay.checkDrop(getCurrentTetromino().getPositionY(), gameBoard.isMinoGrounded());
             } else {
                 gravityAccumulator = 0;
