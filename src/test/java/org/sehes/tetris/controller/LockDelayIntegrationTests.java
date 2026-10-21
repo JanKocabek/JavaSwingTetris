@@ -55,19 +55,6 @@ class LockDelayIntegrationTests {
         }).when(rendering).render(any());
     }
 
-    private void tickUntilGrounded() {
-        for (int ticks = 0; ticks < MAX_GROUNDING_TICKS; ticks++) {
-            GameSnapshot snapshot = latestSnapshot.get();
-            if (snapshot != null && snapshot.lockTime() != null) {
-                return;
-            }
-            gameManager.tickObserver().update(TICK_NANO);
-        }
-
-        fail("Piece did not reach ground within " + MAX_GROUNDING_TICKS + " ticks");
-    }
-
-
     @Test
     @DisplayName("should start lock delay when ground is reached-by user moving down")
     void shouldStartLockDelayWhenGroundIsReachedMoving() {
@@ -268,19 +255,30 @@ class LockDelayIntegrationTests {
         gameManager.handleInput(InputAction.HOLD);
         verify(rendering, atLeastOnce()).render(gameSnapshotCaptor.capture());
         final var gameSnapshotList = gameSnapshotCaptor.getAllValues();
-        final var latestSnapshot = gameSnapshotList.getLast();
+        final var lastSnapshot = gameSnapshotList.getLast();
         //assert
-        assertThat(latestSnapshot.currentTetromino()).isPresent();
-        assertThat(latestSnapshot.currentTetromino().get().getPositionY()).isEqualTo(GameParameters.SPAWN_POINT.y());
-        assertThat(latestSnapshot.lockTime()).isNull();
+        assertThat(lastSnapshot.currentTetromino()).isPresent();
+        assertThat(lastSnapshot.currentTetromino().get().getPositionY()).isEqualTo(GameParameters.SPAWN_POINT.y());
+        assertThat(lastSnapshot.lockTime()).isNull();
     }
+
+    //internal helper methods for tests
 
     private void moveLeftAndBack() {
         gameManager.handleInput(InputAction.MOVE_LEFT);
         gameManager.handleInput(InputAction.MOVE_RIGHT);
     }
 
-    //internal helper methods for tests
+    private void tickUntilGrounded() {
+        for (int ticks = 0; ticks < MAX_GROUNDING_TICKS; ticks++) {
+            GameSnapshot snapshot = latestSnapshot.get();
+            if (snapshot != null && snapshot.lockTime() != null) {
+                return;
+            }
+            gameManager.tickObserver().update(TICK_NANO);
+        }
+        fail("Piece did not reach ground within " + MAX_GROUNDING_TICKS + " ticks");
+    }
 
     private void runTickNTimes(int number) {
         for (var i = 0; i < number; i++) {
