@@ -18,6 +18,7 @@ import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.ScoreEvent;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
@@ -26,28 +27,44 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class LockDelayIntegrationTests {
     private static final int TICK_MS = 16;
-    public static final double TICK_S = (double) TICK_MS / 1000;
-    private static final long TICK = TimeUnit.MILLISECONDS.toNanos(TICK_MS);
+    private static final double TICK_S = (double) TICK_MS / 1000;
+    private static final long TICK_NANO = TimeUnit.MILLISECONDS.toNanos(TICK_MS);
     private static final double LOCK_DELAY_TIME_S = 0.500;
-    GameManager gameManager;
-    StateManager<GameState> stageManager;
-    ScoreMessenger scoreMessenger;
-    @Mock PieceGenerator pieceGenerator;
-    @Mock Observer<ScoreEvent> scoreObserver;
-    @Mock Rendering rendering;
-    @Mock GameLoop gameLoop;
-    @Captor ArgumentCaptor<GameSnapshot> gameSnapshotCaptor;
-    @Captor ArgumentCaptor<ScoreEvent> scoreEventCaptor;
+    private static final int MAX_GROUNDING_TICKS = 3000;
+    private GameManager gameManager;
+    @Mock private PieceGenerator pieceGenerator;
+    @Mock private Observer<ScoreEvent> scoreObserver;
+    @Mock private Rendering rendering;
+    @Mock private GameLoop gameLoop;
+    @Captor private ArgumentCaptor<GameSnapshot> gameSnapshotCaptor;
+    @Captor private ArgumentCaptor<ScoreEvent> scoreEventCaptor;
+    private final AtomicReference<GameSnapshot> latestSnapshot = new AtomicReference<>();
 
     @BeforeEach
     void setUp() {
         when(pieceGenerator.getNextPiece()).thenReturn(TetrominoType.T);
         when(pieceGenerator.peekNext()).thenReturn(TetrominoType.T);
-        scoreMessenger = new ScoreMessenger();
+        ScoreMessenger scoreMessenger = new ScoreMessenger();
         scoreMessenger.addObserver(scoreObserver);
-        stageManager = new GameStateManager(GameState.PREPARED);
+        StateManager<GameState> stageManager = new GameStateManager(GameState.PREPARED);
         gameManager = new GameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop, rendering);
         gameManager.handleInput(InputAction.CONFIRM);
+        doAnswer(invocation -> {
+            latestSnapshot.set(invocation.getArgument(0));
+            return null;
+        }).when(rendering).render(any());
+    }
+
+    private void tickUntilGrounded() {
+        for (int ticks = 0; ticks < MAX_GROUNDING_TICKS; ticks++) {
+            GameSnapshot snapshot = latestSnapshot.get();
+            if (snapshot != null && snapshot.lockTime() != null) {
+                return;
+            }
+            gameManager.tickObserver().update(TICK_NANO);
+        }
+
+        fail("Piece did not reach ground within " + MAX_GROUNDING_TICKS + " ticks");
     }
 
 
@@ -59,11 +76,10 @@ class LockDelayIntegrationTests {
         final var numberOfRun = GameParameters.ROWS - GameParameters.SPAWN_POINT.y();
         verify(rendering, times(numberOfRun)).render(gameSnapshotCaptor.capture());
         final var gameSnapshotList = gameSnapshotCaptor.getAllValues();
+        final var firstMino = gameSnapshotList.getFirst().currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"));
         //assert
-        final var mino = gameSnapshotList.getFirst().currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"));
-
         assertThat(gameSnapshotList.getFirst().lockTime()).isNull();
-        assertThat(gameSnapshotList.getLast().currentTetromino()).contains(mino);
+        assertThat(gameSnapshotList.getLast().currentTetromino()).contains(firstMino);
         assertThat(gameSnapshotList.getLast().currentTetromino().orElseThrow().getPositionY()).isEqualTo(GameParameters.ROWS - 1);
         assertThat(gameSnapshotList.getLast().lockTime()).isZero();
     }
@@ -72,16 +88,15 @@ class LockDelayIntegrationTests {
     @DisplayName("should set lock delay when ground is reached-by gravity")
     void shouldSetLockDelayWhenGroundIsReachedGravity() {
         //act
-        runTickNTimes(1000);
+        tickUntilGrounded();
         verify(rendering, atLeastOnce()).render(gameSnapshotCaptor.capture());
         final var gameSnapshotList = gameSnapshotCaptor.getAllValues();
         //assert
         final var mino = gameSnapshotList.getFirst().currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"));
-        final var droppedFrameOpt = gameSnapshotList.stream().filter(snapshot -> snapshot.lockTime() != null).findFirst();
-        assertThat(droppedFrameOpt).isNotEmpty();
-        final var dropped = droppedFrameOpt.get();
+        final var droppedMinoFrameOpt = gameSnapshotList.stream().filter(snapshot -> snapshot.lockTime() != null).findFirst();
+        assertThat(droppedMinoFrameOpt).isNotEmpty();
+        final var dropped = droppedMinoFrameOpt.get();
         assertThat(gameSnapshotList.getFirst().lockTime()).isNull();
-        assertThat(dropped.lockTime()).isNotNull();
         assertThat(dropped.currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"))).isEqualTo(mino);
     }
 
@@ -89,18 +104,18 @@ class LockDelayIntegrationTests {
     @DisplayName("should lock after 500ms - gravity fall")
     void shouldLockAfter500msGravity() {
         //act
-        runTickNTimes(1000);
+        tickUntilGrounded();
+        runTickNTimes(500);
         verify(rendering, atLeastOnce()).render(gameSnapshotCaptor.capture());
         verify(scoreObserver, times(1)).update(scoreEventCaptor.capture());
         final var gameSnapshotList = gameSnapshotCaptor.getAllValues();
         final var scoreEvent = scoreEventCaptor.getValue();
-        //assert
         final var exactMino = gameSnapshotList.getFirst().currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"));
         final var lockedFrames = gameSnapshotList.stream().filter(snapshot -> snapshot.lockTime() != null && snapshot.currentTetromino().orElseGet(() -> fail("Tetromino should not be empty")) == exactMino).toList();
-
+        //assert
         assertThat(lockedFrames).hasSizeLessThan(600);
         assertThat(lockedFrames.getLast().lockTime()).isCloseTo(LOCK_DELAY_TIME_S, Offset.offset(TICK_S));
-        assertThat(scoreEvent).isNotNull().isInstanceOf(LockPieceEvent.class);
+        assertThat(scoreEvent).isInstanceOf(LockPieceEvent.class);
     }
 
     @Test
@@ -269,7 +284,7 @@ class LockDelayIntegrationTests {
 
     private void runTickNTimes(int number) {
         for (var i = 0; i < number; i++) {
-            gameManager.tickObserver().update(TICK);
+            gameManager.tickObserver().update(TICK_NANO);
         }
     }
 
