@@ -1,7 +1,6 @@
-package org.sehes.tetris;
+package org.sehes.tetris.model;
 
 import org.junit.jupiter.api.Test;
-import org.sehes.tetris.model.UtilForTests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -37,7 +36,7 @@ class TestForUtilTestsClass {
                 ###II###
                 II#II###""";
 
-        String result = UtilForTests.getFullBoard(filledPart, 4, 8);
+        String result = UtilForTests.CreateFullBoardDescription(filledPart, 4, 8);
 
         assertEquals(expected, result, "Should pad exactly 2 empty rows at the top");
     }
@@ -51,7 +50,7 @@ class TestForUtilTestsClass {
                 ###""";
 
         // We want exactly 3 rows. It should add 0 empty rows.
-        String result = UtilForTests.getFullBoard(filledPart, 3, 3);
+        String result = UtilForTests.CreateFullBoardDescription(filledPart, 3, 3);
 
         assertEquals(filledPart, result, "Should return the exact same string if no padding is needed");
     }
@@ -66,7 +65,7 @@ class TestForUtilTestsClass {
                 ###""";
 
         // Target is 2 rows. Math.max(0, -2) should prevent a crash and add 0 rows.
-        String result = UtilForTests.getFullBoard(filledPart, 2, 3);
+        String result = UtilForTests.CreateFullBoardDescription(filledPart, 2, 3);
 
         assertEquals(filledPart, result, "Should gracefully return the original board without throwing an exception");
     }
@@ -81,7 +80,7 @@ class TestForUtilTestsClass {
                 ###
                 """;
 
-        String result = UtilForTests.getFullBoard(filledPart, 2, 3);
+        String result = UtilForTests.CreateFullBoardDescription(filledPart, 2, 3);
 
         assertEquals(expected, result, "Should return a completely empty board of the target dimensions");
     }

@@ -12,18 +12,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.sehes.tetris.model.TetrominoFixtures.spawn;
-import static org.sehes.tetris.model.UtilForTests.getFullBoard;
-import static org.sehes.tetris.model.UtilForTests.prepareBoard;
-import static org.sehes.tetris.model.UtilForTests.prepareBoard2T;
-import static org.sehes.tetris.model.UtilForTests.printBoardState;
+import static org.sehes.tetris.model.UtilForTests.*;
 
 class GameBoardTests {
 
@@ -106,14 +97,14 @@ class GameBoardTests {
 
         @Test
         void testTrySetNewTetromino() {
-            boolean result =    gameBoard.trySetNewTetromino(generator.getNextPiece());
+            boolean result = gameBoard.trySetNewTetromino(generator.getNextPiece());
             assertTrue(result);
             assertNotNull(gameBoard.getCurrentTetromino());
         }
 
         @Test
         void testGetCurrentTetrominoAfterSet() {
-               gameBoard.trySetNewTetromino(generator.getNextPiece());
+            gameBoard.trySetNewTetromino(generator.getNextPiece());
             Tetromino current = gameBoard.getCurrentTetromino();
             assertNotNull(current);
         }
@@ -153,7 +144,7 @@ class GameBoardTests {
         @Test
         void testTryMovePieceLeft() {
             // given
-               gameBoard.trySetNewTetromino(generator.getNextPiece());
+            gameBoard.trySetNewTetromino(generator.getNextPiece());
             Tetromino tetromino = gameBoard.getCurrentTetromino();
             Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
             // when
@@ -169,7 +160,7 @@ class GameBoardTests {
         @Test
         void testTryMovePieceRight() {
             // given
-               gameBoard.trySetNewTetromino(generator.getNextPiece());
+            gameBoard.trySetNewTetromino(generator.getNextPiece());
             Tetromino tetromino = gameBoard.getCurrentTetromino();
             assertNotNull(tetromino);
             Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
@@ -187,7 +178,7 @@ class GameBoardTests {
         @Test
         void testTryMovePieceDown() {
             // given
-               gameBoard.trySetNewTetromino(generator.getNextPiece());
+            gameBoard.trySetNewTetromino(generator.getNextPiece());
             Tetromino tetromino = gameBoard.getCurrentTetromino();
             Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
             // when
@@ -202,7 +193,7 @@ class GameBoardTests {
 
         @Test
         void movingDownWithHorizontalMoveApi_explainsWhichApiToUse() {
-               gameBoard.trySetNewTetromino(generator.getNextPiece());
+            gameBoard.trySetNewTetromino(generator.getNextPiece());
             assertThatThrownBy(() -> gameBoard.tryMovePiece(DirectionFlag.DOWN))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Use trySoftDrop() for down movement");
@@ -216,7 +207,7 @@ class GameBoardTests {
 
         @Test
         void clearingFullLine_movesTheRowsAboveDown() {
-            final GameBoard board = prepareBoard(getFullBoard("""
+            final GameBoard board = prepareBoard(UtilForTests.CreateFullBoardDescription("""
                     I#########
                     IIIIIIIIII
                     """));
@@ -350,7 +341,7 @@ class GameBoardTests {
          *  r20:  ##########
          *  r21:  ##########
          * </pre>
-         *
+         * <p>
          * SRS NORTH→EAST kicks and why each fails:
          * <ul>
          *   <li>In-place (4,17): EAST needs (4,18) → filled ✗</li>
@@ -363,7 +354,7 @@ class GameBoardTests {
         @Test
         void testImpossibleRotation_T() {
             // 6 lines → getFullBoard prepends 22-6=16 empty rows → lines become rows 16-21
-            final GameBoard localBoard = prepareBoard(getFullBoard("""
+            final GameBoard localBoard = prepareBoard(UtilForTests.CreateFullBoardDescription("""
                     ###I######
                     ##########
                     ###II#####
@@ -393,7 +384,7 @@ class GameBoardTests {
          *  r13:  ##########
          *  r14:  IIIIIIIIII   ← full row blocks bottom of any vertical I
          * </pre>
-         *
+         * <p>
          * I EAST offsets are all at x = pivot.x+1, spanning y-1..y+2.
          * Every kick shifts the pivot horizontally; the vertical bar always
          * intersects at least one of row 9 or row 14.
@@ -401,7 +392,7 @@ class GameBoardTests {
         @Test
         void testImpossibleRotation_I() {
             // 13 lines → getFullBoard prepends 22-13=9 empty rows → lines become rows 9-21
-            final GameBoard localBoard = prepareBoard(getFullBoard("""
+            final GameBoard localBoard = prepareBoard(UtilForTests.CreateFullBoardDescription("""
                     IIIIIIIIII
                     ##########
                     ##########

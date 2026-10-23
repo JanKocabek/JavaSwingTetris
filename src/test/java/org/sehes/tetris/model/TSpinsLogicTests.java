@@ -6,10 +6,7 @@ import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.TSpin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sehes.tetris.model.TetrominoFixtures.SpawnedTetromino;
-import static org.sehes.tetris.model.TetrominoFixtures.spawn;
-import static org.sehes.tetris.model.TetrominoFixtures.spawnT;
-import static org.sehes.tetris.model.UtilForTests.getFullBoard;
+import static org.sehes.tetris.model.TetrominoFixtures.*;
 import static org.sehes.tetris.model.UtilForTests.prepareBoard;
 
 class TSpinsLogicTests {
@@ -26,7 +23,7 @@ class TSpinsLogicTests {
      *
      * Therefore, the rotation leaves one front and two back corners filled: a MINI T-spin.
      */
-    private static final String T_SPIN_BOARD = getFullBoard("""
+    private static final String T_SPIN_BOARD = UtilForTests.CreateFullBoardDescription("""
             ###II#####
             I###I#####
             II#II#####""");
@@ -51,7 +48,7 @@ class TSpinsLogicTests {
 
     @Test
     void testScoreTSpinFullSingle() {
-        final var board = getFullBoard("""
+        final var board = UtilForTests.CreateFullBoardDescription("""
                 II#II#####
                 I###I#####
                 II#IIIIIII
@@ -62,7 +59,7 @@ class TSpinsLogicTests {
 
     @Test
     void testScoreTSpinFullDouble() {
-        final var board = getFullBoard("""
+        final var board = UtilForTests.CreateFullBoardDescription("""
                 II#II#####
                 I###IIIIII
                 II#IIIIIII
@@ -73,13 +70,13 @@ class TSpinsLogicTests {
 
     @Test
     void testScoreTSpinFullTriple() {
-        final var board = getFullBoard("""
-                        ########I#
-                        ########II
-                        #########I
-                        IIIIIIII#I
-                        IIIIIII##I
-                        IIIIIIII#I
+        final var board = UtilForTests.CreateFullBoardDescription("""
+                ########I#
+                ########II
+                #########I
+                IIIIIIII#I
+                IIIIIII##I
+                IIIIIIII#I
                 """);
 
         assertTSpin(board, spawnT(new Coordinate(7, 18), Orientation.NORTH, RotationFlag.COUNTER_CLOCKWISE), Orientation.WEST, TSpin.FULL, 3, 1600);
@@ -92,7 +89,7 @@ class TSpinsLogicTests {
 
     @Test
     void testScoreTSpinMiniSingle() {
-        final var board = getFullBoard("""
+        final var board = UtilForTests.CreateFullBoardDescription("""
                 ###II#####
                 I###IIIIII
                 II#II#####""");
@@ -102,7 +99,7 @@ class TSpinsLogicTests {
 
     @Test
     void testScoreTSpinMiniDouble() {
-        final var board = getFullBoard("""
+        final var board = UtilForTests.CreateFullBoardDescription("""
                 ########II
                 #######III
                 #########I
@@ -116,7 +113,7 @@ class TSpinsLogicTests {
 
     @Test
     void testTSpinWallKickTypeNoTSpinResult() {
-        final var board = getFullBoard("""
+        final var board = UtilForTests.CreateFullBoardDescription("""
                 ####I#####
                 ####I#####
                 #I##I#####
@@ -131,24 +128,19 @@ class TSpinsLogicTests {
         // 1 front corner (2,19) and 2 back corners (0,19), (0,21) are occupied (total 3).
         // Front corner (2,21) is empty. Under normal rules, 1 front + 2 back = MINI.
         // But because of the (-1, 2) Test 5 kick, it is promoted to FULL (T-Spin Double = 1200).
-        final var board = getFullBoard("""
+        final var board = UtilForTests.CreateFullBoardDescription("""
                 II##IIIIII
                 I###IIIIII
                 I#IIIIIIII
                 I##IIIIIII
                 I##IIIIIII
                 """);
-        assertTSpin(board,
-                spawnT(new Coordinate(2, 18), Orientation.NORTH, RotationFlag.CLOCKWISE),
-                Orientation.EAST,
-                TSpin.FULL,
-                2,
-                1200);
+        assertTSpin(board, spawnT(new Coordinate(2, 18), Orientation.NORTH, RotationFlag.CLOCKWISE), Orientation.EAST, TSpin.FULL, 2, 1200);
     }
 
     @Test
     void testNormalRotationInEmptySpace_returnsNone() {
-        final var board = getFullBoard("""
+        final var board = UtilForTests.CreateFullBoardDescription("""
                 ##########
                 ##########
                 ##########
@@ -173,7 +165,7 @@ class TSpinsLogicTests {
      * @param expectedTSpin       expected {@link TSpin} result (NONE, MINI, FULL)
      * @return {@link TSpinTestResult} containing the post-test game components for further custom assertions
      */
-    public static TSpinTestResult assertTSpin(String initialBoard, SpawnedTetromino spawnedTetromino, Orientation expectedOrientation, TSpin expectedTSpin) {
+    public static TSpinTestResult assertTSpin(String initialBoard, TetrominoFixtures.SpawnedTetromino spawnedTetromino, Orientation expectedOrientation, TSpin expectedTSpin) {
         return assertTSpin(new TSpinTestCase(initialBoard, spawnedTetromino, expectedOrientation, expectedTSpin, null, null, null));
     }
 
@@ -255,7 +247,7 @@ class TSpinsLogicTests {
         }
 
         final ScoreManager scoreMgr = testCase.scoreManager() != null ? testCase.scoreManager() : new ScoreManager();
-        scoreMgr.updateScore(new LockPieceEvent(lastAction.linesCleared(), lastAction.tSpin(),1));
+        scoreMgr.updateScore(new LockPieceEvent(lastAction.linesCleared(), lastAction.tSpin(), 1));
 
         if (testCase.expectedScore() != null) {
             assertThat(scoreMgr).extracting("score").isEqualTo(testCase.expectedScore());
@@ -268,15 +260,9 @@ class TSpinsLogicTests {
      * Immutable test case data carrier defining all inputs, initial board configuration,
      * optional custom score manager, and expected outcomes.
      */
-    public record TSpinTestCase(
-            String initialBoard,
-            SpawnedTetromino spawnedTetromino,
-            Orientation expectedOrientation,
-            TSpin expectedTSpin,
-            Integer expectedLinesCleared,
-            Integer expectedScore,
-            ScoreManager scoreManager
-    ) {
+    public record TSpinTestCase(String initialBoard, SpawnedTetromino spawnedTetromino, Orientation expectedOrientation,
+                                TSpin expectedTSpin, Integer expectedLinesCleared, Integer expectedScore,
+                                ScoreManager scoreManager) {
         /**
          * Creates a new fluent {@link TSpinTestBuilder} instance.
          *
@@ -379,12 +365,7 @@ class TSpinsLogicTests {
      * @param linesCleared the number of cleared lines
      * @param scoreManager the score manager after processing the lock event
      */
-    public record TSpinTestResult(
-            GameBoard gameBoard,
-            Tetromino tetromino,
-            TSpin tSpin,
-            int linesCleared,
-            ScoreManager scoreManager
-    ) {
+    public record TSpinTestResult(GameBoard gameBoard, Tetromino tetromino, TSpin tSpin, int linesCleared,
+                                  ScoreManager scoreManager) {
     }
 }

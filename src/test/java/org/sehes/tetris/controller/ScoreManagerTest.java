@@ -15,10 +15,6 @@ class ScoreManagerTest {
     private ScoreManager scoreManager;
     private ScoreMessenger scoreMessenger;
 
-    private @NonNull LockPieceEvent createLockPieceEvent(int clearedLines, TSpin tSpin) {
-        return new LockPieceEvent(clearedLines, tSpin, 1);
-    }
-
     @BeforeEach
     void setUp() {
         scoreManager = new ScoreManager();
@@ -162,4 +158,11 @@ class ScoreManagerTest {
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(0);
     }
+
+
+
+    private @NonNull LockPieceEvent createLockPieceEvent(int clearedLines, TSpin tSpin) {
+        return new LockPieceEvent(clearedLines, tSpin, 1);
+    }
+
 }
