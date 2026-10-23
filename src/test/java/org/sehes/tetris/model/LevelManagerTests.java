@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.sehes.tetris.Utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LevelManagerTests {
     LevelManager levelManager;
@@ -68,5 +69,18 @@ class LevelManagerTests {
         // Level 2 exact check after 10 lines
         levelManager.onCleanedRows(10);
         assertThat(levelManager.getGravityNanos()/Utils.NANOS_PER_SECOND).isBetween(0.792, 0.793);
+    }
+
+    @Test
+    void testLMDontCrossLevel20() {
+        final var maxLM=new LevelManager(20);
+        maxLM.onCleanedRows(10);
+        assertThat(maxLM.getLevel()).isEqualTo(20);
+    }
+
+    @Test
+    void testLMThrowsExceptionForInvalidLevel() {
+        assertThrows(IllegalArgumentException.class, () -> new LevelManager(0));
+        assertThrows(IllegalArgumentException.class, () -> new LevelManager(21));
     }
 }
