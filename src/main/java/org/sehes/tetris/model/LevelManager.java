@@ -9,12 +9,12 @@ public class LevelManager {
     private static final int MAX_LEVEL = 20;
     private int level;
     private int cleanedRows;
-    private long movementSpeedNano;
+    private long gravityIntervalNanos;
 
     public LevelManager() {
         this.level = 1;
         this.cleanedRows = 0;
-        this.movementSpeedNano = calculateMovementSpeedNano();
+        this.gravityIntervalNanos = calculateGravityIntervalNanos();
     }
 
     public int getLevel() {
@@ -27,15 +27,15 @@ public class LevelManager {
         if (this.cleanedRows >= LINES_PER_LEVEL) {
             this.level++;
             this.cleanedRows = 0;
-            this.movementSpeedNano = calculateMovementSpeedNano();
+            this.gravityIntervalNanos = calculateGravityIntervalNanos();
         }
     }
 
-    public long getMovementSpeedNano() {
-        return movementSpeedNano;
+    public long getGravityNanos() {
+        return gravityIntervalNanos;
     }
 
-    private long calculateMovementSpeedNano() {
+    private long calculateGravityIntervalNanos() {
         final int levelExponent = level - 1;
         final double speedSec =  Math.pow(BASE_SPEED_FACTOR - levelExponent * SPEED_ACCELERATION_STEPS, levelExponent);
         return (long) (speedSec * NANOS_PER_SECOND);

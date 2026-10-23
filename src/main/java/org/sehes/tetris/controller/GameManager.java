@@ -10,6 +10,7 @@ import org.sehes.tetris.model.score.TSpin;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import static org.sehes.tetris.Utils.NANOS_PER_SECOND;
 import static org.sehes.tetris.controller.GameState.*;
@@ -25,7 +26,8 @@ public class GameManager implements InputHandler {
     private final GameLoop gameLoop;
     private final Rendering tetrisCanvas;
     private final LockDelay lockDelay = new LockDelay();
-    private final LevelManager levelManager = new LevelManager();
+    private final LevelManager levelManager;
+    private final Supplier<GameBoard> gameBoardSupplier;
     // =========================================================================
     // 3. OBSERVABLES & OBSERVERS
     // =========================================================================
@@ -46,17 +48,22 @@ public class GameManager implements InputHandler {
     // =========================================================================
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private long gravityAccumulator;
-    //private final long movementSpeed;
     // =========================================================================
     // PUBLIC INTERFACE (CONSTRUCTOR & PUBLIC METHODS)
     // =========================================================================
 
     public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger, PieceGenerator generator, GameLoop loop, Rendering render) {
+        this( stateManager, scoreMessenger, generator,loop, render, new LevelManager(), GameBoard::new);
+    }
+
+    public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger, PieceGenerator generator, GameLoop loop, Rendering render, LevelManager levelManager, Supplier<GameBoard> gameBoardSupplier) {
         this.generator = generator;
         this.stateManager = stateManager;
         this.scoreMessenger = scoreMessenger;
         this.gameLoop = loop;
         this.tetrisCanvas = render;
+        this.levelManager = levelManager;
+        this.gameBoardSupplier = gameBoardSupplier;
     }
 
     @Override
@@ -218,12 +225,12 @@ public class GameManager implements InputHandler {
     //TODO: simplified output of related GameBoard methods make it direct return
     private void lockClearAndScorePiece() {
         gameBoard.lockTetrominoInPlace();
-        boolean linesCleared = gameBoard.tryClearLines();
+        gameBoard.tryClearLines();
         final var lastAction = gameBoard.getLastAction();
-        if( linesCleared){
+        notifyLockingEvent(lastAction.tSpin(), lastAction.linesCleared(), levelManager.getLevel());
+        if (lastAction.linesCleared() > 0) {
             levelManager.onCleanedRows(lastAction.linesCleared());
         }
-        notifyLockingEvent(lastAction.tSpin(), lastAction.linesCleared(),levelManager.getLevel());
         if (!trySpawnNewTetromino()) {
             setGameOver();
         }
@@ -237,12 +244,12 @@ public class GameManager implements InputHandler {
     }
 
     private void notifyLockingEvent(TSpin tSpin, int linesCleared, int level) {
-        final LockPieceEvent lockEvent = createLockEvent(tSpin,linesCleared,level);
+        final LockPieceEvent lockEvent = createLockEvent(tSpin, linesCleared, level);
         scoreMessenger.notifyObservers(lockEvent);
     }
 
-    private LockPieceEvent createLockEvent(final TSpin tSpin, int clearedLines,int level) {
-        return new LockPieceEvent(clearedLines, tSpin,level);
+    private LockPieceEvent createLockEvent(final TSpin tSpin, int clearedLines, int level) {
+        return new LockPieceEvent(clearedLines, tSpin, level);
     }
 
     // =========================================================================
@@ -265,9 +272,9 @@ public class GameManager implements InputHandler {
 
     private void gravityUpdate(Long elapsedTime) {
         gravityAccumulator += elapsedTime;
-        while (gravityAccumulator >= levelManager.getMovementSpeedNano()) {
+        while (gravityAccumulator >= levelManager.getGravityNanos()) {
             if (gameBoard.tryGravityMove()) {
-                gravityAccumulator -= levelManager.getMovementSpeedNano();
+                gravityAccumulator -= levelManager.getGravityNanos();
                 lockDelay.checkDrop(getCurrentTetromino().getPositionY(), gameBoard.isMinoGrounded());
             } else {
                 gravityAccumulator = 0;
@@ -293,7 +300,7 @@ public class GameManager implements InputHandler {
     private void newGame() {
         stateManager.setState(NEW_GAME);
         setHoldAndNotify(null);
-        gameBoard = new GameBoard();
+        gameBoard = gameBoardSupplier.get();
         generator.startNewSequence();
         spawnObservable.notify(generator.peekNext());
         trySpawnNewTetromino();
