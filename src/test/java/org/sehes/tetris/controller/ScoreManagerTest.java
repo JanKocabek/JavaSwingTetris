@@ -159,8 +159,6 @@ class ScoreManagerTest {
         assertThat(scoreManager).extracting("score").isEqualTo(0);
     }
 
-
-
     private @NonNull LockPieceEvent createLockPieceEvent(int clearedLines, TSpin tSpin) {
         return new LockPieceEvent(clearedLines, tSpin, 1);
     }

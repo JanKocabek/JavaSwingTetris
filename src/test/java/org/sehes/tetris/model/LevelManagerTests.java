@@ -73,13 +73,17 @@ class LevelManagerTests {
 
     @Test
     void testLMDontCrossLevel20() {
+        //arrange
         final var maxLM=new LevelManager(20);
+        //act
         maxLM.onCleanedRows(10);
+        //assert
         assertThat(maxLM.getLevel()).isEqualTo(20);
     }
 
     @Test
     void testLMThrowsExceptionForInvalidLevel() {
+        //assert
         assertThrows(IllegalArgumentException.class, () -> new LevelManager(0));
         assertThrows(IllegalArgumentException.class, () -> new LevelManager(21));
     }
