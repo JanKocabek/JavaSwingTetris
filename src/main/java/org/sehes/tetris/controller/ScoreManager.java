@@ -55,30 +55,30 @@ public class ScoreManager {
                 clearType = geLineClearType(clearedLines, tspin);
                 boolean difficultClear = isDifficultClear(clearedLines, tspin);
                 backToBackBonus = difficultClear && isBackToBackChain;
-                yield lockPieceScoreCalculation(clearType, clearedLines, difficultClear, backToBackBonus);
+                yield lockPieceScoreCalculation(clearType, clearedLines, difficultClear, backToBackBonus, level);
             }
         };
         score += points;
         scoreInfoObservable.notify(new ScoreInfoDTO(score, clearType, combo, backToBackBonus));
     }
 
-    private int lockPieceScoreCalculation(ScoreLineClearType clearType, int clearedLines, boolean difficultClear, boolean applyBackToBackBonus) {
+    private int lockPieceScoreCalculation(ScoreLineClearType clearType, int clearedLines, boolean difficultClear, boolean applyBackToBackBonus, int level) {
         updateBackToBackChain(clearedLines, difficultClear);
         combo = (clearedLines != 0) ? ++combo : COMBO_EMPTY;
 
         int baseScore = switch (clearType) {
             case NONE -> 0;
-            case SINGLE, MINI_T_SPIN_NO_LINES -> 100;
-            case DOUBLE -> 300;
-            case TRIPLE -> 500;
-            case TETRIS, T_SPIN_SINGLE -> 800;
-            case T_SPIN_DOUBLE -> 1200;
-            case T_SPIN_TRIPLE -> 1600;
-            case MINI_T_SPIN_SINGLE -> 200;
-            case MINI_T_SPIN_DOUBLE, T_SPIN_NO_LINES -> 400;
+            case SINGLE, MINI_T_SPIN_NO_LINES -> 100*level;
+            case DOUBLE -> 300*level;
+            case TRIPLE -> 500*level;
+            case TETRIS, T_SPIN_SINGLE -> 800*level;
+            case T_SPIN_DOUBLE -> 1200*level;
+            case T_SPIN_TRIPLE -> 1600*level;
+            case MINI_T_SPIN_SINGLE -> 200*level;
+            case MINI_T_SPIN_DOUBLE, T_SPIN_NO_LINES -> 400*level;
         };
         final int points = applyBackToBackBonus ? (int) (baseScore * 1.5) : baseScore;
-        return combo > 0 ? points + (combo * 50) : points;
+        return combo == COMBO_EMPTY?  points : points + (combo * 50*level);
     }
 
     private boolean isDifficultClear(int clearedLines, TSpin tspin) {
