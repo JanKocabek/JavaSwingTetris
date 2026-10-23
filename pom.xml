@@ -47,12 +47,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.diffblue.cover</groupId>
-            <artifactId>cover-annotations</artifactId>
-            <version>1.9.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>3.27.7</version>
@@ -67,6 +61,41 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.30.1</version>
+                <dependencies>
+                    <!-- Source: https://mvnrepository.com/artifact/org.pitest/pitest-junit5-plugin -->
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>1.2.3</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <!-- Run in parallel on multiple threads for faster execution -->
+                    <threads>8</threads>
+
+                    <!-- Keep reports consistently at target/pit-reports/index.html without timestamp subfolders -->
+                    <timestampedReports>false</timestampedReports>
+
+                    <!-- Target the project packages -->
+                    <targetClasses>
+                        <param>org.sehes.tetris.*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>org.sehes.tetris.*</param>
+                    </targetTests>
+
+                    <!-- Exclude Swing UI components and entry point from mutation testing -->
+                    <excludedClasses>
+                        <param>org.sehes.tetris.gui.*</param>
+                        <param>org.sehes.tetris.graphic.*</param>
+                        <param>org.sehes.tetris.Main</param>
+                    </excludedClasses>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
