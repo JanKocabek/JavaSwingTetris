@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LevelManagerIntegrationTests {
-    @Spy private LevelManager levelManager = new LevelManager();
+    @Spy private final LevelManager levelManager = new LevelManager();
     @Mock private PieceGenerator pieceGenerator;
     @Mock private GameLoop gameLoop;
     private final ScoreMessenger scoreMessenger = new ScoreMessenger();
@@ -81,7 +81,7 @@ class LevelManagerIntegrationTests {
 
     private void gameManagerInit(Supplier<GameBoard> gameBoardSupplier) {
         gameManager = new GameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop, snapshot -> {
-       }, levelManager, gameBoardSupplier);
+        }, levelManager, gameBoardSupplier);
         gameManager.handleInput(InputAction.CONFIRM);
     }
 
