@@ -20,8 +20,6 @@ class LevelManagerIntegrationTests {
     @Spy private LevelManager levelManager = new LevelManager();
     @Mock private PieceGenerator pieceGenerator;
     @Mock private GameLoop gameLoop;
-    private final Rendering rendering = snapshot -> {
-    };
     private final ScoreMessenger scoreMessenger = new ScoreMessenger();
     private final StateManager<GameState> stageManager = new GameStateManager(GameState.PREPARED);
     private GameManager gameManager;
@@ -82,7 +80,8 @@ class LevelManagerIntegrationTests {
     }
 
     private void gameManagerInit(Supplier<GameBoard> gameBoardSupplier) {
-        gameManager = new GameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop, rendering, levelManager, gameBoardSupplier);
+        gameManager = new GameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop, snapshot -> {
+       }, levelManager, gameBoardSupplier);
         gameManager.handleInput(InputAction.CONFIRM);
     }
 

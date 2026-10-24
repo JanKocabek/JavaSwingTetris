@@ -39,7 +39,7 @@ class GameManagerRestartKeyTests {
         scoreUpdates = new ArrayList<>();
         scoreManager.scoreInfoObservable().addObserver(scoreUpdates::add);
         stateManager.gameStateObservable().addObserver(scoreManager.gameStateObserver());
-        gameManager = new GameManager(stateManager, messenger, generator, gameLoop, rendering);
+        gameManager = ControllerTestsUtil.createdGameManager(stateManager, messenger, generator, gameLoop, rendering);
     }
 
     @Test

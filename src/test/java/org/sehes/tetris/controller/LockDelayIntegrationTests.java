@@ -11,9 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.input.InputAction;
-import org.sehes.tetris.model.PieceGenerator;
-import org.sehes.tetris.model.TetrominoFactory;
-import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.model.*;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.ScoreEvent;
 
@@ -47,7 +45,7 @@ class LockDelayIntegrationTests {
         ScoreMessenger scoreMessenger = new ScoreMessenger();
         scoreMessenger.addObserver(scoreObserver);
         StateManager<GameState> stageManager = new GameStateManager(GameState.PREPARED);
-        gameManager = new GameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop, rendering);
+        gameManager = ControllerTestsUtil.createdGameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop, rendering);
         gameManager.handleInput(InputAction.CONFIRM);
         doAnswer(invocation -> {
             latestSnapshot.set(invocation.getArgument(0));
