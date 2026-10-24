@@ -52,10 +52,6 @@ public class GameManager implements InputHandler {
     // PUBLIC INTERFACE (CONSTRUCTOR & PUBLIC METHODS)
     // =========================================================================
 
-    public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger, PieceGenerator generator, GameLoop loop, Rendering render) {
-        this( stateManager, scoreMessenger, generator,loop, render, new LevelManager(), GameBoard::new);
-    }
-
     public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger, PieceGenerator generator, GameLoop loop, Rendering render, LevelManager levelManager, Supplier<GameBoard> gameBoardSupplier) {
         this.generator = generator;
         this.stateManager = stateManager;

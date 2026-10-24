@@ -51,19 +51,24 @@ public class TetrominoRenderer {
     }
 
     /**
-     * Calculates the alpha (opacity) for the lock delay overlay pulse animation.
+     * Calculates the overlay opacity at the given point in the lock delay animation.
      * <p>
-     * Uses a power-curved sine wave to produce a snappy pulse that peaks at
-     * {@value #LOCK_PULSE_MAX_ALPHA} and rests at {@value #LOCK_PULSE_MIN_ALPHA}.
+     * The absolute sine wave is raised to {@value #LOCK_PULSE_EXPONENT}, then scaled
+     * into the range from {@value #LOCK_PULSE_MIN_ALPHA} to
+     * {@value #LOCK_PULSE_MAX_ALPHA}. The exponent keeps the overlay near its minimum
+     * for most of each cycle and makes the peak brief. With the configured frequency,
+     * the opacity completes one pulse every half second; it starts at the minimum.
      * </p>
      *
-     * @param elapsedSeconds elapsed time in seconds since the lock delay timer started
-     * @return alpha value representing the opacity of the lock delay overlay
+     * @param elapsedSeconds elapsed time in seconds since the animation started
+     * @return overlay opacity, between {@value #LOCK_PULSE_MIN_ALPHA} and
+     *         {@value #LOCK_PULSE_MAX_ALPHA}, inclusive
      */
     private static float calculateLockDelayAlpha(double elapsedSeconds) {
-        final float sin = (float) Math.sin(LOCK_PULSE_FREQUENCY * elapsedSeconds);
-        final float pulse = (float) Math.pow(Math.abs(sin), LOCK_PULSE_EXPONENT);
-        return LOCK_PULSE_MIN_ALPHA + LOCK_PULSE_ALPHA_SPAN * pulse;
+        final double phase = LOCK_PULSE_FREQUENCY * elapsedSeconds;
+        final double wave = Math.abs(Math.sin(phase));
+        final double pulse = Math.pow(wave, LOCK_PULSE_EXPONENT);
+        return LOCK_PULSE_MIN_ALPHA + LOCK_PULSE_ALPHA_SPAN * (float) pulse;
     }
 
     /**

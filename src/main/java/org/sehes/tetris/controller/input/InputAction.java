@@ -6,7 +6,7 @@ public enum InputAction {
      */
     EXIT(true),
     /**
-     * Start new game,pause and unpause game
+     * Start new game,pause or unpause game
      */
     CONFIRM(true),
     /**
