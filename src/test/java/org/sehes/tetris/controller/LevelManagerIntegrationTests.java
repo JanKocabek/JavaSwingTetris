@@ -29,6 +29,7 @@ class LevelManagerIntegrationTests {
     private final StateManager<GameState> stageManager = new GameStateManager(GameState.PREPARED);
     private GameManager gameManager;
 
+
     @BeforeEach
     void setUp() {
         when(pieceGenerator.getNextPiece()).thenReturn(TetrominoType.I);
@@ -78,6 +79,7 @@ class LevelManagerIntegrationTests {
         // Assert
         verify(levelManager, never()).onCleanedRows(anyInt());
     }
+
 
     private void gameManagerInit(String boardDescription) {
         final String fullBoard = UtilForTests.CreateFullBoardDescription(boardDescription);

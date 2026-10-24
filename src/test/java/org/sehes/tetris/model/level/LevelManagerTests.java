@@ -5,11 +5,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sehes.tetris.util.Utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LevelManagerTests {
     LevelManager levelManager;
+
 
     @BeforeEach
     void setUp() {
@@ -87,4 +91,13 @@ class LevelManagerTests {
         assertThrows(IllegalArgumentException.class, () -> new LevelManager(0));
         assertThrows(IllegalArgumentException.class, () -> new LevelManager(21));
     }
+
+    @Test
+    void testLevelMangerPublishing() {
+        List<Integer> levels = new ArrayList<>();
+        levelManager.levelObservable().addObserver(levels::add);
+        levelManager.onCleanedRows(10);
+        assertThat(levels).containsExactly(2);
+    }
+
 }

@@ -16,9 +16,6 @@ public class ScoreManager {
     private boolean isBackToBackChain;
     private int combo = COMBO_EMPTY;
 
-    public ScoreManager() {
-    }
-
     public Observable<ScoreInfoDTO> scoreInfoObservable() {
         return scoreInfoObservable;
     }
@@ -50,52 +47,50 @@ public class ScoreManager {
 
     public void updateScore(ScoreEvent scoreEvent) {
         ScoreLineClearType clearType = ScoreLineClearType.NONE;
-        boolean backToBackBonus = false;
+        boolean isBackToBackBonus = false;
         int points = switch (scoreEvent) {
             case SoftDropEvent(int cell) -> cell;
             case HardDropEvent(int cell) -> cell * 2;
             case LockPieceEvent(int clearedLines, TSpin tspin, int level) -> {
                 clearType = geLineClearType(clearedLines, tspin);
                 boolean difficultClear = isDifficultClear(clearedLines, tspin);
-                backToBackBonus = difficultClear && isBackToBackChain;
-                yield lockPieceScoreCalculation(clearType, clearedLines, difficultClear, backToBackBonus, level);
+                isBackToBackBonus = difficultClear && isBackToBackChain;
+                isBackToBackChain = getBackToBackChain(clearedLines, difficultClear);
+                yield lockPieceScoreCalculation(clearType, clearedLines, isBackToBackBonus, level);
             }
         };
         score += points;
-        scoreInfoObservable.notify(new ScoreInfoDTO(score, clearType, combo, backToBackBonus));
+        scoreInfoObservable.notify(new ScoreInfoDTO(score, clearType, combo, isBackToBackBonus));
     }
 
-    private int lockPieceScoreCalculation(ScoreLineClearType clearType, int clearedLines, boolean difficultClear, boolean applyBackToBackBonus, int level) {
-        updateBackToBackChain(clearedLines, difficultClear);
-        combo = (clearedLines != 0) ? ++combo : COMBO_EMPTY;
+    private boolean getBackToBackChain(int clearedLines, boolean difficultClear) {
+        return difficultClear || (clearedLines == 0 && isBackToBackChain);
+    }
 
+    private int lockPieceScoreCalculation(ScoreLineClearType clearType, int clearedLines, boolean isBackToBackBonus, int level) {
+        combo = (clearedLines != 0) ? ++combo : COMBO_EMPTY;
+        int baseScore = calculateBaseScore(clearType, level);
+        final int scoreWBonus = isBackToBackBonus ? (int) (baseScore * 1.5) : baseScore;
+        return combo == COMBO_EMPTY ? scoreWBonus : scoreWBonus + (combo * 50 * level);
+    }
+
+    private int calculateBaseScore(ScoreLineClearType clearType, int level) {
         int baseScore = switch (clearType) {
             case NONE -> 0;
-            case SINGLE, MINI_T_SPIN_NO_LINES -> 100*level;
-            case DOUBLE -> 300*level;
-            case TRIPLE -> 500*level;
-            case TETRIS, T_SPIN_SINGLE -> 800*level;
-            case T_SPIN_DOUBLE -> 1200*level;
-            case T_SPIN_TRIPLE -> 1600*level;
-            case MINI_T_SPIN_SINGLE -> 200*level;
-            case MINI_T_SPIN_DOUBLE, T_SPIN_NO_LINES -> 400*level;
+            case SINGLE, MINI_T_SPIN_NO_LINES -> 100;
+            case DOUBLE -> 300;
+            case TRIPLE -> 500;
+            case TETRIS, T_SPIN_SINGLE -> 800;
+            case T_SPIN_DOUBLE -> 1200;
+            case T_SPIN_TRIPLE -> 1600;
+            case MINI_T_SPIN_SINGLE -> 200;
+            case MINI_T_SPIN_DOUBLE, T_SPIN_NO_LINES -> 400;
         };
-        final int points = applyBackToBackBonus ? (int) (baseScore * 1.5) : baseScore;
-        return combo == COMBO_EMPTY?  points : points + (combo * 50*level);
+        return baseScore * level;
     }
 
     private boolean isDifficultClear(int clearedLines, TSpin tspin) {
         return clearedLines == 4 || (clearedLines > 0 && tspin != TSpin.NONE);
-    }
-
-    private void updateBackToBackChain(int clearedLines, boolean difficultClear) {
-        //TODO: apply simply code
-       // isBackToBackChain= difficultClear || (clearedLines == 0 && isBackToBackChain);
-        if (difficultClear) {
-            isBackToBackChain = true;
-        } else if (clearedLines > 0) {
-            isBackToBackChain = false;
-        }
     }
 
     private ScoreLineClearType geLineClearType(int clearedLines, @NonNull TSpin tspin) {
