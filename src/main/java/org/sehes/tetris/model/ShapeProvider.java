@@ -5,6 +5,8 @@ import java.util.List;
 
 public class ShapeProvider {
 
+
+
     private static final EnumMap<TetrominoType, EnumMap<Orientation, List<Coordinate>>> tetrominoStates = new EnumMap<>(TetrominoType.class);
 
     /*
@@ -107,9 +109,10 @@ public class ShapeProvider {
             NORMAL, I_KICKS
         }
 
-        enum Transition {
+        public enum Transition {
             NORTH_TO_EAST, EAST_TO_NORTH, EAST_TO_SOUTH, SOUTH_TO_WEST, SOUTH_TO_EAST, WEST_TO_SOUTH, WEST_TO_NORTH, NORTH_TO_WEST,
         }
+
     }
 
 }
