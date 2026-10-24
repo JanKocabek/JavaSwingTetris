@@ -2,6 +2,7 @@ package org.sehes.tetris.controller;
 
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.*;
+import org.sehes.tetris.model.level.LevelManager;
 import org.sehes.tetris.model.score.*;
 import org.sehes.tetris.util.event.Observable;
 

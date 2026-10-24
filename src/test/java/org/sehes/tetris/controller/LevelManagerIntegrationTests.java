@@ -8,7 +8,11 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sehes.tetris.controller.input.InputAction;
-import org.sehes.tetris.model.*;
+import org.sehes.tetris.model.GameBoard;
+import org.sehes.tetris.model.PieceGenerator;
+import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.model.UtilForTests;
+import org.sehes.tetris.model.level.LevelManager;
 import org.sehes.tetris.model.score.ScoreMessenger;
 
 import java.util.function.Supplier;

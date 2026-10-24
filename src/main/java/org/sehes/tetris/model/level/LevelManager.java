@@ -1,4 +1,4 @@
-package org.sehes.tetris.model;
+package org.sehes.tetris.model.level;
 
 import org.sehes.tetris.controller.ObservableImpl;
 import org.sehes.tetris.util.event.Observable;

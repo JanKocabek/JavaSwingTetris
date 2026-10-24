@@ -1,4 +1,4 @@
-package org.sehes.tetris.model;
+package org.sehes.tetris.model.level;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
