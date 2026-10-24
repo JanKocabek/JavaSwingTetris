@@ -1,5 +1,6 @@
 package org.sehes.tetris.model.level;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,10 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class LevelManagerTests {
     LevelManager levelManager;
 
-
+    List<Integer> levels;
     @BeforeEach
     void setUp() {
         levelManager = new LevelManager();
+        levels = createLevels();
     }
 
     @Test
@@ -94,10 +96,20 @@ class LevelManagerTests {
 
     @Test
     void testLevelMangerPublishing() {
-        List<Integer> levels = new ArrayList<>();
-        levelManager.levelObservable().addObserver(levels::add);
         levelManager.onCleanedRows(10);
         assertThat(levels).containsExactly(2);
     }
 
+    private @NonNull List<Integer> createLevels() {
+        levels = new ArrayList<>();
+        levelManager.levelObservable().addObserver(levels::add);
+        return levels;
+    }
+
+    @Test
+    void testResetResetLVL() {
+        levelManager.onCleanedRows(10);
+        levelManager.set(1);
+        assertThat(levels.getLast()).isEqualTo(1);
+    }
 }

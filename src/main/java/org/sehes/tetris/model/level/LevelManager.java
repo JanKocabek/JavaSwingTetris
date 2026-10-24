@@ -34,6 +34,7 @@ public class LevelManager {
         this.level = level;
         this.cleanedRows = 0;
         this.gravityIntervalNanos = calculateGravityIntervalNanos();
+        this.levelPublisher.notify(this.level);
     }
 
     public int getLevel() {
@@ -45,9 +46,9 @@ public class LevelManager {
         this.cleanedRows += cleanedRows;
         if (this.cleanedRows >= LINES_PER_LEVEL) {
             this.level++;
-            this.levelPublisher.notify(this.level);
             this.cleanedRows = 0;
             this.gravityIntervalNanos = calculateGravityIntervalNanos();
+            this.levelPublisher.notify(this.level);
         }
     }
 

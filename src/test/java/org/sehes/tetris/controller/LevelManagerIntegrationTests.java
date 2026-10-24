@@ -94,6 +94,7 @@ class LevelManagerIntegrationTests {
 
         // Assert
         assertThat(levelManager.getLevel()).isEqualTo(1);
+
     }
 
     private void gameManagerInit(String boardDescription) {
