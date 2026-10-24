@@ -292,6 +292,7 @@ public class GameManager implements InputHandler {
     }
 
     private void newGame() {
+        levelManager.set();
         stateManager.setState(NEW_GAME);
         setHoldAndNotify(null);
         gameBoard = gameBoardSupplier.get();

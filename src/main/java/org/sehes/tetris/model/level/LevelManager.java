@@ -13,18 +13,27 @@ public class LevelManager {
     private int level;
     private int cleanedRows;
     private long gravityIntervalNanos;
-    private final Observable.Publisher<Integer> levelPublisher=new ObservableImpl<>();
+    private final Observable.Publisher<Integer> levelPublisher = new ObservableImpl<>();
+
     public LevelManager(int level) {
         if (level < 1 || level > MAX_LEVEL) {
             throw new IllegalArgumentException("Level must be between 1 and " + MAX_LEVEL + " (inclusive)");
         }
-        this.level = level;
-        this.cleanedRows = 0;
-        this.gravityIntervalNanos = calculateGravityIntervalNanos();
+        set(level);
     }
 
     public LevelManager() {
         this(1);
+    }
+
+    public void set() {
+        set(1);
+    }
+
+    public void set(int level) {
+        this.level = level;
+        this.cleanedRows = 0;
+        this.gravityIntervalNanos = calculateGravityIntervalNanos();
     }
 
     public int getLevel() {
@@ -45,7 +54,7 @@ public class LevelManager {
     public long getGravityNanos() {
         return gravityIntervalNanos;
     }
-    
+
     public Observable<Integer> levelObservable() {
         return levelPublisher;
     }

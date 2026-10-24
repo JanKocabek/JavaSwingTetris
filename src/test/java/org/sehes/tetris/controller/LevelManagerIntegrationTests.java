@@ -80,6 +80,21 @@ class LevelManagerIntegrationTests {
         verify(levelManager, never()).onCleanedRows(anyInt());
     }
 
+    @Test
+    void testLVLManagerRestartOnNewGame(){
+        // Arrange
+        final var boardDescription = setBoardForIClean(10);
+        gameManagerInit(boardDescription);
+
+        // Act
+        for (int i = 0; i < 10; i++) {
+            gameManager.handleInput(InputAction.HARD_DROP);
+        }
+        gameManager.handleInput(InputAction.RESTART);
+
+        // Assert
+        assertThat(levelManager.getLevel()).isEqualTo(1);
+    }
 
     private void gameManagerInit(String boardDescription) {
         final String fullBoard = UtilForTests.CreateFullBoardDescription(boardDescription);
