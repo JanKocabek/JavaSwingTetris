@@ -75,7 +75,7 @@
                 </dependencies>
                 <configuration>
                     <!-- Run in parallel on multiple threads for faster execution -->
-                    <threads>8</threads>
+                    <threads>10</threads>
 
                     <!-- Keep reports consistently at target/pit-reports/index.html without timestamp subfolders -->
                     <timestampedReports>false</timestampedReports>
@@ -90,8 +90,7 @@
 
                     <!-- Exclude Swing UI components and entry point from mutation testing -->
                     <excludedClasses>
-                        <param>org.sehes.tetris.gui.*</param>
-                        <param>org.sehes.tetris.graphic.*</param>
+                        <param>org.sehes.tetris.view.*</param>
                         <param>org.sehes.tetris.Main</param>
                     </excludedClasses>
                 </configuration>
