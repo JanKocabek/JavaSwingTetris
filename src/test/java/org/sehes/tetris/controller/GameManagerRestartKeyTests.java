@@ -11,6 +11,8 @@ import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.PieceGenerator;
 import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.score.ScoreInfoDTO;
+import org.sehes.tetris.model.score.ScoreManager;
+import org.sehes.tetris.model.score.ScoreMessenger;
 
 import java.util.ArrayList;
 import java.util.List;

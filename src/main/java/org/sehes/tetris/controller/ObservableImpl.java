@@ -1,5 +1,7 @@
 package org.sehes.tetris.controller;
 
+import org.sehes.tetris.util.event.Observable;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 

@@ -1,6 +1,8 @@
 package org.sehes.tetris.controller;
 
 
+import org.sehes.tetris.util.event.Observable;
+
 public class GameStateManager implements StateManager<GameState> {
     private GameState currentState;
     private final Observable.Publisher<GameState> gameStateObservable = new ObservableImpl<>();

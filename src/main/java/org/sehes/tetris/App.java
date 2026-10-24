@@ -2,12 +2,15 @@ package org.sehes.tetris;
 
 import org.sehes.tetris.controller.*;
 import org.sehes.tetris.controller.input.*;
-import org.sehes.tetris.graphic.AssetsManager;
-import org.sehes.tetris.graphic.PreviewDrawingHandler;
-import org.sehes.tetris.graphic.RenderingHintsFactory;
-import org.sehes.tetris.graphic.TetrisDrawingHandler;
-import org.sehes.tetris.gui.GuiFactory;
 import org.sehes.tetris.model.*;
+import org.sehes.tetris.model.score.ScoreManager;
+import org.sehes.tetris.model.score.ScoreMessenger;
+import org.sehes.tetris.util.event.Observable;
+import org.sehes.tetris.view.render.AssetsManager;
+import org.sehes.tetris.view.render.PreviewDrawingHandler;
+import org.sehes.tetris.view.render.RenderingHintsFactory;
+import org.sehes.tetris.view.render.TetrisDrawingHandler;
+import org.sehes.tetris.view.swing.GuiFactory;
 
 import javax.swing.*;
 import java.awt.*;

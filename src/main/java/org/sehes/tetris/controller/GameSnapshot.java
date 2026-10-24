@@ -1,8 +1,8 @@
 package org.sehes.tetris.controller;
 
 import org.jspecify.annotations.Nullable;
-import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.model.BoardView;
+import org.sehes.tetris.model.GhostType;
 import org.sehes.tetris.model.Tetromino;
 
 import java.util.Optional;

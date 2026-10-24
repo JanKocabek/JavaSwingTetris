@@ -1,19 +1,16 @@
 package org.sehes.tetris.controller;
 
-import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.*;
-import org.sehes.tetris.model.score.HardDropEvent;
-import org.sehes.tetris.model.score.LockPieceEvent;
-import org.sehes.tetris.model.score.SoftDropEvent;
-import org.sehes.tetris.model.score.TSpin;
+import org.sehes.tetris.model.score.*;
+import org.sehes.tetris.util.event.Observable;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import static org.sehes.tetris.Utils.NANOS_PER_SECOND;
 import static org.sehes.tetris.controller.GameState.*;
+import static org.sehes.tetris.util.Utils.NANOS_PER_SECOND;
 
 public class GameManager implements InputHandler {
     // 1. CONSTANTS

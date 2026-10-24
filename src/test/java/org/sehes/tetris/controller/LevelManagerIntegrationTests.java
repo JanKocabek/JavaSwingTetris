@@ -9,6 +9,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.*;
+import org.sehes.tetris.model.score.ScoreMessenger;
 
 import java.util.function.Supplier;
 

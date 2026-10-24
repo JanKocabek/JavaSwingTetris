@@ -1,8 +1,8 @@
 package org.sehes.tetris.model;
 
 import org.junit.jupiter.api.Test;
-import org.sehes.tetris.controller.ScoreManager;
 import org.sehes.tetris.model.score.LockPieceEvent;
+import org.sehes.tetris.model.score.ScoreManager;
 import org.sehes.tetris.model.score.TSpin;
 
 import static org.assertj.core.api.Assertions.assertThat;
