@@ -46,7 +46,7 @@ public class GuiFactory {
         window.pack();
         window.setLocationRelativeTo(null);
 
-        return new GameUI(mainCanvas, rightPanel.getScoreObserver(), infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window, rightPanel.getPreviewObserver(), leftP.getHoldCanvasObserver());
+        return new GameUI(mainCanvas, rightPanel.getScoreObserver(), infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window, rightPanel.getPreviewObserver(), leftP.getHoldCanvasObserver(), rightPanel.getLevelObserver());
     }
 
     public static void addKeyListener(KeyAdapter tetrisKeyAdapter, GameUI ui) {
@@ -93,7 +93,7 @@ public class GuiFactory {
 
     public record GameUI(TetrisCanvas canvas, Observer<ScoreInfoDTO> scoreObserver, Observer<GameState> infoObserver,
                          Observer<Integer> fpsObserver, GameWindow window, Observer<TetrominoType> previewObserver,
-                         Observer<TetrominoType> holdCanvasObserver) {
+                         Observer<TetrominoType> holdCanvasObserver, Observer<Integer> levelObserver) {
         public Runnable exitAction() {
             return () -> window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
         }

@@ -4,46 +4,45 @@ import org.jspecify.annotations.NonNull;
 import org.sehes.tetris.controller.Observer;
 import org.sehes.tetris.model.score.ScoreInfoDTO;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 
 public class ScorePanel extends JPanel {
 
     private static final int SCORE_BORDER_THICK = 2;
     private static final String EMPTY = " ";
     private final ScoreLabel scoreUI;
+    private final LevelLabel levelUI;
     private final Font scoreFont = new Font(Font.MONOSPACED, Font.BOLD, 20);
     private final JLabel clearingInfo = new JLabel(EMPTY, SwingConstants.CENTER);
     private final JLabel comboInfo = new JLabel(EMPTY, SwingConstants.CENTER);
     private final JLabel b2bInfo = new JLabel(EMPTY, SwingConstants.CENTER);
     private final Observer<ScoreInfoDTO> scoreObserver = this::onScoreChange;
+    private final Observer<Integer> levelObserver = this::onLevelChange;
 
     public ScorePanel() {
         super();
+        int row = 0;
         setOpaque(true);
         setBackground(Color.WHITE);
         //GridBagConstraints for stacking vertically
         setLayout(new GridBagLayout());
         this.scoreUI = new ScoreLabel();
+        this.levelUI = new LevelLabel();
         final GridBagConstraints verStackConstr = createVerStackConstr();
-        setupCompGridPos(verStackConstr, 0, new Insets(0, 0, 0, 0));
+        setupCompGridPos(verStackConstr, row++, new Insets(0, 0, 0, 0));
         add(scoreUI, verStackConstr);
-        setupCompGridPos(verStackConstr, 1, new Insets(0, 0, 2, 0));
+        setupCompGridPos(verStackConstr, row++, new Insets(0, 0, 0, 0));
+        add(levelUI, verStackConstr);
+        setupCompGridPos(verStackConstr, row++, new Insets(0, 0, 2, 0));
         add(b2bInfo, verStackConstr);
-        setupCompGridPos(verStackConstr, 2, new Insets(0, 0, 4, 0));
-//        clearingInfo.setOpaque(true);
+        setupCompGridPos(verStackConstr, row++, new Insets(0, 0, 4, 0));
+        //      clearingInfo.setOpaque(true);
 //        clearingInfo.setBackground(Color.BLACK);
         add(clearingInfo, verStackConstr);
-        setupCompGridPos(verStackConstr, 3, new Insets(0, 0, 4, 0));
+        setupCompGridPos(verStackConstr, row++, new Insets(0, 0, 4, 0));
 //        comboInfo.setOpaque(true);
 //        comboInfo.setBackground(Color.BLUE);
         add(comboInfo, verStackConstr);
@@ -56,6 +55,10 @@ public class ScorePanel extends JPanel {
 
     public Observer<ScoreInfoDTO> ScoreObserver() {
         return scoreObserver;
+    }
+
+    public Observer<Integer> levelObserver() {
+        return levelObserver;
     }
 
     private void setupCompGridPos(GridBagConstraints constraints, int row, Insets insets) {
@@ -85,7 +88,9 @@ public class ScorePanel extends JPanel {
             comboInfo.setText(EMPTY);
         }
     }
-
+    private void onLevelChange(int level) {
+        levelUI.updateLevel(level);
+    }
 
     /**
      * Inner class representing the score label within the ScorePanel. It
@@ -98,7 +103,6 @@ public class ScorePanel extends JPanel {
      * ScorePanel.
      */
     private class ScoreLabel extends JLabel {
-
         private static final String SCORE_FORMAT = "%07d";
 
         ScoreLabel() {
@@ -114,6 +118,22 @@ public class ScorePanel extends JPanel {
 
         private void updateScore(int score) {
             setText(String.format(SCORE_FORMAT, score));
+        }
+    }
+
+    private class LevelLabel extends JLabel {
+        private static final String LEVEL_FORMAT = "Level %02d";
+        LevelLabel() {setOpaque(true);
+            setFont(scoreFont);
+            setForeground(Color.BLACK);
+            setBackground(Color.WHITE);
+            Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, SCORE_BORDER_THICK);
+            Border lineBorderWithTitle = BorderFactory.createTitledBorder(lineBorder, "Level", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.TOP, scoreFont, Color.BLACK);
+            setBorder(lineBorderWithTitle);
+            setText(String.format(LEVEL_FORMAT, 1));}
+
+        private void updateLevel(int level) {
+            setText(String.format(LEVEL_FORMAT, level));
         }
     }
 }

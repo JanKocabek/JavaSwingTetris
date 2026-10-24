@@ -7,9 +7,7 @@ import org.sehes.tetris.graphic.PreviewDrawingHandler;
 import org.sehes.tetris.graphic.RenderingHintsFactory;
 import org.sehes.tetris.graphic.TetrisDrawingHandler;
 import org.sehes.tetris.gui.GuiFactory;
-import org.sehes.tetris.model.PieceGenerator;
-import org.sehes.tetris.model.RandomPieceGenerator;
-import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,14 +26,14 @@ public class App {
     private final AssetsManager assetsManager = new AssetsManager(qualityRenderingHints);
     private final Painter<GameSnapshot> tetrisPainter = new TetrisDrawingHandler(qualityRenderingHints, assetsManager);
     private final Painter<TetrominoType> previewPainter = new PreviewDrawingHandler(qualityRenderingHints, assetsManager);
-
+    private final LevelManager levelManager = new LevelManager();
     public App() {
 
     }
 
     public void run() {
         final var gui = GuiFactory.assembly(tetrisPainter, previewPainter);
-        final GameManager gameManager = new GameManager(stateManager, scoreMessenger, randomPieceGenerator, gameLoop, gui.canvas());
+        final GameManager gameManager = new GameManager(stateManager, scoreMessenger, randomPieceGenerator, gameLoop, gui.canvas(),levelManager, GameBoard::new);
         final InputRouter inputReceiver = new InputRouterImpl(inputMapper, gameManager, gui.exitAction());
         final KeyAdapter tetrisKeyAdapter = new TetrisKeyAdapter(inputReceiver);
         GuiFactory.addKeyListener(tetrisKeyAdapter, gui);
@@ -47,6 +45,7 @@ public class App {
         addObserver(scoreManager.scoreInfoObservable(), gui.scoreObserver());
         addObserver(gameManager.spawnObservable(), gui.previewObserver());
         addObserver(gameManager.holdObservable(), gui.holdCanvasObserver());
+        addObserver(levelManager.levelObservable(), gui.levelObserver());
         gui.window().setVisible(true);
         gui.canvas().requestFocusInWindow();
         stateManager.setState(GameState.PREPARED);

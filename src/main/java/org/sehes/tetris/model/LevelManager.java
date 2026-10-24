@@ -1,5 +1,8 @@
 package org.sehes.tetris.model;
 
+import org.sehes.tetris.controller.Observable;
+import org.sehes.tetris.controller.ObservableImpl;
+
 import static org.sehes.tetris.Utils.NANOS_PER_SECOND;
 
 public class LevelManager {
@@ -10,7 +13,7 @@ public class LevelManager {
     private int level;
     private int cleanedRows;
     private long gravityIntervalNanos;
-
+    private final Observable.Publisher<Integer> levelPublisher=new ObservableImpl<>();
     public LevelManager(int level) {
         if (level < 1 || level > MAX_LEVEL) {
             throw new IllegalArgumentException("Level must be between 1 and " + MAX_LEVEL + " (inclusive)");
@@ -33,6 +36,7 @@ public class LevelManager {
         this.cleanedRows += cleanedRows;
         if (this.cleanedRows >= LINES_PER_LEVEL) {
             this.level++;
+            this.levelPublisher.notify(this.level);
             this.cleanedRows = 0;
             this.gravityIntervalNanos = calculateGravityIntervalNanos();
         }
@@ -40,6 +44,10 @@ public class LevelManager {
 
     public long getGravityNanos() {
         return gravityIntervalNanos;
+    }
+    
+    public Observable<Integer> levelObservable() {
+        return levelPublisher;
     }
 
     private long calculateGravityIntervalNanos() {
