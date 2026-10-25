@@ -459,13 +459,8 @@ public class GameBoard {
         Arrays.fill(board[lastLine], TetrominoType.L);
     }
 
-    /**
-     * replace this in the near future
-     *
-     * @param row
-     * @param column
-     * @param type
-     */
+
+    //replace this in the near future
 
     /**
      * JUNIT TEST ONLY<br>
