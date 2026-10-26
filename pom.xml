@@ -6,7 +6,7 @@
 
     <groupId>org.sehes</groupId>
     <artifactId>TetrisEngine</artifactId>
-    <version>0.25</version>
+    <version>0.45</version>
     <packaging>jar</packaging>
 
 
