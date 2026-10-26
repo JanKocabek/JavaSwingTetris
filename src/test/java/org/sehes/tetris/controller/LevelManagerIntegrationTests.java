@@ -1,21 +1,15 @@
 package org.sehes.tetris.controller;
 
 import org.jspecify.annotations.NonNull;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.GameBoard;
-import org.sehes.tetris.model.PieceGenerator;
 import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.UtilForTests;
 import org.sehes.tetris.model.level.LevelManager;
-import org.sehes.tetris.model.score.ScoreMessenger;
-
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -23,18 +17,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class LevelManagerIntegrationTests {
     @Spy private final LevelManager levelManager = new LevelManager();
-    @Mock private PieceGenerator pieceGenerator;
-    @Mock private GameLoop gameLoop;
-    private final ScoreMessenger scoreMessenger = new ScoreMessenger();
-    private final StateManager<GameState> stageManager = new GameStateManager(GameState.PREPARED);
     private GameManager gameManager;
-
-
-    @BeforeEach
-    void setUp() {
-        when(pieceGenerator.getNextPiece()).thenReturn(TetrominoType.I);
-        when(pieceGenerator.peekNext()).thenReturn(TetrominoType.I);
-    }
 
     @Test
     void testLevelManagerGet1RowClearWhen1RowIsCleared() {
@@ -58,12 +41,10 @@ class LevelManagerIntegrationTests {
         // Arrange
         final var boardDescription = setBoardForIClean(10);
         gameManagerInit(boardDescription);
-
         // Act
         for (int i = 0; i < 10; i++) {
             gameManager.handleInput(InputAction.HARD_DROP);
         }
-
         // Assert
         assertThat(levelManager.getLevel()).isEqualTo(2);
     }
@@ -71,17 +52,20 @@ class LevelManagerIntegrationTests {
     @Test
     void testLevelManagerDontGetNothingIf0Line() {
         // Arrange
-        gameManagerInit(GameBoard::new);
-
+        gameManager = GameManagerBuilder.create()
+                .setGenerator(TetrominoType.I)
+                .setLevelManager(levelManager)
+                .setGameBoardSupplier(GameBoard::new)
+                .build();
+        gameManager.handleInput(InputAction.CONFIRM);
         // Act
         gameManager.handleInput(InputAction.HARD_DROP);
-
         // Assert
         verify(levelManager, never()).onCleanedRows(anyInt());
     }
 
     @Test
-    void testLVLManagerRestartOnNewGame(){
+    void testLVLManagerRestartOnNewGame() {
         // Arrange
         final var boardDescription = setBoardForIClean(10);
         gameManagerInit(boardDescription);
@@ -99,12 +83,11 @@ class LevelManagerIntegrationTests {
 
     private void gameManagerInit(String boardDescription) {
         final String fullBoard = UtilForTests.CreateFullBoardDescription(boardDescription);
-        gameManagerInit(() -> UtilForTests.prepareBoard(fullBoard));
-    }
-
-    private void gameManagerInit(Supplier<GameBoard> gameBoardSupplier) {
-        gameManager = new GameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop, snapshot -> {
-        }, levelManager, gameBoardSupplier);
+        gameManager = GameManagerBuilder.create()
+                .setGenerator(TetrominoType.I)
+                .setLevelManager(levelManager)
+                .setGameBoardSupplier(() -> UtilForTests.prepareBoard(fullBoard))
+                .build();
         gameManager.handleInput(InputAction.CONFIRM);
     }
 

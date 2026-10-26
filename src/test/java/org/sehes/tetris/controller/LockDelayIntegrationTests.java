@@ -16,7 +16,6 @@ import org.sehes.tetris.model.TetrominoFactory;
 import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.ScoreEvent;
-import org.sehes.tetris.model.score.ScoreMessenger;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,7 +35,6 @@ class LockDelayIntegrationTests {
     @Mock private PieceGenerator pieceGenerator;
     @Mock private Observer<ScoreEvent> scoreObserver;
     @Mock private Rendering rendering;
-    @Mock private GameLoop gameLoop;
     @Captor private ArgumentCaptor<GameSnapshot> gameSnapshotCaptor;
     @Captor private ArgumentCaptor<ScoreEvent> scoreEventCaptor;
     private final AtomicReference<GameSnapshot> latestSnapshot = new AtomicReference<>();
@@ -45,11 +43,14 @@ class LockDelayIntegrationTests {
     void setUp() {
         when(pieceGenerator.getNextPiece()).thenReturn(TetrominoType.T);
         when(pieceGenerator.peekNext()).thenReturn(TetrominoType.T);
-        ScoreMessenger scoreMessenger = new ScoreMessenger();
-        scoreMessenger.addObserver(scoreObserver);
-        StateManager<GameState> stageManager = new GameStateManager(GameState.PREPARED);
-        gameManager = ControllerTestsUtil.createdGameManager(stageManager, scoreMessenger, pieceGenerator, gameLoop, rendering);
+        gameManager = GameManagerBuilder.create()
+                .addScoreObserver(scoreObserver)
+                .setGenerator(pieceGenerator)
+                .setRender(rendering)
+                .build();
         gameManager.handleInput(InputAction.CONFIRM);
+
+
         doAnswer(invocation -> {
             latestSnapshot.set(invocation.getArgument(0));
             return null;
