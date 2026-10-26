@@ -172,7 +172,7 @@ public class GameManager implements InputHandler {
         if (!isHoldLock) {
             TetrominoType currentType = getCurrentTetromino().getType();
             TetrominoType previousHold = holdTetromino;
-            setHoldAndNotify(currentType);
+            setAndNotifyHoldMino(currentType);
             isHoldLock = true;
 
             boolean spawnSuccessful = (previousHold == null) ? trySpawnNewTetromino() : trySpawnMino(previousHold);
@@ -196,22 +196,19 @@ public class GameManager implements InputHandler {
 
     private boolean trySpawnNewTetromino() {
         final var piece = generator.getNextPiece();
-        if (trySpawnMino(piece)) {
-            spawnObservable.notify(generator.peekNext());
-            return true;
-        }
-        return false;
+        if (!trySpawnMino(piece)) return false;
+        spawnObservable.notify(generator.peekNext());
+        return true;
     }
 
     private boolean trySpawnMino(TetrominoType minoType) {
-        if (gameBoard.trySetNewTetromino(minoType)) {
-            lockDelay.setFor(getCurrentTetromino());
-            return true;
-        }
-        return false;
+        if (!gameBoard.trySetNewTetromino(minoType)) return false;
+        lockDelay.setFor(getCurrentTetromino());
+        resetGravityAcc();
+        return true;
     }
 
-    private void setHoldAndNotify(TetrominoType currentType) {
+    private void setAndNotifyHoldMino(TetrominoType currentType) {
         holdTetromino = currentType;
         holdObservable.notify(holdTetromino);
     }
@@ -277,8 +274,7 @@ public class GameManager implements InputHandler {
             }
         }
     }
-
-    private void resetAccumulator() {
+    private void resetGravityAcc() {
         gravityAccumulator = 0;
     }
 
@@ -292,9 +288,9 @@ public class GameManager implements InputHandler {
     }
 
     private void newGame() {
-        levelManager.set();
         stateManager.setState(NEW_GAME);
-        setHoldAndNotify(null);
+        levelManager.set();
+        setAndNotifyHoldMino(null);
         gameBoard = gameBoardSupplier.get();
         generator.startNewMinoQueue();
         //TODO: unlock this when tehre will be implemented time delay to show first piece before game start
@@ -303,7 +299,6 @@ public class GameManager implements InputHandler {
         isHoldLock = false;
         isDirty.set(true);
         render();
-        resetAccumulator();
         stateManager.setState(PLAYING);
     }
 
@@ -312,7 +307,7 @@ public class GameManager implements InputHandler {
     }
 
     private void resumeGame() {
-        resetAccumulator();
+        resetGravityAcc();
         gameLoop.resume();
         stateManager.setState(PLAYING);
     }
