@@ -296,8 +296,9 @@ public class GameManager implements InputHandler {
         stateManager.setState(NEW_GAME);
         setHoldAndNotify(null);
         gameBoard = gameBoardSupplier.get();
-        generator.startNewSequence();
-        spawnObservable.notify(generator.peekNext());
+        generator.startNewMinoQueue();
+        //TODO: unlock this when tehre will be implemented time delay to show first piece before game start
+        // spawnObservable.notify(generator.peekNext());
         trySpawnNewTetromino();
         isHoldLock = false;
         isDirty.set(true);
