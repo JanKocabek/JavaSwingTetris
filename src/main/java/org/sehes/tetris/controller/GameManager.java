@@ -178,11 +178,11 @@ public class GameManager implements InputHandler {
             boolean spawnSuccessful = (previousHold == null) ? trySpawnNewTetromino() : trySpawnMino(previousHold);
 
             if (!spawnSuccessful) {
-                setGameOver();
+                    setGameOver();
             }
+
             render();
         }
-
     }
 
     private void toggleGhostPiece() {
@@ -205,6 +205,7 @@ public class GameManager implements InputHandler {
         if (!gameBoard.trySetNewTetromino(minoType)) return false;
         lockDelay.setFor(getCurrentTetromino());
         resetGravityAcc();
+        isDirty.set(true);
         return true;
     }
 
@@ -225,14 +226,9 @@ public class GameManager implements InputHandler {
         if (!trySpawnNewTetromino()) {
             setGameOver();
         }
-        resetGameStateForNewPiece();
+        isHoldLock = false;
     }
 
-    private void resetGameStateForNewPiece() {
-        isHoldLock = false;
-        gravityAccumulator = 0;
-        isDirty.set(true);
-    }
 
     private void notifyLockingEvent(TSpin tSpin, int linesCleared, int level) {
         final LockPieceEvent lockEvent = createLockEvent(tSpin, linesCleared, level);
@@ -297,7 +293,6 @@ public class GameManager implements InputHandler {
         // spawnObservable.notify(generator.peekNext());
         trySpawnNewTetromino();
         isHoldLock = false;
-        isDirty.set(true);
         render();
         stateManager.setState(PLAYING);
     }
