@@ -1,5 +1,7 @@
 package org.sehes.tetris.controller;
 
+import org.sehes.tetris.common.event.Observable;
+
 public interface GameLoop {
     void start();
 

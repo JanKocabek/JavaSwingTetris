@@ -4,7 +4,7 @@ import org.sehes.tetris.config.GameParameters;
 
 import java.util.List;
 
-public class UtilForTests {
+public final class UtilForTests {
 
     public static void printBoardState(BoardView boardView, Tetromino tetromino) {
         final char TETROMINO = 'T';
@@ -32,7 +32,6 @@ public class UtilForTests {
         }
         System.out.println("----");
     }
-
 
     public static List<Coordinate> getTetrominoBoardCord(Tetromino tetromino) {
         List<Coordinate> cord = tetromino.getStateCord();
@@ -89,53 +88,70 @@ public class UtilForTests {
 //        return gameBoard;
 //    }
 
+    private static void checkBoardSize(String boardDescription) {
+        final var lines = boardDescription.lines().toList();
+
+        if (lines.size() > GameParameters.ROWS) {
+            throw new AssertionError("given rows are %s but can be maximum %s".formatted(lines.size(), GameParameters.ROWS));
+        }
+
+        for (int i = 0; i < lines.size(); i++) {
+            var line = lines.get(i);
+            final var length = line.length();
+            if (length > GameParameters.COLUMNS) {
+                throw new AssertionError("row %s have %s characters but can be maximum %s".formatted(i,length, GameParameters.COLUMNS));
+            }
+        }
+    }
+
     /**
      *
-     * @param boardDescription board describe as string of # for TetrominoType.NON and . for TetrominoType.I
-     * @return
+     * @param boardDescription board describe as strings of '#' for {@link  TetrominoType#NON} and 'I' for {@link TetrominoType#I}
+     * @return prepared {@link GameBoard}
      */
     public static GameBoard prepareBoard(String boardDescription) {
-        TetrominoType[][] board = new TetrominoType[GameParameters.ROWS][GameParameters.COLUMNS];
-        int x = 0;
-        int y = 0;
-        String b = boardDescription.strip();
-        for (var c : b.toCharArray()) {
+        String descriptionStrip = boardDescription.strip();
+        checkBoardSize(descriptionStrip);
+        final TetrominoType[][] board = new TetrominoType[GameParameters.ROWS][GameParameters.COLUMNS];
+        int row = 0;
+        int collumn = 0;
 
+        for (var c : descriptionStrip.toCharArray()) {
             switch (c) {
-                case '#' -> board[x][y] = TetrominoType.NON;
-                case 'I' -> board[x][y] = TetrominoType.I;
+                case '#' -> board[row][collumn] = TetrominoType.NON;
+                case 'I' -> board[row][collumn] = TetrominoType.I;
                 default -> {
                     continue;
                 }
             }
-            y++;
-            if (y == GameParameters.COLUMNS) {
-                y = 0;
-                x++;
+            collumn++;
+            if (collumn == GameParameters.COLUMNS) {
+                collumn = 0;
+                row++;
             }
-
-
         }
         return GameBoard.createGameBoard(board);
     }
 
     public static String boardEmptyLine(int sizeOfLine) {
-        return "#".repeat(sizeOfLine)+"\n";
+        return "#".repeat(sizeOfLine) + "\n";
     }
 
     public static String boardEmptyLine() {
         return boardEmptyLine(GameParameters.COLUMNS);
     }
 
-    public static String getFullBoard(String filledBoardPart, int rows, int cols) {
+    public static String CreateFullBoardDescription(String filledBoardPart, int rows, int cols) {
         final var lines = filledBoardPart.lines().count();
-        final var emptyRows = (int) Math.max (0,rows - lines);
+        final var emptyRows = (int) Math.max(0, rows - lines);
         return boardEmptyLine(cols).repeat(emptyRows) + filledBoardPart;
     }
 
+    public static String CreateFullBoardDescription(String filledBoardPart) {
+        return CreateFullBoardDescription(filledBoardPart, GameParameters.ROWS, GameParameters.COLUMNS);
+    }
 
-    public static String getFullBoard(String filledBoardPart) {
-        return getFullBoard(filledBoardPart, GameParameters.ROWS, GameParameters.COLUMNS);
+    private UtilForTests() {
     }
 }
 

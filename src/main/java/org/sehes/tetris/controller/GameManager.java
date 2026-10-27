@@ -1,28 +1,28 @@
 package org.sehes.tetris.controller;
 
-import org.sehes.tetris.config.GhostType;
+import org.sehes.tetris.common.GameState;
+import org.sehes.tetris.common.event.Observable;
+import org.sehes.tetris.common.event.ObservableImpl;
+import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.*;
-import org.sehes.tetris.model.score.HardDropEvent;
-import org.sehes.tetris.model.score.LockPieceEvent;
-import org.sehes.tetris.model.score.SoftDropEvent;
-import org.sehes.tetris.model.score.TSpin;
+import org.sehes.tetris.model.level.LevelManager;
+import org.sehes.tetris.model.score.*;
+import org.sehes.tetris.view.Rendering;
 
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import static org.sehes.tetris.controller.GameState.*;
+import static org.sehes.tetris.common.GameState.*;
+import static org.sehes.tetris.common.Utils.NANOS_PER_SECOND;
 
 public class GameManager implements InputHandler {
-
-    // =========================================================================
     // 1. CONSTANTS
     // =========================================================================
-    private static final double NANOS_PER_SECOND = 1_000_000_000.0;
-    private static final int BASE_SPEED_MS = 600;
-    private static final long MOVEMENT_SPEED = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED_MS);
-    // =========================================================================
+    private static final Logger LOGGER = Logger.getLogger(GameManager.class.getName());
     // 2. INFRASTRUCTURE & SERVICES
     // =========================================================================
     private final StateManager<GameState> stateManager;
@@ -31,6 +31,8 @@ public class GameManager implements InputHandler {
     private final GameLoop gameLoop;
     private final Rendering tetrisCanvas;
     private final LockDelay lockDelay = new LockDelay();
+    private final LevelManager levelManager;
+    private final Supplier<GameBoard> gameBoardSupplier;
     // =========================================================================
     // 3. OBSERVABLES & OBSERVERS
     // =========================================================================
@@ -55,12 +57,14 @@ public class GameManager implements InputHandler {
     // PUBLIC INTERFACE (CONSTRUCTOR & PUBLIC METHODS)
     // =========================================================================
 
-    public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger, PieceGenerator generator, GameLoop loop, Rendering render) {
+    public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger, PieceGenerator generator, GameLoop loop, Rendering render, LevelManager levelManager, Supplier<GameBoard> gameBoardSupplier) {
         this.generator = generator;
         this.stateManager = stateManager;
         this.scoreMessenger = scoreMessenger;
         this.gameLoop = loop;
         this.tetrisCanvas = render;
+        this.levelManager = levelManager;
+        this.gameBoardSupplier = gameBoardSupplier;
     }
 
     @Override
@@ -175,7 +179,7 @@ public class GameManager implements InputHandler {
         if (!isHoldLock) {
             TetrominoType currentType = getCurrentTetromino().getType();
             TetrominoType previousHold = holdTetromino;
-            setHoldAndNotify(currentType);
+            setAndNotifyHoldMino(currentType);
             isHoldLock = true;
 
             boolean spawnSuccessful = (previousHold == null) ? trySpawnNewTetromino() : trySpawnMino(previousHold);
@@ -183,9 +187,9 @@ public class GameManager implements InputHandler {
             if (!spawnSuccessful) {
                 setGameOver();
             }
+
             render();
         }
-
     }
 
     private void toggleGhostPiece() {
@@ -199,54 +203,51 @@ public class GameManager implements InputHandler {
 
     private boolean trySpawnNewTetromino() {
         final var piece = generator.getNextPiece();
-        if (trySpawnMino(piece)) {
-            spawnObservable.notify(generator.peekNext());
-            return true;
-        }
-        return false;
+        if (!trySpawnMino(piece)) return false;
+        spawnObservable.notify(generator.peekNext());
+        return true;
     }
 
     private boolean trySpawnMino(TetrominoType minoType) {
-        if (gameBoard.trySetNewTetromino(minoType)) {
-            lockDelay.setFor(getCurrentTetromino());
-            return true;
-        }
-        return false;
+        if (!gameBoard.trySetNewTetromino(minoType)) return false;
+        lockDelay.setFor(getCurrentTetromino());
+        resetGravityAcc();
+        isDirty.set(true);
+        return true;
     }
 
-    private void setHoldAndNotify(TetrominoType currentType) {
+    private void setAndNotifyHoldMino(TetrominoType currentType) {
         holdTetromino = currentType;
         holdObservable.notify(holdTetromino);
     }
 
+    //TODO: simplified output of related GameBoard methods make it direct return
     private void lockClearAndScorePiece() {
-        lockPiceAndTryClearLines();
-        scoreLockAction();
+        gameBoard.lockTetrominoInPlace();
+        gameBoard.tryClearLines();
+        final var lastAction = gameBoard.getLastAction();
+        try {
+            notifyLockingEvent(lastAction.tSpin(), lastAction.linesCleared(), levelManager.getLevel());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to notify score observer on lock piece", e);
+        }
+        if (lastAction.linesCleared() > 0) {
+            levelManager.onCleanedRows(lastAction.linesCleared());
+        }
         if (!trySpawnNewTetromino()) {
             setGameOver();
         }
-        resetGameStateForNewPiece();
-    }
-
-    private void resetGameStateForNewPiece() {
         isHoldLock = false;
-        gravityAccumulator = 0;
-        isDirty.set(true);
     }
 
-    private void scoreLockAction() {
-        final var lastAction = gameBoard.getLastAction();
-        final LockPieceEvent lockEvent = createLockEvent(lastAction.tSpin(), lastAction.linesCleared());
+
+    private void notifyLockingEvent(TSpin tSpin, int linesCleared, int level) {
+        final LockPieceEvent lockEvent = createLockEvent(tSpin, linesCleared, level);
         scoreMessenger.notifyObservers(lockEvent);
     }
 
-    private void lockPiceAndTryClearLines() {
-        gameBoard.lockTetrominoInPlace();
-        gameBoard.clearLines();
-    }
-
-    private LockPieceEvent createLockEvent(final TSpin tSpin, int clearedLines) {
-        return new LockPieceEvent(clearedLines, tSpin);
+    private LockPieceEvent createLockEvent(final TSpin tSpin, int clearedLines, int level) {
+        return new LockPieceEvent(clearedLines, tSpin, level);
     }
 
     // =========================================================================
@@ -269,9 +270,10 @@ public class GameManager implements InputHandler {
 
     private void gravityUpdate(Long elapsedTime) {
         gravityAccumulator += elapsedTime;
-        while (gravityAccumulator >= MOVEMENT_SPEED) {
+        final var gravityInterval=levelManager.getGravityNanos();
+        while (gravityAccumulator >= gravityInterval) {
             if (gameBoard.tryGravityMove()) {
-                gravityAccumulator -= MOVEMENT_SPEED;
+                gravityAccumulator -= gravityInterval;
                 lockDelay.checkDrop(getCurrentTetromino().getPositionY(), gameBoard.isMinoGrounded());
             } else {
                 gravityAccumulator = 0;
@@ -281,7 +283,7 @@ public class GameManager implements InputHandler {
         }
     }
 
-    private void resetAccumulator() {
+    private void resetGravityAcc() {
         gravityAccumulator = 0;
     }
 
@@ -290,21 +292,21 @@ public class GameManager implements InputHandler {
     // =========================================================================
 
     private void startGame() {
-            newGame();
-            gameLoop.start();
+        newGame();
+        gameLoop.start();
     }
 
     private void newGame() {
         stateManager.setState(NEW_GAME);
-        setHoldAndNotify(null);
-        gameBoard = new GameBoard();
-        generator.startNewSequence();
-        spawnObservable.notify(generator.peekNext());
+        levelManager.set();
+        setAndNotifyHoldMino(null);
+        gameBoard = gameBoardSupplier.get();
+        generator.startNewMinoQueue();
+        //TODO: unlock this when tehre will be implemented time delay to show first piece before game start
+        // spawnObservable.notify(generator.peekNext());
         trySpawnNewTetromino();
         isHoldLock = false;
-        isDirty.set(true);
         render();
-        resetAccumulator();
         stateManager.setState(PLAYING);
     }
 
@@ -313,7 +315,7 @@ public class GameManager implements InputHandler {
     }
 
     private void resumeGame() {
-        resetAccumulator();
+        resetGravityAcc();
         gameLoop.resume();
         stateManager.setState(PLAYING);
     }

@@ -53,6 +53,7 @@ monster-battling mechanics through row clears.
 | **Hard Drop**                | `space`       |
 | **GhostBlock Toggle**        | `V` key       |
 | **Hold Piece**               | `shift`       |
+| **Restart Game**             | `F1`          |
 
 ---
 
@@ -60,30 +61,32 @@ monster-battling mechanics through row clears.
 
 The development journey from a core engine to an ARPG-ready platform.
 
-| ✅ Completed Steps                      | 🚀 Future & Current Goals                  |
-|:----------------------------------------|:-------------------------------------------|
-| **Core Mechanics**                      | **Enhanced Gameplay**                      |
-| ✔️ SRS Wall-kick system                 | ⬜ Auto-increasing difficulty (Gravity)    |
-| ✔️ All 7 standard tetrominoes           |                                            |
-| ✔️ Collision detection (Walls & Pieces) |                                            |
-| ✔️ Basic scoring logic                  |                                            |
-| ✔️ Simple Pause / Game Over system      |                                            |
-| **Enhanced Gameplay**                   | **Menus & UI**                             | 
-| ✔️ Hard drop implementation             | ⬜ Main Menu                               |  
-| ✔️ Advanced Scoring (T-Spins, Combos)   | ⬜ About & Credits screen                  |
-| ✔️ Ghost piece (Visual guide)           | ⬜ Local Saving (High scores)              |
-| ✔️  Preview window for next pieces      | ⬜ KeyRebinding option                     |
-| ✔️  Hold function                       |                                            |
-| **Technical Foundation**                | ⬜ Professional Sprites & Visual Effects   |
-| ✔️ Keyboard input handling              | ⬜ Separated Threads (Logic vs Render)     |
-| ✔️ Board state & Active tracking        |                                            |
-| ✔️ 2.5D Shape Rendering                 |                                            |
-| ✔️ Game loop (Timer-based)              |                                            |
-| ✔️ Moving & Redrawing logic             |                                            |
-| **ARPG Vision (Planned)**               | **Multiplayer & AI**                       |
-| 🚧 Modular Refactoring (In Progress)    | ⬜ Local & Network Multiplayer             |
-|                                         | ⬜ Simple AI Opponent                      |
-|                                         | ⬜ **ARPG:** Monsters, Bosses, Skill Trees |
+| ✅ Completed Steps                                        | 🚀 Future & Current Goals                  |
+|:----------------------------------------------------------|:-------------------------------------------|
+| **Core Mechanics**                                        | **Menus & UI**                             |
+| ✔️ SRS Wall-kick system                                   | ⬜ Main Menu                               |
+| ✔️ All 7 standard tetrominoes                             | ⬜ About & Credits screen                  |
+| ✔️ Collision detection (Walls & Pieces)                   | ⬜ Local Saving (High scores)              |
+| ✔️ Basic scoring logic                                    | ⬜ KeyRebinding option                     |
+| ✔️ Simple Pause / Game Over system                        |                                            |
+| **Enhanced Gameplay**                                     | **Technical Foundation**                   | 
+| ✔️ Hard drop implementation                               | ⬜ Professional Sprites & Visual Effects   |  
+| ✔️ Advanced Scoring (T-Spins, Combos)                     | ⬜ Separated Threads (Logic vs Render)     |
+| ✔️ Ghost piece (Visual guide)                             |                                            |
+| ✔️  Preview window for next pieces                        |                                            |
+| ✔️  Hold function                                         |                                            |
+| ✔️ Standart GuideLine  lock Delay  </br>15 moves / 500 ms |                                            |
+| ✔️ Levels / Auto-increasing difficulty (Gravity)          |                                            |
+| **Technical Foundation**                                  | **Multiplayer & AI**                       |
+| ✔️ Keyboard input handling                                | ⬜ Local & Network Multiplayer             |
+| ✔️ Board state & Active tracking                          | ⬜ Simple AI Opponent                      |
+| ✔️ 2.5D Shape Rendering                                   |                                            |
+| ✔️ Game loop (Timer-based)                                |                                            |
+| ✔️ Moving & Redrawing logic                               | **ARPG Vision (Planned)**                  |
+|                                                           | ⬜ **ARPG:** Monsters, Bosses, Skill Trees |
+| 🚧 Modular Refactoring (In Progress)                      |                                            |
+|                                                           |                                            |
+|                                                           |                                            |
 
   
 ---
@@ -93,7 +96,7 @@ The development journey from a core engine to an ARPG-ready platform.
 * **Scalability:** Refactoring the engine to use modular composition, allowing for the easy addition of "ARPG" features
   like skill trees and power-ups.
 * **Accuracy:** Ensuring all rotations, wall-kicks, and lock-out timings strictly follow official Tetris guidelines.
-* **Performance:** Moving toward a multi-threaded architecture to ensure smooth 60FPS rendering independent of game
+* **Performance:** Moving toward a multithreaded architecture to ensure smooth 60FPS rendering independent of game
   logic calculations.
 
 ---

@@ -1,6 +1,9 @@
 package org.sehes.tetris.controller;
 
-import javax.swing.Timer;
+import org.sehes.tetris.common.event.Observable;
+import org.sehes.tetris.common.event.ObservableImpl;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.TimeUnit;

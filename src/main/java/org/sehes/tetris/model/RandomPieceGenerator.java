@@ -26,7 +26,7 @@ public class RandomPieceGenerator implements PieceGenerator {
     }
 
     @Override
-    public void startNewSequence() {
+    public void startNewMinoQueue() {
         next = null;
         final long seed = seedGenerator.nextLong();
         pieceGenerator = RandomGeneratorFactory.getDefault().create(seed);
@@ -35,7 +35,7 @@ public class RandomPieceGenerator implements PieceGenerator {
     //
     private TetrominoType generate() {
         if (pieceGenerator == null) {
-            startNewSequence();
+            startNewMinoQueue();
         }
         return TETROMINO_SHAPES[pieceGenerator.nextInt(TETROMINO_SHAPES.length)];
     }

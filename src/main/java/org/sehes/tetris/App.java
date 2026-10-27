@@ -1,15 +1,22 @@
 package org.sehes.tetris;
 
-import org.sehes.tetris.controller.*;
+import org.sehes.tetris.common.GameState;
+import org.sehes.tetris.common.event.Observable;
+import org.sehes.tetris.common.event.Observer;
+import org.sehes.tetris.controller.GameLoop;
+import org.sehes.tetris.controller.GameManager;
+import org.sehes.tetris.controller.GameStateManager;
+import org.sehes.tetris.controller.SwingTimerGameLoop;
 import org.sehes.tetris.controller.input.*;
-import org.sehes.tetris.graphic.AssetsManager;
-import org.sehes.tetris.graphic.PreviewDrawingHandler;
-import org.sehes.tetris.graphic.RenderingHintsFactory;
-import org.sehes.tetris.graphic.TetrisDrawingHandler;
-import org.sehes.tetris.gui.GuiFactory;
-import org.sehes.tetris.model.PieceGenerator;
-import org.sehes.tetris.model.RandomPieceGenerator;
-import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.model.*;
+import org.sehes.tetris.model.level.LevelManager;
+import org.sehes.tetris.model.score.ScoreManager;
+import org.sehes.tetris.model.score.ScoreMessenger;
+import org.sehes.tetris.view.render.AssetsManager;
+import org.sehes.tetris.view.render.PreviewDrawingHandler;
+import org.sehes.tetris.view.render.RenderingHintsFactory;
+import org.sehes.tetris.view.render.TetrisDrawingHandler;
+import org.sehes.tetris.view.swing.GuiFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,14 +35,14 @@ public class App {
     private final AssetsManager assetsManager = new AssetsManager(qualityRenderingHints);
     private final Painter<GameSnapshot> tetrisPainter = new TetrisDrawingHandler(qualityRenderingHints, assetsManager);
     private final Painter<TetrominoType> previewPainter = new PreviewDrawingHandler(qualityRenderingHints, assetsManager);
-
+    private final LevelManager levelManager = new LevelManager();
     public App() {
 
     }
 
     public void run() {
         final var gui = GuiFactory.assembly(tetrisPainter, previewPainter);
-        final GameManager gameManager = new GameManager(stateManager, scoreMessenger, randomPieceGenerator, gameLoop, gui.canvas());
+        final GameManager gameManager = new GameManager(stateManager, scoreMessenger, randomPieceGenerator, gameLoop, gui.canvas(),levelManager, GameBoard::new);
         final InputRouter inputReceiver = new InputRouterImpl(inputMapper, gameManager, gui.exitAction());
         final KeyAdapter tetrisKeyAdapter = new TetrisKeyAdapter(inputReceiver);
         GuiFactory.addKeyListener(tetrisKeyAdapter, gui);
@@ -44,9 +51,10 @@ public class App {
         addObserver(gameLoop.tickObservable(), gameManager.tickObserver());
         addObserver(scoreMessenger, scoreManager.scoringObserver());
         addObserver(stateManager.gameStateObservable(), scoreManager.gameStateObserver());
-        addObserver(scoreManager.ScoreInfoObservable(), gui.scoreObserver());
+        addObserver(scoreManager.scoreInfoObservable(), gui.scoreObserver());
         addObserver(gameManager.spawnObservable(), gui.previewObserver());
         addObserver(gameManager.holdObservable(), gui.holdCanvasObserver());
+        addObserver(levelManager.levelObservable(), gui.levelObserver());
         gui.window().setVisible(true);
         gui.canvas().requestFocusInWindow();
         stateManager.setState(GameState.PREPARED);
