@@ -1,15 +1,17 @@
 package org.sehes.tetris;
 
-import org.sehes.tetris.controller.*;
+import org.sehes.tetris.common.GameState;
+import org.sehes.tetris.common.event.Observable;
+import org.sehes.tetris.common.event.Observer;
+import org.sehes.tetris.controller.GameLoop;
+import org.sehes.tetris.controller.GameManager;
+import org.sehes.tetris.controller.GameStateManager;
+import org.sehes.tetris.controller.SwingTimerGameLoop;
 import org.sehes.tetris.controller.input.*;
-import org.sehes.tetris.model.GameBoard;
-import org.sehes.tetris.model.PieceGenerator;
-import org.sehes.tetris.model.RandomPieceGenerator;
-import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.model.*;
 import org.sehes.tetris.model.level.LevelManager;
 import org.sehes.tetris.model.score.ScoreManager;
 import org.sehes.tetris.model.score.ScoreMessenger;
-import org.sehes.tetris.util.event.Observable;
 import org.sehes.tetris.view.render.AssetsManager;
 import org.sehes.tetris.view.render.PreviewDrawingHandler;
 import org.sehes.tetris.view.render.RenderingHintsFactory;

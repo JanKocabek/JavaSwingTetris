@@ -1,9 +1,9 @@
 package org.sehes.tetris.model.level;
 
-import org.sehes.tetris.controller.ObservableImpl;
-import org.sehes.tetris.util.event.Observable;
+import org.sehes.tetris.common.event.Observable;
+import org.sehes.tetris.common.event.ObservableImpl;
 
-import static org.sehes.tetris.util.Utils.NANOS_PER_SECOND;
+import static org.sehes.tetris.common.Utils.NANOS_PER_SECOND;
 
 public class LevelManager {
     private static final int LINES_PER_LEVEL = 10;

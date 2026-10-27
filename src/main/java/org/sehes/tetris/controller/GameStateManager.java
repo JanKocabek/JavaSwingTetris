@@ -1,7 +1,9 @@
 package org.sehes.tetris.controller;
 
 
-import org.sehes.tetris.util.event.Observable;
+import org.sehes.tetris.common.GameState;
+import org.sehes.tetris.common.event.Observable;
+import org.sehes.tetris.common.event.ObservableImpl;
 
 public class GameStateManager implements StateManager<GameState> {
     private GameState currentState;

@@ -9,13 +9,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.input.InputAction;
+import org.sehes.tetris.model.GameSnapshot;
 import org.sehes.tetris.model.PieceGenerator;
 import org.sehes.tetris.model.TetrominoFactory;
 import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.ScoreEvent;
+import org.sehes.tetris.view.Rendering;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;

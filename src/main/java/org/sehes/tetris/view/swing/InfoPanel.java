@@ -1,7 +1,7 @@
 package org.sehes.tetris.view.swing;
 
-import org.sehes.tetris.controller.GameState;
-import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.common.GameState;
+import org.sehes.tetris.common.event.Observer;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -42,7 +42,7 @@ public class InfoPanel extends JPanel {
     private static class FpsLabel extends JLabel {
         private static final String BASE_STRING = "FPS: ";
         private static final Font FPS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
-        private final Observer<Integer> fpsObserver = this::update;
+        private final transient Observer<Integer> fpsObserver = this::update;
 
         FpsLabel() {
             setFont(FPS_FONT);
@@ -54,7 +54,7 @@ public class InfoPanel extends JPanel {
         }
 
         private void update(Integer state) {
-            setText(BASE_STRING + (int) state);
+            setText(BASE_STRING + state);
         }
 
 
@@ -63,7 +63,7 @@ public class InfoPanel extends JPanel {
     private static class InfoLabel extends JLabel {
 
         private static final Font INFO_FONT = new Font(Font.SERIF, Font.BOLD, 18);
-        private final Observer<GameState> infoObserver = this::update;
+        private final transient Observer<GameState> infoObserver = this::update;
 
         private InfoLabel() {
             setHorizontalAlignment(SwingConstants.CENTER);

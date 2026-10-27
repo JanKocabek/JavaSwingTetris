@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.input.InputAction;
+import org.sehes.tetris.model.GameSnapshot;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;

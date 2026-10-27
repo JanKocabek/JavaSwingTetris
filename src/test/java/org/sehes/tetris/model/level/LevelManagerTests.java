@@ -4,7 +4,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sehes.tetris.util.Utils;
+import org.sehes.tetris.common.Utils;
 
 import java.util.ArrayList;
 import java.util.List;

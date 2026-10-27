@@ -1,10 +1,10 @@
 package org.sehes.tetris.model.score;
 
 import org.jspecify.annotations.NonNull;
-import org.sehes.tetris.controller.GameState;
-import org.sehes.tetris.controller.ObservableImpl;
-import org.sehes.tetris.controller.Observer;
-import org.sehes.tetris.util.event.Observable;
+import org.sehes.tetris.common.GameState;
+import org.sehes.tetris.common.event.Observable;
+import org.sehes.tetris.common.event.ObservableImpl;
+import org.sehes.tetris.common.event.Observer;
 
 public class ScoreManager {
     private static final byte COMBO_EMPTY = -1;

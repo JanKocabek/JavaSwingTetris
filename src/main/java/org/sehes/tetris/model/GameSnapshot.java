@@ -1,9 +1,6 @@
-package org.sehes.tetris.controller;
+package org.sehes.tetris.model;
 
 import org.jspecify.annotations.Nullable;
-import org.sehes.tetris.model.BoardView;
-import org.sehes.tetris.model.GhostType;
-import org.sehes.tetris.model.Tetromino;
 
 import java.util.Optional;
 

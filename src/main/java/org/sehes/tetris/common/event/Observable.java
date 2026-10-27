@@ -1,6 +1,4 @@
-package org.sehes.tetris.util.event;
-
-import org.sehes.tetris.controller.Observer;
+package org.sehes.tetris.common.event;
 
 public interface Observable<T> {
     /**

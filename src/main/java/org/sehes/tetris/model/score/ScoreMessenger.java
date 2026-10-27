@@ -1,7 +1,7 @@
 package org.sehes.tetris.model.score;
 
-import org.sehes.tetris.controller.Observer;
-import org.sehes.tetris.util.event.Observable;
+import org.sehes.tetris.common.event.Observable;
+import org.sehes.tetris.common.event.Observer;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

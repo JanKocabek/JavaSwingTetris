@@ -1,7 +1,7 @@
 package org.sehes.tetris.view.swing;
 
 import org.jspecify.annotations.NonNull;
-import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.score.ScoreInfoDTO;
 
@@ -18,7 +18,7 @@ public class RightPanel extends JPanel {
         setOpaque(true);
         setBackground(Color.WHITE);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        // setBorder(new LineBorder(Color.ORANGE, 2));
+        // setBorder(new LineBorder(Color.ORANGE, 2));//debug border
         scorePanel = new ScorePanel();
         this.previewWindow = nextCanvas;
         add(scorePanel);
@@ -39,7 +39,7 @@ public class RightPanel extends JPanel {
     }
 
     public Observer<ScoreInfoDTO> getScoreObserver() {
-        return scorePanel.ScoreObserver();
+        return scorePanel.scoreObserver();
     }
 
     public Observer<Integer> getLevelObserver() {

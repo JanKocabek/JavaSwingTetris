@@ -1,8 +1,8 @@
 package org.sehes.tetris.view.swing;
 
-import org.sehes.tetris.controller.GameSnapshot;
-import org.sehes.tetris.controller.GameState;
-import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.common.GameState;
+import org.sehes.tetris.common.event.Observer;
+import org.sehes.tetris.model.GameSnapshot;
 import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.score.ScoreInfoDTO;
 

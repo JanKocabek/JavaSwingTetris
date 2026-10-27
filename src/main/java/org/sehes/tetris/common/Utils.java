@@ -1,4 +1,4 @@
-package org.sehes.tetris.util;
+package org.sehes.tetris.common;
 
 public final class Utils {
 

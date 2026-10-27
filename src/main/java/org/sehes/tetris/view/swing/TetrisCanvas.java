@@ -1,7 +1,7 @@
 package org.sehes.tetris.view.swing;
 
-import org.sehes.tetris.controller.GameSnapshot;
-import org.sehes.tetris.controller.Rendering;
+import org.sehes.tetris.model.GameSnapshot;
+import org.sehes.tetris.view.Rendering;
 import org.sehes.tetris.view.render.Config;
 
 import javax.swing.*;

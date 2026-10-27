@@ -1,7 +1,7 @@
 package org.sehes.tetris.view.swing;
 
 import org.jspecify.annotations.NonNull;
-import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.model.TetrominoType;
 
 import javax.swing.*;
@@ -11,15 +11,15 @@ public class LeftPanel extends JPanel {
 
     private final SmallCanvas holdCanvas;
 
-    LeftPanel(SmallCanvas HoldCanvas) {
+    LeftPanel(SmallCanvas holdCanvas) {
         super();
         setOpaque(true);
         setBackground(Color.WHITE);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         final var holdLabel=createHoldLabel();
         add(holdLabel);
-        this.holdCanvas = HoldCanvas;
-        add(holdCanvas);
+        this.holdCanvas = holdCanvas;
+        add(this.holdCanvas);
     }
     private @NonNull JLabel createHoldLabel() {
         final var label=new JLabel("HOLD:");

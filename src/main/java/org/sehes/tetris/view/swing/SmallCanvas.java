@@ -1,6 +1,6 @@
 package org.sehes.tetris.view.swing;
 
-import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.view.render.Config;
 
@@ -10,8 +10,8 @@ import java.awt.*;
 public class SmallCanvas extends JPanel {
     private static final Dimension WINDOW_SIZE = new Dimension(Config.PREVIEW_BLOCK_SIZE * 5, Config.PREVIEW_BLOCK_SIZE * 5);
     private static final Color backgroundColor = new Color(15, 15, 25);
-    private final Observer<TetrominoType> canvasObserver = this::onUpdate;
-    private final Painter<TetrominoType> painter;
+    private final transient Observer<TetrominoType> canvasObserver = this::onUpdate;
+    private final transient Painter<TetrominoType> painter;
     private TetrominoType type;
 
     SmallCanvas(Painter<TetrominoType> painter) {

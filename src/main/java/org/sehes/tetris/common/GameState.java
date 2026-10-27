@@ -1,4 +1,4 @@
-package org.sehes.tetris.controller;
+package org.sehes.tetris.common;
 
 // Define the possible game states
 public enum GameState {

@@ -1,12 +1,15 @@
 package org.sehes.tetris.controller;
 
+import org.sehes.tetris.common.GameState;
+import org.sehes.tetris.common.event.Observable;
+import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.model.GameBoard;
 import org.sehes.tetris.model.PieceGenerator;
 import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.level.LevelManager;
 import org.sehes.tetris.model.score.ScoreEvent;
 import org.sehes.tetris.model.score.ScoreMessenger;
-import org.sehes.tetris.util.event.Observable;
+import org.sehes.tetris.view.Rendering;
 
 import java.util.function.Supplier;
 

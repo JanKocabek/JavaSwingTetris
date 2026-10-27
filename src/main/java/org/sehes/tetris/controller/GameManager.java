@@ -1,17 +1,21 @@
 package org.sehes.tetris.controller;
 
+import org.sehes.tetris.common.GameState;
+import org.sehes.tetris.common.event.Observable;
+import org.sehes.tetris.common.event.ObservableImpl;
+import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.*;
 import org.sehes.tetris.model.level.LevelManager;
 import org.sehes.tetris.model.score.*;
-import org.sehes.tetris.util.event.Observable;
+import org.sehes.tetris.view.Rendering;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import static org.sehes.tetris.controller.GameState.*;
-import static org.sehes.tetris.util.Utils.NANOS_PER_SECOND;
+import static org.sehes.tetris.common.GameState.*;
+import static org.sehes.tetris.common.Utils.NANOS_PER_SECOND;
 
 public class GameManager implements InputHandler {
     // 1. CONSTANTS
@@ -178,7 +182,7 @@ public class GameManager implements InputHandler {
             boolean spawnSuccessful = (previousHold == null) ? trySpawnNewTetromino() : trySpawnMino(previousHold);
 
             if (!spawnSuccessful) {
-                    setGameOver();
+                setGameOver();
             }
 
             render();
@@ -270,6 +274,7 @@ public class GameManager implements InputHandler {
             }
         }
     }
+
     private void resetGravityAcc() {
         gravityAccumulator = 0;
     }

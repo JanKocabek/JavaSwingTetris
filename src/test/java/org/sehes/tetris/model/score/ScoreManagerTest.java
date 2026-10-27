@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.sehes.tetris.controller.GameState;
+import org.sehes.tetris.common.GameState;
 
 import java.util.ArrayList;
 import java.util.List;

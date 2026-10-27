@@ -1,7 +1,7 @@
 package org.sehes.tetris.view.swing;
 
 import org.jspecify.annotations.NonNull;
-import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.model.score.ScoreInfoDTO;
 
 import javax.swing.*;
@@ -19,8 +19,8 @@ public class ScorePanel extends JPanel {
     private final JLabel clearingInfo = new JLabel(EMPTY, SwingConstants.CENTER);
     private final JLabel comboInfo = new JLabel(EMPTY, SwingConstants.CENTER);
     private final JLabel b2bInfo = new JLabel(EMPTY, SwingConstants.CENTER);
-    private final Observer<ScoreInfoDTO> scoreObserver = this::onScoreChange;
-    private final Observer<Integer> levelObserver = this::onLevelChange;
+    private final transient Observer<ScoreInfoDTO> scoreObserver = this::onScoreChange;
+    private final transient Observer<Integer> levelObserver = this::onLevelChange;
 
     public ScorePanel() {
         super();
@@ -53,7 +53,7 @@ public class ScorePanel extends JPanel {
 //        add(javax.swing.Box.createVerticalGlue(), fillerConstraints);
     }
 
-    public Observer<ScoreInfoDTO> ScoreObserver() {
+    public Observer<ScoreInfoDTO> scoreObserver() {
         return scoreObserver;
     }
 
