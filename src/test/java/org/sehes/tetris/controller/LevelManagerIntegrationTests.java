@@ -5,11 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.GameBoard;
 import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.UtilForTests;
 import org.sehes.tetris.model.level.LevelManager;
+import org.sehes.tetris.model.score.LockPieceEvent;
+import org.sehes.tetris.model.score.ScoreEvent;
+import org.sehes.tetris.model.score.ScoreMessenger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -79,6 +83,62 @@ class LevelManagerIntegrationTests {
         // Assert
         assertThat(levelManager.getLevel()).isEqualTo(1);
 
+    }
+
+    @Test
+    void testLevelManagerProgressesWhenScoreObserverThrows() {
+        // Arrange
+        final String boardDescription = """
+                III####III
+                """;
+        final String fullBoard = UtilForTests.CreateFullBoardDescription(boardDescription);
+        final Observer<ScoreEvent> failingObserver = event -> {
+            throw new RuntimeException("Simulated observer exception");
+        };
+
+        gameManager = GameManagerBuilder.create()
+                .setGenerator(TetrominoType.I)
+                .setLevelManager(levelManager)
+                .addScoreObserver(failingObserver)
+                .setGameBoardSupplier(() -> UtilForTests.prepareBoard(fullBoard))
+                .build();
+        gameManager.handleInput(InputAction.CONFIRM);
+
+        // Act
+        gameManager.handleInput(InputAction.HARD_DROP);
+
+        // Assert
+        verify(levelManager).onCleanedRows(1);
+    }
+
+    @Test
+    void testLevelManagerProgressesWhenScoreMessengerThrowsDirectly() {
+        // Arrange
+        final String boardDescription = """
+                III####III
+                """;
+        final String fullBoard = UtilForTests.CreateFullBoardDescription(boardDescription);
+        final ScoreMessenger throwingMessenger = mock(ScoreMessenger.class);
+        doAnswer(invocation -> {
+            if (invocation.getArgument(0) instanceof LockPieceEvent) {
+                throw new RuntimeException("ScoreMessenger unexpected error");
+            }
+            return null;
+        }).when(throwingMessenger).notifyObservers(any());
+
+        gameManager = GameManagerBuilder.create()
+                .setGenerator(TetrominoType.I)
+                .setLevelManager(levelManager)
+                .setScoreMessenger(throwingMessenger)
+                .setGameBoardSupplier(() -> UtilForTests.prepareBoard(fullBoard))
+                .build();
+        gameManager.handleInput(InputAction.CONFIRM);
+
+        // Act
+        gameManager.handleInput(InputAction.HARD_DROP);
+
+        // Assert
+        verify(levelManager).onCleanedRows(1);
     }
 
     private void gameManagerInit(String boardDescription) {

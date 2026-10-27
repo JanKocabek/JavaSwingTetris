@@ -13,6 +13,8 @@ import org.sehes.tetris.view.Rendering;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.sehes.tetris.common.GameState.*;
 import static org.sehes.tetris.common.Utils.NANOS_PER_SECOND;
@@ -20,6 +22,7 @@ import static org.sehes.tetris.common.Utils.NANOS_PER_SECOND;
 public class GameManager implements InputHandler {
     // 1. CONSTANTS
     // =========================================================================
+    private static final Logger LOGGER = Logger.getLogger(GameManager.class.getName());
     // 2. INFRASTRUCTURE & SERVICES
     // =========================================================================
     private final StateManager<GameState> stateManager;
@@ -223,7 +226,11 @@ public class GameManager implements InputHandler {
         gameBoard.lockTetrominoInPlace();
         gameBoard.tryClearLines();
         final var lastAction = gameBoard.getLastAction();
-        notifyLockingEvent(lastAction.tSpin(), lastAction.linesCleared(), levelManager.getLevel());
+        try {
+            notifyLockingEvent(lastAction.tSpin(), lastAction.linesCleared(), levelManager.getLevel());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to notify score observer on lock piece", e);
+        }
         if (lastAction.linesCleared() > 0) {
             levelManager.onCleanedRows(lastAction.linesCleared());
         }

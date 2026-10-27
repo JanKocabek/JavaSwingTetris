@@ -5,8 +5,11 @@ import org.sehes.tetris.common.event.Observer;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ScoreMessenger implements Observable<ScoreEvent> {
+    private static final Logger LOGGER = Logger.getLogger(ScoreMessenger.class.getName());
     private final List<Observer<ScoreEvent>> observers = new CopyOnWriteArrayList<>();
 
     /**
@@ -26,6 +29,12 @@ public class ScoreMessenger implements Observable<ScoreEvent> {
     }
 
     public void notifyObservers(ScoreEvent event) {
-        observers.forEach(observer -> observer.update(event));
+        for (Observer<ScoreEvent> observer : observers) {
+            try {
+                observer.update(event);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error notifying score observer for event: %s".formatted(event), e);
+            }
+        }
     }
 }
