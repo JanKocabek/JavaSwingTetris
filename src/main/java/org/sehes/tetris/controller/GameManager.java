@@ -270,9 +270,10 @@ public class GameManager implements InputHandler {
 
     private void gravityUpdate(Long elapsedTime) {
         gravityAccumulator += elapsedTime;
-        while (gravityAccumulator >= levelManager.getGravityNanos()) {
+        final var gravityInterval=levelManager.getGravityNanos();
+        while (gravityAccumulator >= gravityInterval) {
             if (gameBoard.tryGravityMove()) {
-                gravityAccumulator -= levelManager.getGravityNanos();
+                gravityAccumulator -= gravityInterval;
                 lockDelay.checkDrop(getCurrentTetromino().getPositionY(), gameBoard.isMinoGrounded());
             } else {
                 gravityAccumulator = 0;
