@@ -31,6 +31,9 @@ public class LevelManager {
     }
 
     public void set(int level) {
+        if (level < 1 || level > MAX_LEVEL) {
+            throw new IllegalArgumentException("Level must be between 1 and " + MAX_LEVEL + " (inclusive)");
+        }
         this.level = level;
         this.cleanedRows = 0;
         this.gravityIntervalNanos = calculateGravityIntervalNanos();
