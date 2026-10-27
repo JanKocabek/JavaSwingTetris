@@ -1,6 +1,6 @@
 package org.sehes.tetris.model;
 
-import org.sehes.tetris.model.ShapeProvider.WallKicks.Transition;
+import org.sehes.tetris.model.ShapeProvider.Transition;
 
 /**
  * The Orientation enum represents the possible Orientations states of a
@@ -20,7 +20,7 @@ public enum Orientation {
         this.state = state;
     }
 
-    public Transition getTransitionTo(final Orientation next) {
+     Transition getTransitionTo(final Orientation next) {
         return Transition.valueOf(this.name() + "_TO_" + next.name());
     }
 
