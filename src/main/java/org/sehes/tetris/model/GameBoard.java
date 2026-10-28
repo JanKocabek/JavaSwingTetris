@@ -453,16 +453,8 @@ public class GameBoard {
         return isInTheBoundaries(coordinates, positionX, positionY) && isCollisionFree(coordinates, positionX, positionY);
     }
 
-
-    void createGarbageLine() {
-        int lastLine = board.length - 1;
-        Arrays.fill(board[lastLine], TetrominoType.L);
-    }
-
-
-    //replace this in the near future
-
     /**
+     * REMOVE IT ASAP
      * JUNIT TEST ONLY<br>
      * This method sets a specific {@link TetrominoType} to a specific position on the game board.
      * This method is used for testing purposes to fill the game board with {@link TetrominoType}s.
