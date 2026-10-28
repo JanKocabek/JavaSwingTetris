@@ -213,16 +213,24 @@ public class GameBoard {
      */
     public boolean tryClearLines() {
         int linesClearedCount = 0;
-        for (int row = 0; row < board.length; row++) {
-            if (isLineFull(board[row])) {
-                shiftLinesDown(row);
-                linesClearedCount++;
-                row--;// todo: in future make the counting of line and clearing of lines separated to
-                // prevent this
+        int writeRow = board.length - 1;
+        for (int row = board.length - 1; row >= 0; row--) {
+            if (!isLineFull(board[row])) {
+                moveRowDown(row, writeRow);
+                writeRow--;
+            } else {
+                    linesClearedCount++;
             }
         }
         lastActionSnapshot.linesCleared = linesClearedCount;
         return linesClearedCount > 0;
+    }
+
+    private void moveRowDown(int row, int writeRow) {
+        if(row != writeRow) {
+            System.arraycopy(board[row], 0, board[writeRow], 0, board[row].length);
+            Arrays.fill(board[row], TetrominoType.NON);
+        }
     }
 
     private int checkCornersAroundT(int[][] offset) {
@@ -265,9 +273,7 @@ public class GameBoard {
 
     private boolean isLineFull(final TetrominoType[] boardRow) {
         for (final var cell : boardRow) {
-            if (cell == TetrominoType.NON) {
-                return false;
-            }
+            if (cell == TetrominoType.NON) return false;
         }
         return true;
     }
@@ -397,19 +403,6 @@ public class GameBoard {
             }
         }
         return true;
-    }
-
-    /**
-     *
-     */
-    private void shiftLinesDown(final int currentRow) {
-        if (currentRow == 0) {
-            return;
-        }
-        for (int cr = currentRow; cr > 0; cr--) {
-            System.arraycopy(board[cr - 1], 0, board[cr], 0, board[cr].length);
-        }
-        Arrays.fill(board[0], TetrominoType.NON);
     }
 
     /**

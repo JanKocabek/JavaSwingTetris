@@ -33,13 +33,13 @@ public class BoardClearLinesTests {
     }
 
     @Test
-    void shouldClear4Lines(){
-        final var gb =prepareBoard(UtilForTests.CreateFullBoardDescription("""
-               IIIIIIIIII
-               IIIIIIIIII
-               IIIIIIIIII
-               IIIIIIIIII
-               """));
+    void shouldClear4Lines() {
+        final var gb = prepareBoard(UtilForTests.CreateFullBoardDescription("""
+                IIIIIIIIII
+                IIIIIIIIII
+                IIIIIIIIII
+                IIIIIIIIII
+                """));
         // when
         gb.tryClearLines();
         final var result = gb.getLastAction().linesCleared();
@@ -48,24 +48,60 @@ public class BoardClearLinesTests {
     }
 
     @Test
-    void shouldClearLinesEvenWithSeparationBetweenThem(){
-        final var gb =prepareBoard(UtilForTests.CreateFullBoardDescription("""
-               IIIIIIIIII
-               ###IIIII#I
-               IIIIIIIIII
-               IIIIIIIIII
-               """));
+    void shouldClearLinesEvenWithSeparationBetweenThem() {
+        final var gb = prepareBoard(UtilForTests.CreateFullBoardDescription("""
+                IIIIIIIIII
+                ###IIIII#I
+                IIIIIIIIII
+                IIIIIIIIII
+                """));
         // when
         gb.tryClearLines();
         final var result = gb.getLastAction().linesCleared();
         // then
-        int pieceLeft=0;
-                for(int i = 0; i < 10; i++){
-                   if( gb.getBoardView().getBlockContent(21, i) == TetrominoType.I)
-                       pieceLeft++;
-                }
+        int pieceLeft = 0;
+        for (int i = 0; i < 10; i++) {
+            if (gb.getBoardView().getBlockContent(21, i) == TetrominoType.I)
+                pieceLeft++;
+        }
         assertThat(result).isEqualTo(3);
         assertThat(pieceLeft).isEqualTo(6);
+    }
+
+    @Test
+    void testThatClearingLinesAccuratelyWriteDownAboveANdFillUpWithEmpty() {
+        final var INIT_BOARD = """
+                ########I#
+                #######III
+                II#######I
+                IIII###III
+                IIIIIIIIII
+                IIIIIIIIII
+                IIIIIIIIII
+                IIIII#IIII
+                """;
+        final var FINAL_GRID = UtilForTests.CreateFullBoardDescription(
+                """
+                        ########I#
+                        #######III
+                        II#######I
+                        IIII###III
+                        IIIII#IIII
+                        """);
+        final var gb = prepareBoard(UtilForTests.CreateFullBoardDescription(INIT_BOARD));
+        // Act
+        gb.tryClearLines();
+        final var boardView = gb.getBoardView();
+        final var resultBuilder = new StringBuilder();
+        for (int i = 0; i < boardView.getHeight(); i++) {
+            for (int j = 0; j < boardView.getWidth(); j++) {
+                var cell = boardView.getBlockContent(i, j);
+                resultBuilder.append(cell == TetrominoType.I ? "I" : "#");
+            }
+            resultBuilder.append("\n");
+        }
+        // Assert
+        assertThat(resultBuilder.toString()).hasToString(FINAL_GRID);
     }
 
 }
