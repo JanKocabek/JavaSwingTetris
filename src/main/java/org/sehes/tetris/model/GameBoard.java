@@ -211,7 +211,7 @@ public class GameBoard {
      * EMPTY and shifts all rows above it down by one.
      * The method doesn't return anything but set number of cleared lines into {@link ActionSnapshot.LastActionSnapshot}
      */
-    public boolean tryClearLines() {
+    public void tryClearLines() {
         int linesClearedCount = 0;
         int writeRow = board.length - 1;
         for (int row = board.length - 1; row >= 0; row--) {
@@ -223,7 +223,6 @@ public class GameBoard {
             }
         }
         lastActionSnapshot.linesCleared = linesClearedCount;
-        return linesClearedCount > 0;
     }
 
     private void moveRowDown(int row, int writeRow) {
