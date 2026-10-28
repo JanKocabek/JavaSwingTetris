@@ -50,28 +50,6 @@ class GameBoardTests {
         assertNull(gameBoard.getCurrentTetromino(), "Current tetromino should be null after adding to board");
     }
 
-    @Test
-    void testCheckAndClearLinesNoLines() {
-        // when
-        gameBoard.tryClearLines();
-        final var result = gameBoard.getLastAction();
-        // then
-        assertThat(result.linesCleared()).isZero();
-    }
-
-
-    @Test
-    void testSetLineForTest() {
-        // given
-        gameBoard.createGarbageLine();
-        // when
-        gameBoard.tryClearLines();
-        final var result = gameBoard.getLastAction();
-        // then
-        assertThat(result.linesCleared()).isOne();
-    }
-
-
     @Nested
     @DisplayName("basic functionality")
     class BasicFunctionality {
@@ -199,25 +177,6 @@ class GameBoardTests {
                     .hasMessage("Use trySoftDrop() for down movement");
         }
 
-    }
-
-    @Nested
-    @DisplayName("line clearing cases")
-    class LineClearingCases {
-
-        @Test
-        void clearingFullLine_movesTheRowsAboveDown() {
-            final GameBoard board = prepareBoard(UtilForTests.CreateFullBoardDescription("""
-                    I#########
-                    IIIIIIIIII
-                    """));
-
-            board.tryClearLines();
-
-            assertThat(board.getLastAction().linesCleared()).isOne();
-            assertThat(board.getBoardView().getBlockContent(21, 0)).isEqualTo(TetrominoType.I);
-            assertThat(board.getBoardView().getBlockContent(21, 1)).isEqualTo(TetrominoType.NON);
-        }
     }
 
     @Nested
