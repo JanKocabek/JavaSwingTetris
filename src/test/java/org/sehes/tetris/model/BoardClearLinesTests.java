@@ -104,4 +104,27 @@ public class BoardClearLinesTests {
         assertThat(resultBuilder.toString()).hasToString(FINAL_GRID);
     }
 
+    @Test
+    void testThatClearingLinesDoesNotAffectThePieces() {
+        final var INIT_BOARD = "I#########\n".repeat(21) + "IIIIIIIIII";
+        final var FINAL_GRID = UtilForTests.CreateFullBoardDescription(
+                """
+                        ##########
+                        """ + "I#########\n".repeat(21));
+        final var gb = prepareBoard(UtilForTests.CreateFullBoardDescription(INIT_BOARD));
+        // Act
+        gb.tryClearLines();
+        final var boardView = gb.getBoardView();
+        final var resultBuilder = new StringBuilder();
+        for (int i = 0; i < boardView.getHeight(); i++) {
+            for (int j = 0; j < boardView.getWidth(); j++) {
+                var cell = boardView.getBlockContent(i, j);
+                resultBuilder.append(cell == TetrominoType.I ? "I" : "#");
+            }
+            resultBuilder.append("\n");
+        }
+        // Assert
+        assertThat(resultBuilder.toString()).hasToString(FINAL_GRID);
+    }
+
 }
