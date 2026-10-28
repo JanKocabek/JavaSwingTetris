@@ -431,8 +431,6 @@ public class GameBoard {
         final var posY = tetromino.getPositionY();
         return tetrominoPositionValidCheck(stateCord, posX, posY);
     }
-
-
     /**
      * Checks if the tetromino based on given coordinates and position(current or future) is in the boundaries and does not collide with any other pieces.
      *
@@ -443,21 +441,6 @@ public class GameBoard {
      */
     private boolean tetrominoPositionValidCheck(List<Coordinate> coordinates, int positionX, int positionY) {
         return isInTheBoundaries(coordinates, positionX, positionY) && isCollisionFree(coordinates, positionX, positionY);
-    }
-
-    /**
-     * REMOVE IT ASAP
-     * JUNIT TEST ONLY<br>
-     * This method sets a specific {@link TetrominoType} to a specific position on the game board.
-     * This method is used for testing purposes to fill the game board with {@link TetrominoType}s.
-     *
-     * @param row    the row of the block to be set
-     * @param column the column of the block to be set
-     * @param type   the {@link TetrominoType} to be set
-     */
-    @Deprecated
-    void fillBlockForTestOnly(final int row, final int column, final TetrominoType type) {
-        board[row][column] = type;
     }
 
     public ActionSnapshot.LastActionSnapshot getLastAction() {

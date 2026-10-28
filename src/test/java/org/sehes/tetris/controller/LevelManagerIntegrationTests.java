@@ -13,11 +13,11 @@ import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.GameBoard;
 import org.sehes.tetris.model.GameSnapshot;
 import org.sehes.tetris.model.TetrominoType;
-import org.sehes.tetris.model.UtilForTests;
 import org.sehes.tetris.model.level.LevelManager;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.ScoreEvent;
 import org.sehes.tetris.model.score.ScoreMessenger;
+import org.sehes.tetris.testUtil.UtilForTests;
 import org.sehes.tetris.view.Rendering;
 
 import java.util.concurrent.TimeUnit;

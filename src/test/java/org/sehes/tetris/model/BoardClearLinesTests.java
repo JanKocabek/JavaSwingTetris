@@ -1,9 +1,10 @@
 package org.sehes.tetris.model;
 
 import org.junit.jupiter.api.Test;
+import org.sehes.tetris.testUtil.UtilForTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sehes.tetris.model.UtilForTests.prepareBoard;
+import static org.sehes.tetris.testUtil.UtilForTests.prepareBoard;
 
 public class BoardClearLinesTests {
 

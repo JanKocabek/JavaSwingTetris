@@ -1,6 +1,7 @@
 package org.sehes.tetris.model;
 
 import org.junit.jupiter.api.Test;
+import org.sehes.tetris.testUtil.UtilForTests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

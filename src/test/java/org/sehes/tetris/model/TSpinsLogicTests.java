@@ -4,10 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.ScoreManager;
 import org.sehes.tetris.model.score.TSpin;
+import org.sehes.tetris.testUtil.UtilForTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sehes.tetris.model.TetrominoFixtures.*;
-import static org.sehes.tetris.model.UtilForTests.prepareBoard;
+import static org.sehes.tetris.model.MinoSpawn.*;
+import static org.sehes.tetris.testUtil.UtilForTests.prepareBoard;
 
 class TSpinsLogicTests {
 
@@ -165,7 +166,7 @@ class TSpinsLogicTests {
      * @param expectedTSpin       expected {@link TSpin} result (NONE, MINI, FULL)
      * @return {@link TSpinTestResult} containing the post-test game components for further custom assertions
      */
-    public static TSpinTestResult assertTSpin(String initialBoard, TetrominoFixtures.SpawnedTetromino spawnedTetromino, Orientation expectedOrientation, TSpin expectedTSpin) {
+    public static TSpinTestResult assertTSpin(String initialBoard, MinoSpawn.SpawnedTetromino spawnedTetromino, Orientation expectedOrientation, TSpin expectedTSpin) {
         return assertTSpin(new TSpinTestCase(initialBoard, spawnedTetromino, expectedOrientation, expectedTSpin, null, null, null));
     }
 

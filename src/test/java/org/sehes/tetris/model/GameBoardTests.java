@@ -7,14 +7,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.testUtil.UtilForTests;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sehes.tetris.model.TetrominoFixtures.spawn;
-import static org.sehes.tetris.model.UtilForTests.*;
+import static org.sehes.tetris.model.MinoSpawn.spawn;
+import static org.sehes.tetris.testUtil.UtilForTests.prepareBoard;
+import static org.sehes.tetris.testUtil.UtilForTests.printBoardState;
 
 class GameBoardTests {
 
@@ -394,7 +396,12 @@ class GameBoardTests {
         @Test
         void testWallKicks_T() {
             // given
-            prepareBoard(gameBoard);
+            gameBoard = prepareBoard(UtilForTests.CreateFullBoardDescription("""
+                    II##II####
+                    I###II####
+                    II##I#####
+                    IIIII#####
+                    """ + ("##########\n".repeat(15))));
             gameBoard.trySpawnTetromino(
                     TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(2, 4)));
 
@@ -407,8 +414,15 @@ class GameBoardTests {
         @Test
         void testWallKicks_T2() {
             //given
+            gameBoard = prepareBoard(UtilForTests.CreateFullBoardDescription("""
+                    II##II####
+                    I###II####
+                    I#III#####
+                    I##II#####
+                    I#III#####
+                    IIIII#####
+                    """ + ("##########\n".repeat(13))));
             gameBoard.trySpawnTetromino(TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(2, 4)));
-            prepareBoard2T(gameBoard);
             final var t = gameBoard.getCurrentTetromino();
             final var basePos = new Coordinate(t.getPositionX(), t.getPositionY());
             //when
@@ -435,7 +449,12 @@ class GameBoardTests {
         @Test
         void testWallKicks_L() {
             //given
-            prepareBoard(gameBoard);
+            gameBoard = prepareBoard(UtilForTests.CreateFullBoardDescription("""
+                    II##II####
+                    I###II####
+                    II##I#####
+                    IIIII#####
+                    """ + ("##########\n".repeat(15))));
             gameBoard.trySpawnTetromino(TetrominoFactory.spawnTetromino(TetrominoType.L, new Coordinate(2, 4)));
             final var t = gameBoard.getCurrentTetromino();
             final var basePos = new Coordinate(t.getPositionX(), t.getPositionY());
