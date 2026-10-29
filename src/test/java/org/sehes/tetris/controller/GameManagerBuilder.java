@@ -9,6 +9,7 @@ import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.level.LevelManager;
 import org.sehes.tetris.model.score.ScoreEvent;
 import org.sehes.tetris.model.score.ScoreMessenger;
+import org.sehes.tetris.testUtil.SpecificPieceGenerator;
 import org.sehes.tetris.view.Rendering;
 
 import java.util.function.Supplier;
@@ -17,7 +18,7 @@ class GameManagerBuilder {
 
     private StateManager<GameState> stateManager = new GameStateManager(GameState.PREPARED);
     private ScoreMessenger scoreMessenger = new ScoreMessenger();
-    private PieceGenerator generator = new BasicPieceGenerator(TetrominoType.I);
+    private PieceGenerator generator = new SpecificPieceGenerator(TetrominoType.I);
     private GameLoop loop = new dummyGameLoop();
     private Rendering render = snapshot -> {
     };
@@ -40,7 +41,7 @@ class GameManagerBuilder {
     }
 
     GameManagerBuilder setGenerator(TetrominoType minoType) {
-        this.generator = new BasicPieceGenerator(minoType);
+        this.generator = new SpecificPieceGenerator(minoType);
         return this;
     }
 
@@ -111,24 +112,6 @@ class GameManagerBuilder {
         @Override
         public Observable<Integer> fpsObservable() {
             return null;
-        }
-    }
-
-    private record BasicPieceGenerator(TetrominoType minoType) implements PieceGenerator {
-
-        @Override
-        public TetrominoType peekNext() {
-            return minoType;
-        }
-
-        @Override
-        public TetrominoType getNextPiece() {
-            return minoType;
-        }
-
-        @Override
-        public void startNewMinoQueue() {
-            // do nothing
         }
     }
 

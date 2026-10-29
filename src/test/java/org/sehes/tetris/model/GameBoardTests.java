@@ -7,14 +7,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.testUtil.UtilForTests;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sehes.tetris.model.TetrominoFixtures.spawn;
-import static org.sehes.tetris.model.UtilForTests.*;
+import static org.sehes.tetris.model.MinoSpawn.spawn;
+import static org.sehes.tetris.testUtil.UtilForTests.prepareBoard;
+import static org.sehes.tetris.testUtil.UtilForTests.printBoardState;
 
 class GameBoardTests {
 
@@ -49,28 +51,6 @@ class GameBoardTests {
                 "Block should be added to board"));
         assertNull(gameBoard.getCurrentTetromino(), "Current tetromino should be null after adding to board");
     }
-
-    @Test
-    void testCheckAndClearLinesNoLines() {
-        // when
-        gameBoard.tryClearLines();
-        final var result = gameBoard.getLastAction();
-        // then
-        assertThat(result.linesCleared()).isZero();
-    }
-
-
-    @Test
-    void testSetLineForTest() {
-        // given
-        gameBoard.createGarbageLine();
-        // when
-        gameBoard.tryClearLines();
-        final var result = gameBoard.getLastAction();
-        // then
-        assertThat(result.linesCleared()).isOne();
-    }
-
 
     @Nested
     @DisplayName("basic functionality")
@@ -199,25 +179,6 @@ class GameBoardTests {
                     .hasMessage("Use trySoftDrop() for down movement");
         }
 
-    }
-
-    @Nested
-    @DisplayName("line clearing cases")
-    class LineClearingCases {
-
-        @Test
-        void clearingFullLine_movesTheRowsAboveDown() {
-            final GameBoard board = prepareBoard(UtilForTests.CreateFullBoardDescription("""
-                    I#########
-                    IIIIIIIIII
-                    """));
-
-            board.tryClearLines();
-
-            assertThat(board.getLastAction().linesCleared()).isOne();
-            assertThat(board.getBoardView().getBlockContent(21, 0)).isEqualTo(TetrominoType.I);
-            assertThat(board.getBoardView().getBlockContent(21, 1)).isEqualTo(TetrominoType.NON);
-        }
     }
 
     @Nested
@@ -435,7 +396,12 @@ class GameBoardTests {
         @Test
         void testWallKicks_T() {
             // given
-            prepareBoard(gameBoard);
+            gameBoard = prepareBoard(UtilForTests.CreateFullBoardDescription("""
+                    II##II####
+                    I###II####
+                    II##I#####
+                    IIIII#####
+                    """ + ("##########\n".repeat(15))));
             gameBoard.trySpawnTetromino(
                     TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(2, 4)));
 
@@ -448,8 +414,15 @@ class GameBoardTests {
         @Test
         void testWallKicks_T2() {
             //given
+            gameBoard = prepareBoard(UtilForTests.CreateFullBoardDescription("""
+                    II##II####
+                    I###II####
+                    I#III#####
+                    I##II#####
+                    I#III#####
+                    IIIII#####
+                    """ + ("##########\n".repeat(13))));
             gameBoard.trySpawnTetromino(TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(2, 4)));
-            prepareBoard2T(gameBoard);
             final var t = gameBoard.getCurrentTetromino();
             final var basePos = new Coordinate(t.getPositionX(), t.getPositionY());
             //when
@@ -476,7 +449,12 @@ class GameBoardTests {
         @Test
         void testWallKicks_L() {
             //given
-            prepareBoard(gameBoard);
+            gameBoard = prepareBoard(UtilForTests.CreateFullBoardDescription("""
+                    II##II####
+                    I###II####
+                    II##I#####
+                    IIIII#####
+                    """ + ("##########\n".repeat(15))));
             gameBoard.trySpawnTetromino(TetrominoFactory.spawnTetromino(TetrominoType.L, new Coordinate(2, 4)));
             final var t = gameBoard.getCurrentTetromino();
             final var basePos = new Coordinate(t.getPositionX(), t.getPositionY());

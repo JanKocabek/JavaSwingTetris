@@ -23,9 +23,9 @@ package org.sehes.tetris.model;
  * gameBoard.trySpawnTetromino(iBar.t());
  * }</pre>
  */
-public final class TetrominoFixtures {
+public final class MinoSpawn {
 
-    private TetrominoFixtures() {
+    private MinoSpawn() {
         // utility class, not instantiable
     }
 

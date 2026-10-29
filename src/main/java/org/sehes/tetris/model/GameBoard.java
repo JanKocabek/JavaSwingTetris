@@ -211,18 +211,25 @@ public class GameBoard {
      * EMPTY and shifts all rows above it down by one.
      * The method doesn't return anything but set number of cleared lines into {@link ActionSnapshot.LastActionSnapshot}
      */
-    public boolean tryClearLines() {
+    public void tryClearLines() {
         int linesClearedCount = 0;
-        for (int row = 0; row < board.length; row++) {
-            if (isLineFull(board[row])) {
-                shiftLinesDown(row);
-                linesClearedCount++;
-                row--;// todo: in future make the counting of line and clearing of lines separated to
-                // prevent this
+        int writeRow = board.length - 1;
+        for (int row = board.length - 1; row >= 0; row--) {
+            if (!isLineFull(board[row])) {
+                moveRowDown(row, writeRow);
+                writeRow--;
+            } else {
+                    linesClearedCount++;
             }
         }
         lastActionSnapshot.linesCleared = linesClearedCount;
-        return linesClearedCount > 0;
+    }
+
+    private void moveRowDown(int row, int writeRow) {
+        if(row != writeRow) {
+            System.arraycopy(board[row], 0, board[writeRow], 0, board[row].length);
+            Arrays.fill(board[row], TetrominoType.NON);
+        }
     }
 
     private int checkCornersAroundT(int[][] offset) {
@@ -265,9 +272,7 @@ public class GameBoard {
 
     private boolean isLineFull(final TetrominoType[] boardRow) {
         for (final var cell : boardRow) {
-            if (cell == TetrominoType.NON) {
-                return false;
-            }
+            if (cell == TetrominoType.NON) return false;
         }
         return true;
     }
@@ -400,19 +405,6 @@ public class GameBoard {
     }
 
     /**
-     *
-     */
-    private void shiftLinesDown(final int currentRow) {
-        if (currentRow == 0) {
-            return;
-        }
-        for (int cr = currentRow; cr > 0; cr--) {
-            System.arraycopy(board[cr - 1], 0, board[cr], 0, board[cr].length);
-        }
-        Arrays.fill(board[0], TetrominoType.NON);
-    }
-
-    /**
      * this method set the current tetromino to the specific tetromino
      *
      * @param tetromino the tetromino you need to spawn
@@ -439,8 +431,6 @@ public class GameBoard {
         final var posY = tetromino.getPositionY();
         return tetrominoPositionValidCheck(stateCord, posX, posY);
     }
-
-
     /**
      * Checks if the tetromino based on given coordinates and position(current or future) is in the boundaries and does not collide with any other pieces.
      *
@@ -451,29 +441,6 @@ public class GameBoard {
      */
     private boolean tetrominoPositionValidCheck(List<Coordinate> coordinates, int positionX, int positionY) {
         return isInTheBoundaries(coordinates, positionX, positionY) && isCollisionFree(coordinates, positionX, positionY);
-    }
-
-
-    void createGarbageLine() {
-        int lastLine = board.length - 1;
-        Arrays.fill(board[lastLine], TetrominoType.L);
-    }
-
-
-    //replace this in the near future
-
-    /**
-     * JUNIT TEST ONLY<br>
-     * This method sets a specific {@link TetrominoType} to a specific position on the game board.
-     * This method is used for testing purposes to fill the game board with {@link TetrominoType}s.
-     *
-     * @param row    the row of the block to be set
-     * @param column the column of the block to be set
-     * @param type   the {@link TetrominoType} to be set
-     */
-    @Deprecated
-    void fillBlockForTestOnly(final int row, final int column, final TetrominoType type) {
-        board[row][column] = type;
     }
 
     public ActionSnapshot.LastActionSnapshot getLastAction() {
