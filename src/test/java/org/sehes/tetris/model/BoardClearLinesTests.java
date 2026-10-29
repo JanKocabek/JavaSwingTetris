@@ -1,5 +1,6 @@
 package org.sehes.tetris.model;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.sehes.tetris.testUtil.UtilForTests;
 
@@ -28,9 +29,14 @@ public class BoardClearLinesTests {
                 """));
         // when
         gb.tryClearLines();
-        final var result = gb.getLastAction().linesCleared();
+        final var linesClear = gb.getLastAction().linesCleared();
+        final var resultBoard = buildResultBoard(gb);
+        final var EXPECTED_BOARD=UtilForTests.CreateFullBoardDescription("""
+                I#########
+                """);
         // then
-        assertThat(result).isOne();
+        assertThat(linesClear).isOne();
+        assertThat(resultBoard).isEqualTo(EXPECTED_BOARD);
     }
 
     @Test
@@ -92,17 +98,9 @@ public class BoardClearLinesTests {
         final var gb = prepareBoard(UtilForTests.CreateFullBoardDescription(INIT_BOARD));
         // Act
         gb.tryClearLines();
-        final var boardView = gb.getBoardView();
-        final var resultBuilder = new StringBuilder();
-        for (int i = 0; i < boardView.getHeight(); i++) {
-            for (int j = 0; j < boardView.getWidth(); j++) {
-                var cell = boardView.getBlockContent(i, j);
-                resultBuilder.append(cell == TetrominoType.I ? "I" : "#");
-            }
-            resultBuilder.append("\n");
-        }
+        final var resultBoard = buildResultBoard(gb);
         // Assert
-        assertThat(resultBuilder.toString()).hasToString(FINAL_GRID);
+        assertThat(resultBoard).hasToString(FINAL_GRID);
     }
 
     @Test
@@ -115,6 +113,12 @@ public class BoardClearLinesTests {
         final var gb = prepareBoard(UtilForTests.CreateFullBoardDescription(INIT_BOARD));
         // Act
         gb.tryClearLines();
+        final var resultBoard = buildResultBoard(gb);
+        // Assert
+        assertThat(resultBoard).isEqualTo(FINAL_GRID);
+    }
+
+    private @NonNull String buildResultBoard(GameBoard gb) {
         final var boardView = gb.getBoardView();
         final var resultBuilder = new StringBuilder();
         for (int i = 0; i < boardView.getHeight(); i++) {
@@ -124,8 +128,7 @@ public class BoardClearLinesTests {
             }
             resultBuilder.append("\n");
         }
-        // Assert
-        assertThat(resultBuilder.toString()).hasToString(FINAL_GRID);
+        return resultBuilder.toString();
     }
 
 }
