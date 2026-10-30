@@ -1,7 +1,7 @@
 package org.sehes.tetris.model;
 
 /**
- * The DirectionFlag enum defines the possible movement and rotation directions for the Tetromino pieces in the Tetris game. Each enum constant represents a specific direction (DOWN, LEFT, RIGHT) or rotation (ROTATE_R for clockwise, ROTATE_L for counterclockwise) and is associated with a change in the x and y coordinates that can be used to calculate the new position of a Tetromino when it is moved or rotated. This enum provides a clear and organized way to represent the different actions that can be performed on the Tetromino pieces during gameplay.
+ * The DirectionFlag enum defines the possible movement and rotation directions for the Tetromino pieces in the Tetris game. Each enum constant represents a specific direction (DOWN, LEFT, RIGHT) and is associated with a change in the x and y coordinates that can be used to calculate the new position of a Tetromino when it is moved. This enum provides a clear and organized way to represent the different actions that can be performed on the Tetromino pieces during gameplay.
  */
 
 public enum DirectionFlag {
