@@ -1,6 +1,8 @@
 package org.sehes.tetris.model;
 
 import org.junit.jupiter.api.Test;
+import org.sehes.tetris.model.generator.PieceGenerator;
+import org.sehes.tetris.model.generator.RandomPieceGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

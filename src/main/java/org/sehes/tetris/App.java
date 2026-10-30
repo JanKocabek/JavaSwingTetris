@@ -8,7 +8,11 @@ import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.controller.GameStateManager;
 import org.sehes.tetris.controller.SwingTimerGameLoop;
 import org.sehes.tetris.controller.input.*;
-import org.sehes.tetris.model.*;
+import org.sehes.tetris.model.GameBoard;
+import org.sehes.tetris.model.GameSnapshot;
+import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.model.generator.PieceGenerator;
+import org.sehes.tetris.model.generator.SevenBagGenerator;
 import org.sehes.tetris.model.level.LevelManager;
 import org.sehes.tetris.model.score.ScoreManager;
 import org.sehes.tetris.model.score.ScoreMessenger;
@@ -29,20 +33,21 @@ public class App {
     private final InputMapper inputMapper = new InputMapper(KeyMap.createDefault());
     private final ScoreManager scoreManager = new ScoreManager();
     private final ScoreMessenger scoreMessenger = new ScoreMessenger();
-    private final PieceGenerator randomPieceGenerator = new RandomPieceGenerator();
+    private final PieceGenerator pieceGenerator = new SevenBagGenerator();
     private final GameLoop gameLoop = new SwingTimerGameLoop();
     private final RenderingHints qualityRenderingHints = RenderingHintsFactory.qualityRenderingHints();
     private final AssetsManager assetsManager = new AssetsManager(qualityRenderingHints);
     private final Painter<GameSnapshot> tetrisPainter = new TetrisDrawingHandler(qualityRenderingHints, assetsManager);
     private final Painter<TetrominoType> previewPainter = new PreviewDrawingHandler(qualityRenderingHints, assetsManager);
     private final LevelManager levelManager = new LevelManager();
+
     public App() {
 
     }
 
     public void run() {
         final var gui = GuiFactory.assembly(tetrisPainter, previewPainter);
-        final GameManager gameManager = new GameManager(stateManager, scoreMessenger, randomPieceGenerator, gameLoop, gui.canvas(),levelManager, GameBoard::new);
+        final GameManager gameManager = new GameManager(stateManager, scoreMessenger, pieceGenerator, gameLoop, gui.canvas(), levelManager, GameBoard::new);
         final InputRouter inputReceiver = new InputRouterImpl(inputMapper, gameManager, gui.exitAction());
         final KeyAdapter tetrisKeyAdapter = new TetrisKeyAdapter(inputReceiver);
         GuiFactory.addKeyListener(tetrisKeyAdapter, gui);

@@ -1,9 +1,9 @@
 package org.sehes.tetris.testUtil;
 
-import org.sehes.tetris.model.PieceGenerator;
 import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.model.generator.PieceGenerator;
 
-    public record SpecificPieceGenerator(TetrominoType minoType) implements PieceGenerator {
+public record SpecificPieceGenerator(TetrominoType minoType) implements PieceGenerator {
 
         @Override
         public TetrominoType peekNext() {
@@ -16,7 +16,7 @@ import org.sehes.tetris.model.TetrominoType;
         }
 
         @Override
-        public void startNewMinoQueue() {
+        public void startNewQueue() {
             // do nothing
         }
     }

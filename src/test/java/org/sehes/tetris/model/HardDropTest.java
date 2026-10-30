@@ -3,6 +3,8 @@ package org.sehes.tetris.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.model.generator.PieceGenerator;
+import org.sehes.tetris.model.generator.RandomPieceGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
