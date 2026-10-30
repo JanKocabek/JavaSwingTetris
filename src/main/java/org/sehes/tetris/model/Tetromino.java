@@ -4,12 +4,9 @@ import java.util.List;
 
 /**
  * The Tetromino class represents the individual Tetris pieces in the game. Each
- * Tetromino has a specific shape defined by a 2D boolean grid, a color for
+ * Tetromino has a specific shape defined by a List of coordinates, a color for
  * rendering, and a position on the game board. The class provides methods for
- * moving and rotating the Tetromino, as well as a factory method for generating
- * random Tetromino pieces. The inner enum TETROMINO_TYPE defines the seven
- * standard Tetris pieces (I, J, L, O, S, T, Z), each with its own shape and
- * color. The Tetromino class interacts with the GameBoard to manage the current
+ * moving and rotating the Tetromino. The Tetromino class interacts with the GameBoard to manage the current
  * piece's state and position during gameplay.
  * <p>
  * tetromino is defined by list of points where y is row and x is column
@@ -31,7 +28,6 @@ import java.util.List;
  *
  */
 public class Tetromino {
-
 
     private final TetrominoType type;
     /**
@@ -77,11 +73,9 @@ public class Tetromino {
         return type;
     }
 
-
     public List<Coordinate> getStateCord() {
         return stateCoordination;
     }
-
 
     /**
      * Returns the X (column) coordinate of the tetromino's position.
@@ -108,7 +102,6 @@ public class Tetromino {
         positionX += flag.getX();
         positionY += flag.getY();
     }
-
 
     /**
      * Sets the state of the Tetromino to the specified coordinates and orientation.
