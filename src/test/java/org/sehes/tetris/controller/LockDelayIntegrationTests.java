@@ -12,10 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.input.InputAction;
-import org.sehes.tetris.model.GameSnapshot;
-import org.sehes.tetris.model.PieceGenerator;
-import org.sehes.tetris.model.TetrominoFactory;
-import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.model.*;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.ScoreEvent;
 import org.sehes.tetris.view.Rendering;
@@ -65,7 +62,7 @@ class LockDelayIntegrationTests {
     void shouldStartLockDelayWhenGroundIsReachedMoving() {
         //act
         moveToBottom();
-        final var numberOfRun = GameParameters.ROWS - GameParameters.SPAWN_POINT.y();
+        final var numberOfRun = GameParameters.ROWS - GameBoard.SPAWN_POINT.y();
         verify(rendering, times(numberOfRun)).render(gameSnapshotCaptor.capture());
         final var gameSnapshotList = gameSnapshotCaptor.getAllValues();
         final var firstMino = gameSnapshotList.getFirst().currentTetromino().orElseGet(() -> fail("Tetromino should not be empty"));
@@ -172,8 +169,8 @@ class LockDelayIntegrationTests {
     void resetLockDelayWhenMoveFromOneDepthToLower() {
         //arrange
         final var firstPiece = pieceGenerator.peekNext();
-        final var pieceData = TetrominoFactory.spawnTetromino(firstPiece, GameParameters.SPAWN_POINT);
-        final var spawnY = GameParameters.SPAWN_POINT.y();
+        final var pieceData = TetrominoFactory.spawnTetromino(firstPiece, GameBoard.SPAWN_POINT);
+        final var spawnY = GameBoard.SPAWN_POINT.y();
         final var rowTakesAfterDrop = pieceData.getStateCord().stream().filter(cell -> cell.x() == 0).count();
         //act
         gameManager.handleInput(InputAction.HARD_DROP);//2 FRAME
@@ -206,7 +203,7 @@ class LockDelayIntegrationTests {
     void should16MoveStopResettingTheTimer() {
         //arrange
         final var TO_SEC = 1000;
-        final var framesToBottom = GameParameters.ROWS - GameParameters.SPAWN_POINT.y();
+        final var framesToBottom = GameParameters.ROWS - GameBoard.SPAWN_POINT.y();
         var moves = 15;
         //act
         moveToBottom();
@@ -263,7 +260,7 @@ class LockDelayIntegrationTests {
         final var lastSnapshot = gameSnapshotList.getLast();
         //assert
         assertThat(lastSnapshot.currentTetromino()).isPresent();
-        assertThat(lastSnapshot.currentTetromino().get().getPositionY()).isEqualTo(GameParameters.SPAWN_POINT.y());
+        assertThat(lastSnapshot.currentTetromino().get().getPositionY()).isEqualTo(GameBoard.SPAWN_POINT.y());
         assertThat(lastSnapshot.lockTime()).isNull();
     }
 
@@ -292,7 +289,7 @@ class LockDelayIntegrationTests {
     }
 
     private void moveToBottom() {
-        for (int i = GameParameters.SPAWN_POINT.y(); i < GameParameters.ROWS; i++) {
+        for (int i = GameBoard.SPAWN_POINT.y(); i < GameParameters.ROWS; i++) {
             gameManager.handleInput(InputAction.MOVE_DOWN);
         }
     }
