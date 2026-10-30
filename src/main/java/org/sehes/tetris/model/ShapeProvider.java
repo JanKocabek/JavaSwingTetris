@@ -17,7 +17,11 @@ public class ShapeProvider {
             tetrominoStates.put(type, new EnumMap<>(Orientation.class));
         }
 
-        final List<Coordinate> shapeO = List.of(new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(0, -1));
+        final List<Coordinate> shapeO = List.of(
+                new Coordinate(1, -1),
+                new Coordinate(1, 0),
+                new Coordinate(0, 0),
+                new Coordinate(0, -1));
         for (Orientation o : Orientation.values()) {
             tetrominoStates.get(TetrominoType.O).put(o, shapeO);
         }
