@@ -37,12 +37,17 @@ class SevenBagGeneratorTests {
     void shouldRefillBagWhenBagIsEmpty() {
         //arrange
         final var bag = new ArrayList<TetrominoType>();
+        final var bag2=new ArrayList<TetrominoType>();
         //act
-        for (int i = 0; i < 14; i++) {
+        for (int i = 0; i < 7; i++) {
             bag.add(generator.getNextPiece());
         }
+        for (int i = 0; i < 7; i++) {
+            bag2.add(generator.getNextPiece());
+        }
         //assert
-        assertThat(bag).hasSize(14);
+        assertThat(bag).hasSize(7).containsExactlyInAnyOrder(ALL_MINOS);
+        assertThat(bag2).hasSize(7).containsExactlyInAnyOrder(ALL_MINOS);
     }
 
     @Test
