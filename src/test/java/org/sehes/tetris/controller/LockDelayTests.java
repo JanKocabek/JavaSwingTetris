@@ -3,8 +3,8 @@ package org.sehes.tetris.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.model.Coordinate;
+import org.sehes.tetris.model.GameBoard;
 import org.sehes.tetris.model.TetrominoFactory;
 import org.sehes.tetris.model.TetrominoType;
 
@@ -20,7 +20,7 @@ class LockDelayTests {
     void setUp() {
         //Arrange
         lockDelay = new LockDelay();
-        lockDelay.setFor(TetrominoFactory.spawnTetromino(TetrominoType.T, GameParameters.SPAWN_POINT));
+        lockDelay.setFor(TetrominoFactory.spawnTetromino(TetrominoType.T, GameBoard.SPAWN_POINT));
     }
 
     @Test

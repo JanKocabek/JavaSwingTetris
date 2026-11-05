@@ -6,6 +6,7 @@ import org.sehes.tetris.common.event.ObservableImpl;
 import org.sehes.tetris.common.event.Observer;
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.*;
+import org.sehes.tetris.model.generator.PieceGenerator;
 import org.sehes.tetris.model.level.LevelManager;
 import org.sehes.tetris.model.score.*;
 import org.sehes.tetris.view.Rendering;
@@ -301,7 +302,7 @@ public class GameManager implements InputHandler {
         levelManager.set();
         setAndNotifyHoldMino(null);
         gameBoard = gameBoardSupplier.get();
-        generator.startNewMinoQueue();
+        generator.startNewQueue();
         //TODO: unlock this when tehre will be implemented time delay to show first piece before game start
         // spawnObservable.notify(generator.peekNext());
         trySpawnNewTetromino();

@@ -3,6 +3,8 @@ package org.sehes.tetris.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.model.generator.PieceGenerator;
+import org.sehes.tetris.model.generator.RandomPieceGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,7 +27,7 @@ class HardDropTest {
      *   <li>Total board rows: {@link GameParameters#ROWS} = 22</li>
      *   <li>Visible rows: {@link GameParameters#VISIBLE_ROWS} = 20</li>
      *   <li>Hidden rows: {@link GameParameters#HIDDEN_ROWS} = ROWS - VISIBLE_ROWS = 2</li>
-     *   <li>Spawn point: {@link GameParameters#SPAWN_POINT} = (x:4, y:1)</li>
+     *   <li>Spawn point: {@link GameBoard#SPAWN_POINT} = (x:4, y:1)</li>
      * </ul>
      * The tetromino spawns at y=1 (in the hidden rows, second row from top). After hard drop,
      * it should land at position y = VISIBLE_ROWS + initialY = 20 + 1 = 21, meaning it drops
@@ -52,7 +54,7 @@ class HardDropTest {
     @Test
     void hardDropOnOtherMinoTest() {
         //arrange
-        gameBoard.trySpawnTetromino(new Tetromino(TetrominoType.T, GameParameters.SPAWN_POINT));
+        gameBoard.trySpawnTetromino(new Tetromino(TetrominoType.T, GameBoard.SPAWN_POINT));
         gameBoard.tryHardDrop();
         gameBoard.lockTetrominoInPlace();
         gameBoard.trySetNewTetromino(generator.getNextPiece());

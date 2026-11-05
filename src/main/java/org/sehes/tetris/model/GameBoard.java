@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class GameBoard {
 
+    public static final Coordinate SPAWN_POINT = new Coordinate(GameParameters.COLUMNS / 2 - 1, 1);//the point where new tetromino spawns, it is in the middle of the top row of the game board
     private static final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
     private final TetrominoType[][] board;
     private final BoardView boardView;
@@ -81,8 +82,7 @@ public class GameBoard {
     }
 
     public boolean trySetNewTetromino(TetrominoType type) {
-        final Coordinate startingPosition = GameParameters.SPAWN_POINT;
-        return trySpawnTetromino((TetrominoFactory.spawnTetromino(type, startingPosition)));
+        return trySpawnTetromino((TetrominoFactory.spawnTetromino(type, SPAWN_POINT)));
     }
 
     public boolean tryMovePiece(final DirectionFlag flag) {

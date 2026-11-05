@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.model.generator.PieceGenerator;
+import org.sehes.tetris.model.generator.RandomPieceGenerator;
 import org.sehes.tetris.testUtil.UtilForTests;
 
 import java.util.List;

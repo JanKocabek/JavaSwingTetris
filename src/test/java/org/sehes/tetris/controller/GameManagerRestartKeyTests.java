@@ -7,8 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sehes.tetris.common.GameState;
 import org.sehes.tetris.controller.input.InputAction;
-import org.sehes.tetris.model.PieceGenerator;
 import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.model.generator.PieceGenerator;
 import org.sehes.tetris.model.score.ScoreInfoDTO;
 import org.sehes.tetris.model.score.ScoreManager;
 
@@ -50,7 +50,7 @@ class GameManagerRestartKeyTests {
         //act
         gameManager.handleInput(InputAction.RESTART);
         //assert
-        verify(generator, times(2)).startNewMinoQueue();
+        verify(generator, times(2)).startNewQueue();
         verify(generator, times(2)).getNextPiece();
         verify(gameLoop, times(1)).start();
         verify(gameLoop, times(1)).restart();

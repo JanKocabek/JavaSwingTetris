@@ -3,8 +3,8 @@ package org.sehes.tetris.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.input.InputAction;
+import org.sehes.tetris.model.GameBoard;
 import org.sehes.tetris.model.GameSnapshot;
 
 import java.util.concurrent.TimeUnit;
@@ -30,7 +30,7 @@ class SpawnMinoTests {
     void holdShouldResetGravityAccumulator() {
         // Arrange: Start the game (level 1 gravity interval = 1000ms)
 
-        final int spawnY = GameParameters.SPAWN_POINT.y();
+        final int spawnY = GameBoard.SPAWN_POINT.y();
 
         accumulateAndPutHold(900);
 
@@ -66,7 +66,7 @@ class SpawnMinoTests {
         gameManager.handleInput(InputAction.HOLD);
         gameManager.handleInput(InputAction.HARD_DROP);
         // Act 2: Spawn a piece and hold it
-        final int spawnY = GameParameters.SPAWN_POINT.y();
+        final int spawnY = GameBoard.SPAWN_POINT.y();
         accumulateAndPutHold(900);
         // Act 3: Tick another 200ms
         // If gravity timer was reset on spawn, only 200ms elapsed -> piece stays at spawn.
