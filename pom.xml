@@ -64,7 +64,7 @@
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
-                <version>1.30.1</version>
+                <version>1.30.2</version>
                 <dependencies>
                     <!-- Source: https://mvnrepository.com/artifact/org.pitest/pitest-junit5-plugin -->
                     <dependency>
